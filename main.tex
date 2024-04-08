@@ -1,0 +1,222 @@
+% Suggested LaTeX style template for Masters project report submitted at the
+% Department of Computer Science and Technology
+%
+% Markus Kuhn, May 2022
+% (borrowing elements from an earlier template by Steven Hand)
+
+\documentclass[12pt,a4paper,twoside]{report}
+% append option ",openright" after "twoside" if you prefer each chapter
+% to start on a recto (odd-numbered) page in a double-sided printout
+
+\usepackage[pdfborder={0 0 0}]{hyperref}  % turns references into hyperlinks
+\usepackage[vmargin=20mm,hmargin=25mm]{geometry}  % adjust page margins
+\usepackage{graphicx} % allows inclusion of PDF, PNG and JPG images
+\usepackage{parskip}  % separate paragraphs with vertical space
+                      % instead of indenting their first line
+\usepackage{setspace} % for \onehalfspacing
+\usepackage{refcount} % for counting pages
+\usepackage{upquote}  % for correct quotation marks in verbatim text
+\usepackage{verbatim}
+\usepackage{docmute}   % only needed to allow inclusion of proposal.tex
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+\usepackage{changepage}
+\usepackage{url}
+\usepackage{blindtext}
+\usepackage{color}
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{tabularx}
+\usepackage{bm}
+\usepackage{subfiles}
+\usepackage{tikz}
+\usepackage[edges]{forest}
+\usepackage[font=small]{caption}
+\usepackage{lscape}
+\usepackage{xcolor}
+\usepackage{tablefootnote}
+\usepackage{tcolorbox}
+\usepackage{dirtree}
+\usepackage{hyperref}
+\usepackage{listings}
+\lstset{
+  basicstyle=\fontfamily{cmtt}\selectfont,
+  keywordstyle=\bfseries,
+  mathescape,
+  morecomment=[l][\color{gray}]{\#},
+}
+% \usepackage{algpseudocode}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}   
+\usepackage{algorithmic}
+\newif\ifsubmission % Boolean flag for distinguishing submitted/final version
+
+% Change the following lines to your own project title, name, college, course
+\title{Ain't Nobody Got Time For That: Budget-aware Concept Intervention Policies}
+\author{Thomas Yuan}
+\date{May 2024}
+\newcommand{\candidatenumber}{1234N}
+\newcommand{\college}{Downing College}
+\newcommand{\course}{Computer Science Tripos, Part III}
+%\newcommand{\course}{Master of Philosophy in Advanced Computer Science}
+
+% Select which version this is:
+% For the (anonymous) submission (without your name or acknowledgements)
+% uncomment the following line (or let the makefile do this for you)
+%\submissiontrue
+% For the final version (with your name) leave the above commented.
+
+\begin{document}
+
+\begin{sffamily} % use a sans-serif font for the pro-forma cover sheet
+
+\begin{titlepage}
+\makeatletter
+
+% University logo with shield hanging in left margin
+\hspace*{-14mm}\includegraphics[width=65mm]{logo-dcst-colour}
+
+\ifsubmission
+
+% submission proforma cover page for blind marking
+\begin{Large}
+\vspace{20mm}
+Research project report title page
+
+\vspace{35mm}
+Candidate \candidatenumber
+
+\vspace{42mm}
+\textsl{``\@title''}
+
+\end{Large}
+
+\else
+
+% regular cover page
+\begin{center}
+\Huge
+\vspace{\fill}
+
+\@title
+\vspace{\fill}
+
+\@author
+\vspace{10mm}
+
+\Large
+\college
+\vspace{\fill}
+
+\@date
+\vspace{\fill}
+
+\end{center}
+
+\fi
+
+\vspace{\fill}
+\begin{center}
+Submitted in partial fulfillment of the requirements for the\\
+\course
+\end{center}
+
+\makeatother
+\end{titlepage}
+
+\newpage
+
+Total page count: \pageref{lastpage}
+
+% calculate number of pages from
+% \label{firstcontentpage} to \label{lastcontentpage} inclusive
+\makeatletter
+\@tempcnta=\getpagerefnumber{lastcontentpage}\relax%
+\advance\@tempcnta by -\getpagerefnumber{firstcontentpage}%
+\advance\@tempcnta by 1%
+\xdef\contentpages{\the\@tempcnta}%
+\makeatother
+
+Main chapters (excluding front-matter, references and appendix):
+\contentpages~pages
+(pp~\pageref{firstcontentpage}--\pageref{lastcontentpage})
+
+Main chapters word count: 467
+
+Methodology used to generate that word count:
+
+\begin{quote}
+\begin{verbatim}
+$ make wordcount
+gs -q -dSAFER -sDEVICE=txtwrite -o - \
+   -dFirstPage=6 -dLastPage=11 report-submission.pdf | \
+egrep '[A-Za-z]{3}' | wc -w
+467
+\end{verbatim}
+\end{quote}
+
+
+\end{sffamily}
+
+\vspace{\fill}
+\onehalfspacing
+\ifsubmission\else\makeatletter
+\textbf{\Huge Declaration}
+\vspace{40pt}
+
+I, \@author\ of \college, being a candidate for the \course, hereby
+declare that this report and the work described in it are my own work,
+unaided except as may be specified below, and that the report does not
+contain material that has already been used to any substantial extent
+for a comparable purpose.
+
+% Add here things like: Figure X is the work of Y, etc.
+
+\bigskip 
+\textbf{Signed: Thomas Yuan}
+
+\bigskip
+\textbf{Date: \today}
+\vspace{\fill}
+\makeatother\fi
+
+\chapter*{Abstract}
+
+Write a summary of the whole thing. Make sure it fits on one page.
+
+\ifsubmission\else
+% not included in submission for blind marking:
+
+\chapter*{Acknowledgements}
+
+This project would not have been possible without the wonderful
+support of \ldots [optional]
+
+\fi
+\cleardoublepage % preserve page numbers after missing acknowledgements
+
+\tableofcontents
+\listoffigures
+%\listoftables
+
+
+\pagestyle{headings}
+\subfile{chapters/introduction.tex}
+\subfile{chapters/background.tex}
+\subfile{chapters/related_work.tex}
+\subfile{chapters/implementation.tex}
+\subfile{chapters/evaluation.tex}
+\subfile{chapters/conclusion.tex}
+\label{lastcontentpage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% the bibliography
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{refs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% the appendices
+\subfile{chapters/appendix.tex}
+
+\label{lastpage}
+\end{document}
