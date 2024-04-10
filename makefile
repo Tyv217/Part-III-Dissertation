@@ -53,7 +53,9 @@ count:
 # detex main.tex | tr -cd '0-9A-Za-z \n' | wc -w
 	texcount main.tex
 
-all: proposal.pdf main.pdf
+all: proposal.pdf main.pdf clean
+
+allclean: proposal.pdf main.pdf clean
 
 pub: main.pdf
 	rsync -t $+ $(HOME)/public_html/demodiss.pdf
@@ -64,4 +66,4 @@ clean:
 	rm -f makefile.txt
 
 distclean: clean
-	rm -f figs/*.pdf proposal.pdf main.pdf
+	rm -f figs/*.pdf chapters/*.pdf proposal.pdf main.pdf

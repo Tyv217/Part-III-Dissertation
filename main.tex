@@ -49,6 +49,11 @@
 % \usepackage{algpseudocode}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}   
 \usepackage{algorithmic}
+%TC:group table 0 1
+%TC:group tabular 1 1
+%TC:group verbatim 0 1
+%TC:group lstlisting 0 1
+%TC:group algorithm 1 1
 \newif\ifsubmission % Boolean flag for distinguishing submitted/final version
 
 % Change the following lines to your own project title, name, college, course
@@ -67,6 +72,8 @@
 % For the final version (with your name) leave the above commented.
 
 \begin{document}
+
+%TC:ignore
 
 \begin{sffamily} % use a sans-serif font for the pro-forma cover sheet
 
@@ -235,6 +242,9 @@ thank my friends and family for their support.
 \listoffigures
 \listoftables
 
+
+%TC:endignore
+
 \pagestyle{headings}
 \subfile{chapters/introduction.tex}
 \subfile{chapters/background.tex}
@@ -246,7 +256,10 @@ thank my friends and family for their support.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the bibliography
+
+%TC:ignore
 \addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{plain}
 \bibliography{refs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -254,4 +267,6 @@ thank my friends and family for their support.
 \subfile{chapters/appendix.tex}
 
 \label{lastpage}
+
+%TC:endignore
 \end{document}

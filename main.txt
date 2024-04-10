@@ -1,26 +1,35 @@
 
-    
+
+
+
+
+
+
+
+
   
+  
+ 
+  
+                      
+ 
+ 
   
    
 
-
-1000
-1000
-
-    
-                                        
+  basicstyle=cmtt,
+  keywordstyle=,
+  mathescape,
+  morecomment=[l][],
 
 
-
+   
 
 
 
-
-plain
-
-
-
+Ain't Nobody Got Time For That: Budget-aware Concept Intervention Policies
+Thomas Yuan
+May 2024
 
 
 
@@ -38,404 +47,146 @@ plain
 
 
 
+Research project report title page
 
 
+Candidate 
 
-Declaration of originality
-
-I,  of , being a candidate for Part II of the Computer Science Tripos, hereby declare that this dissertation and the work described in it are my own work, unaided except as may be specified below, and that the dissertation does not contain material that has already been used to any substantial extent for a comparable purpose. 
-Signed 
-Date 
-
-Proforma
-
-
-
-[1]This word count was computed
-by detex diss.tex  tr -cd '0-9A-Za-z n'  wc -w
+"
 
 
 
 
-Data Augmentation is a machine learning technique that increases the amount of data available for training
- models by generating new data from existing data. This project aimed to implement four different data augmentation techniques in natural language processing, 
- where the effectiveness of these techniques were measured by comparing models for text classification and machine translation trained with
- and without these techniques applied. The proposed extensions aimed at taking two data augmentation techniques in computer vision
- and implementing them for natural language processing tasks, as well as augmenting the target language in the machine translation task.
 
 
-Work Completed
 
 
-All that has been completed appears in this dissertation.
-
-Special Difficulties
 
 
-None.
 
+
+
+
+
+
+
+
+Submitted in partial fulfillment of the requirements for the
+
+
+
+
+Total page count: 
+
+
+lastcontentpage
+by -firstcontentpage
+by 1
+
+
+Main chapters (excluding front-matter, references and appendix):
+ pages
+(pp -)
+
+Main chapters word count: 467
+
+Methodology used to generate that word count:
+
+
+
+
+
+
+
+Declaration
+
+
+I,  of , being a candidate for the , hereby
+declare that this report and the work described in it are my own work,
+unaided except as may be specified below, and that the report does not
+contain material that has already been used to any substantial extent
+for a comparable purpose.
+
+
+
+
+Signed: Thomas Yuan
+
+Date: 
+
+
+Abstract
+
+Regular supervised learning Machine Learning models learn to 
+predict the labels of inputs.
+Concept BottleNeck Models (CBMs) are ML models designed
+to increase the interpretability of model predictions by decomposing a model into
+two submodels, splitting the original process into predicting a set of human-interpretable
+concepts / features present in the input, then predicting the label using these concepts.
+Since these concepts are human-interpretable, it is much more easier to understand
+the reasoning behind the predicted labels, thus mitigating some of the
+potential dangerous downsides associated with using ML models as "black-box" models,
+especially in fields where these predictions can have significant consequences to
+human life, such as medicine, criminal justice, autonomous vehicles, etc. 
+
+During inference time, professionals can intervene on CBMs by correcting
+the predicted concepts leading to more accurate predicted labels. 
+Due to the costs
+associated with performing such an intervention, the question of what concepts
+to intervene on in order to maximize the accuracy of the model becomes an important 
+research question. This project focuses on answering this research question.
+This project attempts to model the costs associated with using experts
+to perform interventions as a budget, and thus the main research question 
+of this project is
+"How can we determine the concepts to intervene on for a given budget for 
+a set of inputs and the corresponding model predictions?"
+
+This project focuses on answering the above research questions. It first 
+investigates the differences between greedy and non-greedy models, showing that non-greedy algorithms can outperform
+its greedy counterparts. It then investigates
+the performance of greedy models, building on top of existing methods by incorporating
+ surrogate models to model the distribution
+of concepts. The output of these surrogate models are then used by an ML
+model that learns to predict the next concept to intervene on in each step. 
+The project then investigates using Reinforcement Learning and these surrogate models to train a non-greedy model that 
+learns to predict an entire sequence of interventions for given inputs and corresponding
+CBM outputs.
+Lastly, the project then investigates if it is necessary to train the prediction
+model simultaneously with the CBMs.
 
 
 
 Acknowledgements
 
-This document owes much to an earlier version written by Simon Moore
-
-.  His help, encouragement and advice was greatly 
-appreciated.
-
+This project would not have been possible without the wonderful
+support of my lovely supervisors Mateo Espinosa Zarlenga, Dr Mateja Jamnik and Dr. Zohreh Shams. I would also like to 
+thank my friends and family for their support.
 
 
 
 
 Introduction
 
-Motivation
 
-In recent years it has become a growing consensus that in machine learning, particularly deep learning, that having 
-large datasets and an abundance of data for training is vital for models to have good performances. However, in a lot of
-cases acquiring large datasets can be a difficult or expensive task. One solution to this problem
-is data augmentation, which is generating new data from existing data via methods based on semantic or statistical variance.
-By creating more data for training, data augmentation techniques aim to improve the performance of the model and reduce the problem of overfitting, which
-is more apparent with smaller datasets. My project seeks to 
- 
 
 
-Data augmentation in Computer Vision 
- 
-Data augmentation techniques are widely applied in the field of computer vision, where images are preprocessed using data augmentation techniques
-including translations, reflections, colour manipulations, and cropping. These transformation techniques are usually classification
-preserving in that they do not change the label of the data, for example in an image classification task applying a rotation does not modify the nature of the object in the image.
-These techniques were found to be able to improve the robustness and performance of the trained model, and it is believed that these methods based on visual variance are able to help reduce
-biases based on specific characteristics such as position and colour. 
-Recently techniques involving mixing images have also been employed, 
-where images of different labels are interpolated and used as training data. Although counter-intuitive, such 
-non-label preserving data augmentation techniques were found to bring performance improvements, as they help models
-focus on specific sections of images and learn a wider range of features for image classification. 
+Background
 
+Related Work
 
-
-Building the document
-
-This document was produced using which is based upon
-.  To build the document you first need to
-generate diss.aux which, amongst other things, contains the
-references used.  This if done by executing the command:
-
-pdflatex main
-
-Then the bibliography can be generated from refs.bib using:
-
-bibtex main
-
-Finally, to ensure all the page numbering is correct run pdflatex
-on diss.tex until the .aux files do not change.  This
-usually takes 2 more runs.
-
-The makefile
-
-To simplify the calls to pdflatex and bibtex, 
-a makefile has been provided, see Appendix . 
-It provides the following facilities:
-
-
-
-make 
-
- Display help information.
-
-make proposal.pdf 
-
- Format the proposal document as a PDF.
-
-make view-proposal 
-
- Run make proposal.pdf and then display it with a Linux PDF viewer
- (preferably "okular", if that is not available fall back to "evince").
-
-make main.pdf 
-
- Format the dissertation document as a PDF.
-
-make count 
-
-Display an estimate of the word count.
-
-make all 
-
-Construct proposal.pdf and diss.pdf.
-
-make pub 
- Make diss.pdf
-and place it in my publichtml directory.
-
-make clean 
- Delete all intermediate files except the
-source files and the resulting PDFs. All these deleted files can
-be reconstructed by typing make all.
-
-
-
-Counting words
-
-An approximate word count of the body of the dissertation may be
-obtained using:
-
-wc main.tex
-
-Alternatively, try something like:
-
-detex main.tex | tr -cd '0-9A-Z a-z\n' | wc -w
-
-
-Preparation
-
-This chapter is empty!
-
-
-Implementation
-
-Verbatim text
-
-Verbatim text can be included using \begin{verbatim} and
-\end{verbatim}. I normally use a slightly smaller font and
-often squeeze the lines a little closer together, as in:
-
-
-
-
-Tables
-
-
-Here is a simple example(A footnote) of a table.
-
-
-
-
-There is another example table in the proforma.
-
-Simple diagrams
-
-Simple diagrams can be written directly in .  For example, see
-figure  on page  and see
-figure  on page .
-
-
-
-
-A picture composed of boxes and vectors.
-
-
-
-
-
-
-A diagram composed of circles, lines and boxes.
-
-
-
-Adding more complicated graphics
-
-The use of  format can be tedious and it is often better to use
-encapsulated postscript (EPS) or PDF to represent complicated graphics.
-Figure  and  on page  are
-examples. The second figure was drawn using xfig and exported in
-.eps format. This is my recommended way of drawing all diagrams.
-
-
-
-
-Example figure using encapsulated postscript
-
-
-
-Example figure where a picture can be pasted in
-
-
-
-
-Example diagram drawn using xfig
-
+Design and implementation
 
 Evaluation
 
-Printing and binding
+Summary and conclusions
 
-Use a "duplex" laser printer that can print on both sides to print
-two copies of your dissertation. Then bind them, for example using the
-comb binder in the Computer Laboratory Library.
 
-Further information
 
-See the Unix Tools notes at
 
-http://www.cl.cam.ac.uk/teaching/current-1/UnixTools/materials.html
 
 
-Conclusions
 
-I hope that this rough guide to writing a dissertation is  has
-been helpful and saved you time.
 
-
-
-
-
-
-
-
-Latex source
-
-metadata.tex
-metadata.tex
-
-main.tex
-main.tex
-
-proposal.tex
-proposal.tex
-
-Makefile
-
-makefilemakefile.txt
-
-refs.bib
-refs.bib
-
-
-Project Proposal
-
-
-
-
-Computer Science Tripos - Part II - Project Proposal
-
-How to write a dissertation in 
-
-
-M. Richards, St John's College
-
-Originator: Dr M. Richards
-
-14 October 2011
-
-
-
-Project Supervisor: Dr M. Richards
-
-Director of Studies: Dr M. Richards
-
-Project Overseers: Dr F. H. King   Dr A. W. Moore
-
-
-
-Introduction
-
-The problem to be addressed.
-
-Many students write their CST dissertations in  - and spend a
-fair amount of time learning just how to do that. The purpose of this
-project is to write a demonstration dissertation that provides
-a starting point to show how it is done.
-
-This core proposal document will be augmented by a separately-printed
-cover sheet at the front and a resource form at the end. Additional
-sheets for risk assessment and human resources may also need to be
-included.
-
-This document will elaborate much of the material that is summarised on
-the additional sheets.
-
-Starting point
-
-Describe existing state of the art, previous work in this area,
-  libraries and databases to be used. Describe the state of any
-  existing codebase that is to be built on.
-
-I am already able to write prose using the English language. I have an
-online dictionary, etc.
-
-Resources required
-
-A note of the resources required and confirmation of access.
-
-For this project I shall mainly use my own quad-core computer that
-runs Fedora Linux. Backup will be to github and/or to an SVN
-repository on an external hard disk that is dumped to writable CD/DVD
-media. I have another similar computer to hand should my main machine
-suddenly fail. I require no other special resources.
-
-Work to be done
-
-Describe the technical work.
-
-The project breaks down into the following sub-projects:
-
-
-
-The construction of a skeleton dissertation with the required
-  structure. This involves writing the Makefile and making dummy
-  files for the title page, the proforma, chapters 1 to 5, the
-  appendices and the proposal.
-
-Filling in the details required in the cover page and proforma.
-
-Writing the contents of chapters 1 to 5, including examples of
-  common  constructs.
-
-Adding a example of how to use floating figures and "encapsulated
-  PostScript" or PDF diagrams.
-
-
-Success citeria
-
-Describe what you expect to be able to demonstrate at the
-end of the project and how you are going to evaluate your achievement.
-
-The project will be a success if I have a completed dissertation with
-the correct chapter titles and I have achieved my other success
-criteria, which are to blah 
-
-Possible extensions
-
-Potential further envisaged evaluation metrics or extensions.
-
-If I achieve my main result early I shall try the following
-alternative experiment or method of evaluation 
-
-Timetable
-
-A workplan of perhaps ten or so two-week work-packages,
-as well as milestones to be achieved along the way. Provide a
-target date for each milestone.
-
-Planned starting date is 16/10/2011.
-
-
-
-Michaelmas weeks 2-4 Learn to use X. Read book Y. Read papers Z.
-
-Michaelmas weeks 5-6 Do preliminary test of Q.
-
-Michaelmas weeks 7-8 Start implementation of main task A.
-
-Michaelmas vacation Finish A and start main task B.
-
-Lent weeks 0-2 Write progress report. Generate corpus of
-  test examples. Finish task B.
-
-Lent weeks 3-5 Run main experiments and achieve working project.
-
-Lent weeks 6-8 Second main deliverable here.
-
-Easter vacation: Extensions and writing dissertation main
-  chapters.
-
-Easter term 0-2:  Further evaluation and complete dissertation.
-
-Easter term 3: Proof reading and then an early submission
-  so as to concentrate on examination revision.
-
-
+Technical Details
 
 
