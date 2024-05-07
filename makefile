@@ -51,7 +51,7 @@ create_text:
 
 count:
 # detex main.tex | tr -cd '0-9A-Za-z \n' | wc -w
-	texcount main.tex
+	texcount -inc main.tex
 
 all: proposal.pdf main.pdf clean
 

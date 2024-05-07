@@ -1,605 +1,84 @@
-@article{DBLP:journals/corr/WongGSM16,
-  author    = {Sebastien C. Wong and
-               Adam Gatt and
-               Victor Stamatescu and
-               Mark D. McDonnell},
-  title     = {Understanding data augmentation for classification: when to warp?},
-  journal   = {CoRR},
-  volume    = {abs/1609.08764},
-  year      = {2016},
-  url       = {http://arxiv.org/abs/1609.08764},
-  eprinttype = {arXiv},
-  eprint    = {1609.08764},
-  timestamp = {Mon, 13 Aug 2018 16:49:15 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/WongGSM16.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+@InProceedings{cbm,
+  title = 	 {Concept Bottleneck Models},
+  author =       {Koh, Pang Wei and Nguyen, Thao and Tang, Yew Siang and Mussmann, Stephen and Pierson, Emma and Kim, Been and Liang, Percy},
+  booktitle = 	 {Proceedings of the 37th International Conference on Machine Learning},
+  pages = 	 {5338--5348},
+  year = 	 {2020},
+  editor = 	 {III, Hal Daumé and Singh, Aarti},
+  volume = 	 {119},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {13--18 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v119/koh20a/koh20a.pdf},
+  url = 	 {https://proceedings.mlr.press/v119/koh20a.html},
+  abstract = 	 {We seek to learn models that we can interact with using high-level concepts: if the model did not think there was a bone spur in the x-ray, would it still predict severe arthritis? State-of-the-art models today do not typically support the manipulation of concepts like "the existence of bone spurs", as they are trained end-to-end to go directly from raw input (e.g., pixels) to output (e.g., arthritis severity). We revisit the classic idea of first predicting concepts that are provided at training time, and then using these concepts to predict the label. By construction, we can intervene on these concept bottleneck models by editing their predicted concept values and propagating these changes to the final prediction. On x-ray grading and bird identification, concept bottleneck models achieve competitive accuracy with standard end-to-end models, while enabling interpretation in terms of high-level clinical concepts ("bone spurs") or bird attributes ("wing color"). These models also allow for richer human-model interaction: accuracy improves significantly if we can correct model mistakes on concepts at test time.}
 }
 
-@article{DBLP:journals/corr/abs-1911-03118,
-  author    = {Ateret Anaby{-}Tavor and
-               Boaz Carmeli and
-               Esther Goldbraich and
-               Amir Kantor and
-               George Kour and
-               Segev Shlomov and
-               Naama Tepper and
-               Naama Zwerdling},
-  title     = {Not Enough Data? Deep Learning to the Rescue!},
-  journal   = {CoRR},
-  volume    = {abs/1911.03118},
-  year      = {2019},
-  url       = {http://arxiv.org/abs/1911.03118},
-  eprinttype = {arXiv},
-  eprint    = {1911.03118},
-  timestamp = {Mon, 11 Nov 2019 18:38:09 +0100},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1911-03118.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+@inproceedings{
+intcem,
+title={Learning to Receive Help: Intervention-Aware Concept Embedding Models},
+author={Mateo Espinosa Zarlenga and Katherine M. Collins and Krishnamurthy Dj Dvijotham and Adrian Weller and Zohreh Shams and Mateja Jamnik},
+booktitle={Thirty-seventh Conference on Neural Information Processing Systems},
+year={2023},
+url={https://openreview.net/forum?id=4ImZxqmT1K}
 }
 
-@article{ImageNetClassification,
-author = {Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey},
-year = {2012},
-month = {01},
-pages = {},
-title = {ImageNet Classification with Deep Convolutional Neural Networks},
-volume = {25},
-journal = {Neural Information Processing Systems},
-doi = {10.1145/3065386}
+@inproceedings{
+cem,
+title={Concept Embedding Models},
+author={Mateo Espinosa Zarlenga and Pietro Barbiero and Gabriele Ciravegna and Giuseppe Marra and Francesco Giannini and Michelangelo Diligenti and Zohreh Shams and Frederic Precioso and Stefano Melacci and Adrian Weller and Pietro Lio and Mateja Jamnik},
+booktitle={Advances in Neural Information Processing Systems},
+editor={Alice H. Oh and Alekh Agarwal and Danielle Belgrave and Kyunghyun Cho},
+year={2022},
+url={https://openreview.net/forum?id=HXCPA2GXf_}
 }
 
-@article{DBLP:journals/corr/abs-1805-11272,
-  author    = {Cecilia Summers and
-               Michael J. Dinneen},
-  title     = {Improved Mixed-Example Data Augmentation},
-  journal   = {CoRR},
-  volume    = {abs/1805.11272},
-  year      = {2018},
-  url       = {http://arxiv.org/abs/1805.11272},
-  eprinttype = {arXiv},
-  eprint    = {1805.11272},
-  timestamp = {Mon, 13 Aug 2018 16:46:50 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/abs-1805-11272.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+@book{rl,
+author = {Sutton, Richard S. and Barto, Andrew G.},
+title = {Reinforcement Learning: An Introduction},
+year = {2018},
+isbn = {0262039249},
+publisher = {A Bradford Book},
+address = {Cambridge, MA, USA},
+abstract = {The significantly expanded and updated new edition of a widely used text on reinforcement learning, one of the most active research areas in artificial intelligence. Reinforcement learning, one of the most active research areas in artificial intelligence, is a computational approach to learning whereby an agent tries to maximize the total amount of reward it receives while interacting with a complex, uncertain environment. In Reinforcement Learning, Richard Sutton and Andrew Barto provide a clear and simple account of the field's key ideas and algorithms. This second edition has been significantly expanded and updated, presenting new topics and updating coverage of other topics. Like the first edition, this second edition focuses on core online learning algorithms, with the more mathematical material set off in shaded boxes. Part I covers as much of reinforcement learning as possible without going beyond the tabular case for which exact solutions can be found. Many algorithms presented in this part are new to the second edition, including UCB, Expected Sarsa, and Double Learning. Part II extends these ideas to function approximation, with new sections on such topics as artificial neural networks and the Fourier basis, and offers expanded treatment of off-policy learning and policy-gradient methods. Part III has new chapters on reinforcement learning's relationships to psychology and neuroscience, as well as an updated case-studies chapter including AlphaGo and AlphaGo Zero, Atari game playing, and IBM Watson's wagering strategy. The final chapter discusses the future societal impacts of reinforcement learning.}
 }
 
-@article{DBLP:journals/corr/Shams14a,
-  author    = {Rushdi Shams},
-  title     = {Semi-supervised Classification for Natural Language Processing},
-  journal   = {CoRR},
-  volume    = {abs/1409.7612},
-  year      = {2014},
-  url       = {http://arxiv.org/abs/1409.7612},
-  eprinttype = {arXiv},
-  eprint    = {1409.7612},
-  timestamp = {Mon, 13 Aug 2018 16:49:05 +0200},
-  biburl    = {https://dblp.org/rec/journals/corr/Shams14a.bib},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
+@article{coop,
+author = {Chauhan, Kushal and Tiwari, Rishabh and Freyberg, Jan and Shenoy, Pradeep and Dvijotham, Krishnamurthy},
+year = {2023},
+month = {06},
+pages = {5948-5955},
+title = {Interactive Concept Bottleneck Models},
+volume = {37},
+journal = {Proceedings of the AAAI Conference on Artificial Intelligence},
+doi = {10.1609/aaai.v37i5.25736}
 }
 
-@misc{wu2016googles,
-      title={Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation}, 
-      author={Yonghui Wu and Mike Schuster and Zhifeng Chen and Quoc V. Le and Mohammad Norouzi and Wolfgang Macherey and Maxim Krikun and Yuan Cao and Qin Gao and Klaus Macherey and Jeff Klingner and Apurva Shah and Melvin Johnson and Xiaobing Liu and Łukasz Kaiser and Stephan Gouws and Yoshikiyo Kato and Taku Kudo and Hideto Kazawa and Keith Stevens and George Kurian and Nishant Patil and Wei Wang and Cliff Young and Jason Smith and Jason Riesa and Alex Rudnick and Oriol Vinyals and Greg Corrado and Macduff Hughes and Jeffrey Dean},
-      year={2016},
-      eprint={1609.08144},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
+@INPROCEEDINGS{afa,
+  author={Melville, P. and Saar-Tsechansky, M. and Provost, F. and Mooney, R.},
+  booktitle={Fourth IEEE International Conference on Data Mining (ICDM'04)}, 
+  title={Active feature-value acquisition for classifier induction}, 
+  year={2004},
+  volume={},
+  number={},
+  pages={483-486},
+  keywords={Costs;Predictive models;Sampling methods;Design for experiments;Current measurement;Data mining},
+  doi={10.1109/ICDM.2004.10075}}
 
-@misc{devlin2019bert,
-      title={{BERT}: Pre-training of Deep Bidirectional Transformers for Language Understanding}, 
-      author={Jacob Devlin and Ming-Wei Chang and Kenton Lee and Kristina Toutanova},
-      year={2019},
-      eprint={1810.04805},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@Article{math11010123,
-AUTHOR = {Park, Yo-Han and Choi, Yong-Seok and Yun, Seung and Kim, Sang-Hun and Lee, Kong-Joo},
-TITLE = {Robust Data Augmentation for Neural Machine Translation through EVALNET},
-JOURNAL = {Mathematics},
-VOLUME = {11},
-YEAR = {2023},
-NUMBER = {1},
-ARTICLE-NUMBER = {123},
-URL = {https://www.mdpi.com/2227-7390/11/1/123},
-ISSN = {2227-7390},
-ABSTRACT = {Since building Neural Machine Translation (NMT) systems requires a large parallel corpus, various data augmentation techniques have been adopted, especially for low-resource languages. In order to achieve the best performance through data augmentation, the NMT systems should be able to evaluate the quality of augmented data. Several studies have addressed data weighting techniques to assess data quality. The basic idea of data weighting adopted in previous studies is the loss value that a system calculates when learning from training data. The weight derived from the loss value of the data, through simple heuristic rules or neural models, can adjust the loss used in the next step of the learning process. In this study, we propose EvalNet, a data evaluation network, to assess parallel data of NMT. EvalNet exploits a loss value, a cross-attention map, and a semantic similarity between parallel data as its features. The cross-attention map is an encoded representation of cross-attention layers of Transformer, which is a base architecture of an NMT system. The semantic similarity is a cosine distance between two semantic embeddings of a source sentence and a target sentence. Owing to the parallelism of data, the combination of the cross-attention map and the semantic similarity proved to be effective features for data quality evaluation, besides the loss value. EvalNet is the first NMT data evaluator network that introduces the cross-attention map and the semantic similarity as its features. Through various experiments, we conclude that EvalNet is simple yet beneficial for robust training of an NMT system and outperforms the previous studies as a data evaluator.},
-DOI = {10.3390/math11010123}
-}
-
-@misc{devries2017improved,
-      title={Improved Regularization of Convolutional Neural Networks with {C}utout}, 
-      author={Terrance DeVries and Graham W. Taylor},
-      year={2017},
-      eprint={1708.04552},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-@misc{yun2019cutmix,
-      title={Cut{M}ix: Regularization Strategy to Train Strong Classifiers with Localizable Features}, 
-      author={Sangdoo Yun and Dongyoon Han and Seong Joon Oh and Sanghyuk Chun and Junsuk Choe and Youngjoon Yoo},
-      year={2019},
-      eprint={1905.04899},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-@misc{karimi2020deep,
-      title={Deep learning with noisy labels: exploring techniques and remedies in medical image analysis}, 
-      author={Davood Karimi and Haoran Dou and Simon K. Warfield and Ali Gholipour},
-      year={2020},
-      eprint={1912.02911},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-@article{JMLR:v15:srivastava14a,
-  author  = {Nitish Srivastava and Geoffrey Hinton and Alex Krizhevsky and Ilya Sutskever and Ruslan Salakhutdinov},
-  title   = {Dropout: A Simple Way to Prevent Neural Networks from Overfitting},
-  journal = {Journal of Machine Learning Research},
-  year    = {2014},
-  volume  = {15},
-  number  = {56},
-  pages   = {1929--1958},
-  url     = {http://jmlr.org/papers/v15/srivastava14a.html}
-}
-
-@misc{ghiasi2018dropblock,
-      title={Drop{Block}: A regularization method for convolutional networks}, 
-      author={Golnaz Ghiasi and Tsung-Yi Lin and Quoc V. Le},
-      year={2018},
-      eprint={1810.12890},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-@misc{zhang2018mixup,
-      title={mixup: Beyond Empirical Risk Minimization}, 
-      author={Hongyi Zhang and Moustapha Cisse and Yann N. Dauphin and David Lopez-Paz},
-      year={2018},
-      eprint={1710.09412},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{zou2023benefits,
-      title={The Benefits of {M}ixup for Feature Learning}, 
-      author={Difan Zou and Yuan Cao and Yuanzhi Li and Quanquan Gu},
-      year={2023},
-      eprint={2303.08433},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{zhang2016characterlevel,
-      title={Character-level Convolutional Networks for Text Classification}, 
-      author={Xiang Zhang and Junbo Zhao and Yann LeCun},
-      year={2016},
-      eprint={1509.01626},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{wieting2017learning,
-      title={Learning Paraphrastic Sentence Embeddings from Back-Translated Bitext}, 
-      author={John Wieting and Jonathan Mallinson and Kevin Gimpel},
-      year={2017},
-      eprint={1706.01847},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@misc{wei2019eda,
-      title={{EDA}: Easy Data Augmentation Techniques for Boosting Performance on Text Classification Tasks}, 
-      author={Jason Wei and Kai Zou},
-      year={2019},
-      eprint={1901.11196},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@misc{vaswani2017attention,
-      title={Attention Is All You Need}, 
-      author={Ashish Vaswani and Noam Shazeer and Niki Parmar and Jakob Uszkoreit and Llion Jones and Aidan N. Gomez and Lukasz Kaiser and Illia Polosukhin},
-      year={2017},
-      eprint={1706.03762},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@incollection{rumelhart:errorpropnonote,
-  added-at = {2008-02-26T11:58:58.000+0100},
-  address = {Cambridge, MA},
-  author = {Rumelhart, David E. and Hinton, Geoffrey E. and Williams, Ronald J.},
-  biburl = {https://www.bibsonomy.org/bibtex/27c3d39c519530239660d33e66493ade1/schaul},
-  booktitle = {Parallel Distributed Processing: Explorations in the Microstructure of Cognition, {V}olume 1: {F}oundations},
-  citeulike-article-id = {2378884},
-  description = {idsia},
-  editor = {Rumelhart, David E. and Mcclelland, James L.},
-  interhash = {dd8485b30b80c7f35263bcb21ed81c1f},
-  intrahash = {7c3d39c519530239660d33e66493ade1},
-  keywords = {nn},
-  pages = {318--362},
-  priority = {2},
-  publisher = {MIT Press},
-  timestamp = {2008-02-26T12:02:43.000+0100},
-  title = {Learning Internal Representations by Error Propagation},
-  year = 1986
-}
-
-@misc{sanh2020distilbert,
-      title={Distil{BERT}, a distilled version of {BERT}: smaller, faster, cheaper and lighter}, 
-      author={Victor Sanh and Lysandre Debut and Julien Chaumond and Thomas Wolf},
-      year={2020},
-      eprint={1910.01108},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@misc{raffel2020exploring,
-      title={Exploring the Limits of Transfer Learning with a Unified {Text-to-Text Transformer}}, 
-      author={Colin Raffel and Noam Shazeer and Adam Roberts and Katherine Lee and Sharan Narang and Michael Matena and Yanqi Zhou and Wei Li and Peter J. Liu},
-      year={2020},
-      eprint={1910.10683},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{hinton2015distilling,
-      title={Distilling the Knowledge in a Neural Network}, 
-      author={Geoffrey Hinton and Oriol Vinyals and Jeff Dean},
-      year={2015},
-      eprint={1503.02531},
-      archivePrefix={arXiv},
-      primaryClass={stat.ML}
-}
-
-@inproceedings{Zhang2015CharacterlevelCN,
-  title={Character-level Convolutional Networks for Text Classification},
-  author={Xiang Zhang and Junbo Jake Zhao and Yann LeCun},
-  booktitle={NIPS},
-  year={2015}
-}
-
-@InProceedings{Spinde2021f,
-    title = "Neural Media Bias Detection Using Distant Supervision With {BABE} - {Bias Annotations By Experts}",
-    author = "Spinde, Timo  and
-      Plank, Manuel  and
-      Krieger, Jan-David  and
-      Ruas, Terry  and
-      Gipp, Bela  and
-      Aizawa, Akiko",
-    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2021",
-    month = nov,
-    year = "2021",
-    address = "Punta Cana, Dominican Republic",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2021.findings-emnlp.101",
-    doi = "10.18653/v1/2021.findings-emnlp.101",
-    pages = "1166--1177",
-}
-
-@misc{wang2019glue,
-      title={{GLUE}: A Multi-Task Benchmark and Analysis Platform for Natural Language Understanding}, 
-      author={Alex Wang and Amanpreet Singh and Julian Michael and Felix Hill and Omer Levy and Samuel R. Bowman},
-      year={2019},
-      eprint={1804.07461},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@inproceedings{li-roth-2002-learning,
-    title = "Learning Question Classifiers",
-    author = "Li, Xin  and
-      Roth, Dan",
-    booktitle = "{COLING} 2002: The 19th International Conference on Computational Linguistics",
-    year = "2002",
-    url = "https://www.aclweb.org/anthology/C02-1150",
-}
-@inproceedings{hovy-etal-2001-toward,
-    title = "Toward Semantics-Based Answer Pinpointing",
-    author = "Hovy, Eduard  and
-      Gerber, Laurie  and
-      Hermjakob, Ulf  and
-      Lin, Chin-Yew  and
-      Ravichandran, Deepak",
-    booktitle = "Proceedings of the First International Conference on Human Language Technology Research",
-    year = "2001",
-    url = "https://www.aclweb.org/anthology/H01-1069",
-}
-
-@inproceedings{cettolo-etal-2017-overview,
-    title = "Overview of the {IWSLT} 2017 Evaluation Campaign",
-    author = {Cettolo, Mauro  and
-      Federico, Marcello  and
-      Bentivogli, Luisa  and
-      Niehues, Jan  and
-      St{\"u}ker, Sebastian  and
-      Sudoh, Katsuhito  and
-      Yoshino, Koichiro  and
-      Federmann, Christian},
-    booktitle = "Proceedings of the 14th International Conference on Spoken Language Translation",
-    month = dec # " 14-15",
-    year = "2017",
-    address = "Tokyo, Japan",
-    publisher = "International Workshop on Spoken Language Translation",
-    url = "https://aclanthology.org/2017.iwslt-1.1",
-    pages = "2--14",
-}
-
-@inproceedings{papineni-etal-2002-bleu,
-    title = "{B}leu: a Method for Automatic Evaluation of Machine Translation",
-    author = "Papineni, Kishore  and
-      Roukos, Salim  and
-      Ward, Todd  and
-      Zhu, Wei-Jing",
-    booktitle = "Proceedings of the 40th Annual Meeting of the Association for Computational Linguistics",
-    month = jul,
-    year = "2002",
-    address = "Philadelphia, Pennsylvania, USA",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/P02-1040",
-    doi = "10.3115/1073083.1073135",
-    pages = "311--318",
-}
-
-@inproceedings{sennrich-etal-2016-improving,
-    title = "Improving Neural Machine Translation Models with Monolingual Data",
-    author = "Sennrich, Rico  and
-      Haddow, Barry  and
-      Birch, Alexandra",
-    booktitle = "Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
-    month = aug,
-    year = "2016",
-    address = "Berlin, Germany",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/P16-1009",
-    doi = "10.18653/v1/P16-1009",
-    pages = "86--96",
-}
-@inproceedings{tiedemann-2020-tatoeba,
-    title = "The {T}atoeba {T}ranslation {C}hallenge {--} {R}ealistic Data Sets for Low Resource and Multilingual {MT}",
-    author = {Tiedemann, J{\"o}rg},
-    booktitle = "Proceedings of the Fifth Conference on Machine Translation",
-    month = nov,
-    year = "2020",
-    address = "Online",
-    publisher = "Association for Computational Linguistics",
-    url = "https://www.aclweb.org/anthology/2020.wmt-1.139",
-    pages = "1174--1182"
-}
-
-@InProceedings{TIEDEMANN12.463,
-  author = {Jörg Tiedemann},
-  title = {Parallel Data, Tools and Interfaces in OPUS},
-  booktitle = {Proceedings of the Eight International Conference on Language Resources and Evaluation (LREC'12)},
-  year = {2012},
-  month = {may},
-  date = {23-25},
-  address = {Istanbul, Turkey},
-  editor = {Nicoletta Calzolari (Conference Chair) and Khalid Choukri and Thierry Declerck and Mehmet Ugur Dogan and Bente Maegaard and Joseph Mariani and Jan Odijk and Stelios Piperidis},
-  publisher = {European Language Resources Association (ELRA)},
-  isbn = {978-2-9517408-7-7},
-  language = {english}
- }
-
- @misc{loper2002nltk,
-      title={{NLTK: The Natural Language Toolkit}}, 
-      author={Edward Loper and Steven Bird},
-      year={2002},
-      eprint={cs/0205028},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@article{honnibal2020spacy,
-  author = {Honnibal, Matthew and Montani, Ines and Van Landeghem, Sofie and Boyd, Adriane},
-  title = {{spaCy}: Industrial-strength Natural Language Processing in Python},
-  journal = {Zenodo},
-  year = {2020},
-  doi = {10.5281/zenodo.1212303}
-}
-
-@misc{sun2020finetune,
-      title={How to Fine-Tune {BERT} for Text Classification?}, 
-      author={Chi Sun and Xipeng Qiu and Yige Xu and Xuanjing Huang},
-      year={2020},
-      eprint={1905.05583},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@misc{loshchilov2019decoupled,
-      title={Decoupled Weight Decay Regularization}, 
-      author={Ilya Loshchilov and Frank Hutter},
-      year={2019},
-      eprint={1711.05101},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{smith2018superconvergence,
-      title={Super-Convergence: Very Fast Training of Neural Networks Using Large Learning Rates}, 
-      author={Leslie N. Smith and Nicholay Topin},
-      year={2018},
-      eprint={1708.07120},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{kingma2017adam,
-      title={Adam: A Method for Stochastic Optimization}, 
-      author={Diederik P. Kingma and Jimmy Ba},
-      year={2017},
-      eprint={1412.6980},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{cookiecutter,
-  author = {Cookiecutter Data Science},
-  title = {Cookiecutter Data Science: A logical, reasonably standardized, but flexible project structure for doing and sharing data science work.},
-  howpublished = {\url{https://drivendata.github.io/cookiecutter-data-science/}},
-  year = {2018}
-}
-
-@misc{post2018clarity,
-      title={A Call for Clarity in Reporting {BLEU} Scores}, 
-      author={Matt Post},
-      year={2018},
-      eprint={1804.08771},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@misc{platanios2018contextual,
-      title={Contextual Parameter Generation for Universal Neural Machine Translation}, 
-      author={Emmanouil Antonios Platanios and Mrinmaya Sachan and Graham Neubig and Tom Mitchell},
-      year={2018},
-      eprint={1808.08493},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@inproceedings{inproceedings,
-author = {Lakew, Surafel Melaku and Lotito, Quintino and Turchi, Marco and Negri, Matteo and Federico, Marcello},
-year = {2017},
-month = {12},
-pages = {},
-title = {FBK’s Multilingual Neural Machine Translation System for {IWSLT} 2017}
-}
-
-@misc{chen2016guided,
-      title={Guided Alignment Training for Topic-Aware Neural Machine Translation}, 
-      author={Wenhu Chen and Evgeny Matusov and Shahram Khadivi and Jan-Thorsten Peter},
-      year={2016},
-      eprint={1607.01628},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@inproceedings{tsiamas-etal-2022-pretrained,
-    title = "Pretrained Speech Encoders and Efficient Fine-tuning Methods for Speech Translation: {UPC} at {IWSLT} 2022",
-    author = "Tsiamas, Ioannis  and
-      G{\'a}llego, Gerard I.  and
-      Escolano, Carlos  and
-      Fonollosa, Jos{\'e}  and
-      Costa-juss{\`a}, Marta R.",
-    booktitle = "Proceedings of the 19th International Conference on Spoken Language Translation (IWSLT 2022)",
-    month = may,
-    year = "2022",
-    address = "Dublin, Ireland (in-person and online)",
-    publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2022.iwslt-1.23",
-    doi = "10.18653/v1/2022.iwslt-1.23",
-    pages = "265--276",
-    abstract = "This paper describes the submissions of the UPC Machine Translation group to the IWSLT 2022 Offline Speech Translation and Speech-to-Speech Translation tracks. The offline task involves translating English speech to German, Japanese and Chinese text. Our Speech Translation systems are trained end-to-end and are based on large pretrained speech and text models. We use an efficient fine-tuning technique that trains only specific layers of our system, and explore the use of adapter modules for the non-trainable layers. We further investigate the suitability of different speech encoders (wav2vec 2.0, HuBERT) for our models and the impact of knowledge distillation from the Machine Translation model that we use for the decoder (mBART). For segmenting the IWSLT test sets we fine-tune a pretrained audio segmentation model and achieve improvements of 5 BLEU compared to the given segmentation. Our best single model uses HuBERT and parallel adapters and achieves 29.42 BLEU at English-German MuST-C tst-COMMON and 26.77 at IWSLT 2020 test. By ensembling many models, we further increase translation quality to 30.83 BLEU and 27.78 accordingly. Furthermore, our submission for English-Japanese achieves 15.85 and English-Chinese obtains 25.63 BLEU on the MuST-C tst-COMMON sets. Finally, we extend our system to perform English-German Speech-to-Speech Translation with a pretrained Text-to-Speech model.",
-}
-
-@inproceedings{NIPS2011_86e8f7ab,
- author = {Bergstra, James and Bardenet, R\'{e}mi and Bengio, Yoshua and K\'{e}gl, Bal\'{a}zs},
- booktitle = {Advances in Neural Information Processing Systems},
- editor = {J. Shawe-Taylor and R. Zemel and P. Bartlett and F. Pereira and K.Q. Weinberger},
- pages = {},
- publisher = {Curran Associates, Inc.},
- title = {Algorithms for Hyper-Parameter Optimization},
- url = {https://proceedings.neurips.cc/paper_files/paper/2011/file/86e8f7ab32cfd12577bc2619bc635690-Paper.pdf},
- volume = {24},
- year = {2011}
-}
-
-@article{JMLR:v13:bergstra12a,
-  author  = {James Bergstra and Yoshua Bengio},
-  title   = {Random Search for Hyper-Parameter Optimization},
-  journal = {Journal of Machine Learning Research},
-  year    = {2012},
-  volume  = {13},
-  number  = {10},
-  pages   = {281--305},
-  url     = {http://jmlr.org/papers/v13/bergstra12a.html}
-}
-
-@misc{cubuk2019autoaugment,
-      title={{AutoAugment}: Learning Augmentation Policies from Data}, 
-      author={Ekin D. Cubuk and Barret Zoph and Dandelion Mane and Vijay Vasudevan and Quoc V. Le},
-      year={2019},
-      eprint={1805.09501},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-@misc{muller2021trivialaugment,
-      title={{TrivialAugment}: Tuning-free Yet State-of-the-Art Data Augmentation}, 
-      author={Samuel G. Müller and Frank Hutter},
-      year={2021},
-      eprint={2103.10158},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-@misc{lim2019fast,
-      title={Fast {A}utoAugment}, 
-      author={Sungbin Lim and Ildoo Kim and Taesup Kim and Chiheon Kim and Sungwoong Kim},
-      year={2019},
-      eprint={1905.00397},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-
-@misc{guo2019augmenting,
-      title={Augmenting Data with {M}ixup for Sentence Classification: An Empirical Study}, 
-      author={Hongyu Guo and Yongyi Mao and Richong Zhang},
-      year={2019},
-      eprint={1905.08941},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
-}
-
-@article{Guo_2020, 
-      title={Nonlinear {M}ixup: Out-Of-Manifold Data Augmentation for Text Classification},
-      volume={34}, 
-      url={https://ojs.aaai.org/index.php/AAAI/article/view/5822}, 
-      DOI={10.1609/aaai.v34i04.5822}, 
-      abstractNote={&lt;p&gt;Data augmentation with Mixup (Zhang et al. 2018) has shown to be an effective model regularizer for current art deep classification networks. It generates out-of-manifold samples through linearly interpolating inputs and their corresponding labels of random sample pairs. Despite its great successes, Mixup requires convex combination of the inputs as well as the modeling targets of a sample pair, thus significantly limits the space of its synthetic samples and consequently its regularization effect. To cope with this limitation, we propose “nonlinear Mixup”. Unlike Mixup where the input and label pairs share the same, linear, scalar mixing policy, our approach embraces nonlinear interpolation policy for both the input and label pairs, where the mixing policy for the labels is adaptively learned based on the mixed input. Experiments on benchmark sentence classification datasets indicate that our approach significantly improves upon Mixup. Our empirical studies also show that the out-of-manifold samples generated by our strategy encourage training samples in each class to form a tight representation cluster that is far from others.&lt;/p&gt;}, 
-      number={04}, 
-      journal={Proceedings of the AAAI Conference on Artificial Intelligence}, 
-      author={Guo, Hongyu}, 
-      year={2020}, 
-      month={Apr.}, pages={4044-4051} 
-}
-
-@article{Chawla_2002,
-	doi = {10.1613/jair.953},
   
-	url = {https://doi.org/10.1613%2Fjair.953},
-  
-	year = 2002,
-	month = {jun},
-  
-	publisher = {{AI} Access Foundation},
-  
-	volume = {16},
-  
-	pages = {321--357},
-  
-	author = {N. V. Chawla and K. W. Bowyer and L. O. Hall and W. P. Kegelmeyer},
-  
-	title = {{SMOTE}: Synthetic Minority Over-sampling Technique},
-  
-	journal = {Journal of Artificial Intelligence Research}
+@InProceedings{gsmrl,
+  title = 	 {Active Feature Acquisition with Generative Surrogate Models},
+  author =       {Li, Yang and Oliva, Junier},
+  booktitle = 	 {Proceedings of the 38th International Conference on Machine Learning},
+  pages = 	 {6450--6459},
+  year = 	 {2021},
+  editor = 	 {Meila, Marina and Zhang, Tong},
+  volume = 	 {139},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {18--24 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v139/li21p/li21p.pdf},
+  url = 	 {https://proceedings.mlr.press/v139/li21p.html},
+  abstract = 	 {Many real-world situations allow for the acquisition of additional relevant information when making an assessment with limited or uncertain data. However, traditional ML approaches either require all features to be acquired beforehand or regard part of them as missing data that cannot be acquired. In this work, we consider models that perform active feature acquisition (AFA) and query the environment for unobserved features to improve the prediction assessments at evaluation time. Our work reformulates the Markov decision process (MDP) that underlies the AFA problem as a generative modeling task and optimizes a policy via a novel model-based approach. We propose learning a generative surrogate model (GSM) that captures the dependencies among input features to assess potential information gain from acquisitions. The GSM is leveraged to provide intermediate rewards and auxiliary information to aid the agent navigate a complicated high-dimensional action space and sparse rewards. Furthermore, we extend AFA in a task we coin active instance recognition (AIR) for the unsupervised case where the target variables are the unobserved features themselves and the goal is to collect information for a particular instance in a cost-efficient way. Empirical results demonstrate that our approach achieves considerably better performance than previous state of the art methods on both supervised and unsupervised tasks.}
 }
 
-@misc{kingma2022autoencoding,
-      title={Auto-Encoding Variational Bayes}, 
-      author={Diederik P Kingma and Max Welling},
-      year={2022},
-      eprint={1312.6114},
-      archivePrefix={arXiv},
-      primaryClass={stat.ML}
-}
-
- @misc{neurips_2023, title={{NeurIPS} 2021 Paper Checklist Guidelines}, url={https://neurips.cc/Conferences/2021/PaperInformation/PaperChecklist}, journal={NeurIPS 2023}, publisher={Neural Information Processing Systems Conference}} 
-
-@misc{pineau, title={The machine learning reproducibility checklist v2.0, apr.7 2020}, url={https://www.cs.mcgill.ca/~jpineau/ReproducibilityChecklist.pdf}, author={Pineau, Joelle}} 
