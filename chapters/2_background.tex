@@ -1,4 +1,153 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 \chapter{Background}
+
+\section{CBM}\label{background:cbm}
+
+Concept Bottleneck Models (CBMs), initially proposed by Koh et al.~\cite{cbm}, are a class of models
+that consist of a model $g$ that learns a mapping from
+input $\mathbf{x}$ to a concept vector $\mathbf{c} = g(\mathbf{x})$, 
+where $\mathbf{c}$ is a multi-hot encoding of the concepts present in the input,
+and a model $f$
+that learns a mapping from such concepts vector $c$
+to the output label $\mathbf{y} = f(\mathbf{c})$, as shown in Figure~\ref{fig:cbm}.
+These types of model can be created by simply adding a new layer in traditional models
+with the same number of neurons as the number of concepts, where this layer
+is referred to as the "CBM Bottleneck". 
+Henceforth $g$ is referred to as the ''concept predictor $\mathbf{x} \to \mathbf{c}$ model'' and $f$ as the
+''label $\mathbf{c} \to \mathbf{y}$ predictor model''.
+ Training such a model requires a
+dataset of inputs $\mathbf{x}$ annotated with the corresponding 
+concepts $\mathbf{c}$ and labels $\mathbf{y}$. 
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{figs/background/cbm.png}
+    \caption{The CBM Architecture~\cite{cbm}.}
+    \label{fig:cbm}
+\end{figure}
+
+Another key advantage of using CBMs is having access to 
+run-time interventions, which is the idea of utilizing professionals
+to modify incorrect concept predictions to improve the 
+performance of the model, as illustrated in Figure~\ref{fig:cbm-interventions} For simplicity, we omit the
+possibility of incorrect interventions, i.e. the scenario
+where the professional misjudges and changes the concept prediction to be incorrect,
+and assume that
+all interventions modify the concepts correctly. Thus an intervention
+can be defined as the following function using one-hot encodings $\mathbb{I}$ to interpolate
+the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$ by intervening
+at index $i$.
+\[I(\hat{\mathbf{c}}, \mathbf{c}, i) = 
+\mathbb{I}_i \; \mathbf{c} + (1 - \mathbb{I}_i) \; \hat{\mathbf{c}}\]
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{figs/background/cbm_interventions.png}
+    \caption{An illustration of intervening on the concepts predicted by a CBM.}
+    \label{fig:cbm-interventions}
+\end{figure}
+
+
+There are several different ways to train a CBM. 
+If we let the concept loss $L_{\text{concept}}$ be a loss
+ function that measures
+the discrepancy between the predicted concepts $\hat{\mathbf{c}}$
+and the actual concepts $\mathbf{c}$, and similarly the 
+label loss $L_{\text{label}}$ measuring the discrepancy
+between the predicted concepts $\hat{\mathbf{y}}$
+and the actual concept $\mathbf{y}$, then there are the following ways
+to train a CBM as proposed in~\cite{cbm}.
+
+\begin{enumerate}
+    \item Independent: Training the two models independently by minimizing
+    $L_{\text{concept}}(g(\mathbf{x}), \mathbf{c})$ and $L_{\text{label}}(f(\mathbf{c}), \mathbf{y})$ independently.
+    \item Sequential: Training the models one by one, first learning
+    $\hat{g}$ by minimizing $L_{\text{concept}}(g(\mathbf{x}), \mathbf{c})$,
+    then learning $f$ by minimizing $L_{\text{label}}(f(\mathbf{\hat{g}(\mathbf{x})}), \mathbf{y})$
+    \item Joint: The model is trained via a weighted sum of the losses given by 
+    $\lambda_{\text{concept}} L_{\text{concept}}(g(\mathbf{x}), \mathbf{c}) + \lambda_{\text{label}} L_{\text{label}}(f(g(\mathbf{x})), \mathbf{y})$,
+    such that both losses are minimised simultaneously.
+\end{enumerate}
+
+It has been shown experimentally that while the joint models perform the best
+without interventions, followed by the sequential model, and the independent model
+performs the worst. This is because the sequential model allows the $\mathbf{c} \to \mathbf{y}$ 
+model to learn a mapping from the concepts produced by the $\mathbf{x} \to \mathbf{c}$ model to
+label $\mathbf{y}$, where the concepts produced by the $\mathbf{x} \to \mathbf{c}$ model is often different
+from the true concepts, an underlying requirement for the independent model to perform well. Additionally,
+the joint model allows the $\mathbf{x} \to \mathbf{c}$ model to simultaneously learn to output a representation
+of concepts that allow for best performance of the $\mathbf{c} \to \mathbf{y}$ model~\cite{cbm}.
+
+When comparing performance under interventions,
+independent models outperform the two models.
+They are more sensitive to interventions and each successive intervention step
+leads to a bigger increase in performance compared to the other two,
+with better performances after the same number of interventions.
+The reason behind this
+is that the independent model learns a mapping from the true concepts to the label,
+whereas the other two learn a mapping from the predicted concepts to the label. Each intervention
+modifies the predicted concepts to be closer to the true concepts, which is what the 
+$\mathbf{c} \to \mathbf{y}$ independent model is trained to do~\cite{cbm}.
+
+\section{CEM}\label{background:cem}
+
+While CBMs proved to be useful in achieving machine learning models with high
+interpretability, they do not perform as well as traditional models that learn a direct
+mapping from input to labels as the label
+prediction relies only on a set of human-interpretable concepts, which limits
+the performance of the model as traditional models can extract
+information outside of these concepts that are potentially not human-interpretable~\cite{cem}. 
+This is even more apparent
+if the dataset does not contain a complete set of concepts that cover all
+features present in the input, which is very common in real-life scenarios.
+As such, there is a trade-off between performance and interpretability, where researchers
+have developed methods such as extending the CBM bottleneck with a set of unsupervised neurons
+to increase accuracy at a cost of decreasing interpretability~\cite{cbm-hybrid}.
+
+To overcome this trade-off, Concept Embedding Models (CEMs) were proposed by Zarlenga et al.~\cite{cem},
+these are CBMs that further add an additional layer of learnable embeddings before
+the original bottleneck, learning two embedding vectors for each concept: one for
+when the concept is and is not present. The architecture of CEMs is shown in Figure~\ref{fig:cem}.
+An intermediate scoring function $\phi_i$ is learnt for each concept $i$, 
+and the embedding assigned to the bottleneck is an interpolation of the two embeddings
+based on the scoring function predicting the possibility of the concept to be present.
+
+This architecture also allows for interventions during run-time. By simply modifying the
+output of the scoring function to be that of the true concept, the bottleneck 
+can be modified similarly to CBMs and improve the performance of the model. Additionally
+to increase the performance of CEMs, the authors utilised observations mentioned in
+Section~\ref{background:cbm}, where models trained on the true concepts are more sensitive to 
+interventions. They proposed RandInt, a method to randomly intervene
+during training with $\lambda_{\text{int}} = 0.25$ probability of intervening
+on a concept. They show that this effectively boosts the performance of the model 
+under interventions during test time without notable effects to the performance 
+without interventions~\cite{cem}.
+
+CEMs successfully solves the trade-off problem between performance and interpretability,
+allowing for similar performance to traditional models while maintaining the
+interpretability, along with high concept accuracy. This is because the embedding structure
+for CEMs allow for encoding of more information
+in the concept representations and is more machine-interpretable, where
+the additional information in the bottleneck
+ compared to scalar representations in CBMs
+lead to a better performing label predictor model. Additionally CEMs are still trained 
+on the same set of human-interpretable concepts as CBM via a similar concept loss, which leads to
+high interpretability and good intervention performance. It has been shown experimentally
+that CEMs are able to provide better performance for concept-incomplete dataset tasks (where
+the concepts do not cover all features present in input), and these learnt concept
+embedding representations effectively represent the true concepts measured by an alignment score~\cite{cem}.
+
+\section{IntCEM} % 500
+
+\section{RL} % 500
+
+\section{AFA}
+
+\section{Problem Setting} % 500
+
+\subsection{Surrogate Models} % 500
+
+\section{Research Questions} % 500 - 1000
+
 \end{document}

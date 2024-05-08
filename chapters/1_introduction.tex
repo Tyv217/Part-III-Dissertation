@@ -3,7 +3,7 @@
 \chapter{Introduction}
 \label{firstcontentpage}
 
-\section{Concept BottleNeck Models}
+\section{Concept Bottleneck Models}
 Machine Learning (ML) models are universal approximation solutions to problems
 and have been traditionally viewed and used as "black-box" solutions, 
 where users simply query the model and receive an answer without knowing the
@@ -64,18 +64,18 @@ is Reinforcement Learning (RL)~\cite{rl}.
 
 This project focuses specifically on trying to solve the 
 question of finding a good intervention policy for a given 
-budget using RL and Surrogate models to model conditional 
+budget using RL, and Surrogate models to model conditional 
 probabilities to guide the RL model, taking inspiration
 from an approach~\cite{gsmrl} in a similar setting of
 Active Feature Acquisition (AFA)~\cite{afa}.
 
 This project successfully develops a novel RL-based method
-in addition to 
+that when used in conjunction with
 existing methods from IntCEM to increase sensitivity
-to interventions, is able to learn an intervention policy
-and a Concept BottleNeck Model that outperforms
+to interventions, is able to learn a non-greedy intervention policy
+for a Concept Bottleneck Model that outperforms
 existing 
-non-greedy intervention policies and models
+greedy intervention policies and models
 for different budgets, while maintaining similar performance
 when no interventions are performed. This also outperforms existing RL-based methods since 
 
