@@ -27,6 +27,8 @@ concepts $\mathbf{c}$ and labels $\mathbf{y}$.
     \label{fig:cbm}
 \end{figure}
 
+\subsection{Intervention Policy}
+
 Another key advantage of using CBMs is having access to 
 run-time interventions, which is the idea of utilizing professionals
 to modify incorrect concept predictions to improve the 
@@ -35,11 +37,11 @@ possibility of incorrect interventions, i.e. the scenario
 where the professional misjudges and changes the concept prediction to be incorrect,
 and assume that
 all interventions modify the concepts correctly. Thus an intervention
-can be defined as the following function using one-hot encodings $\mathbb{I}$ to interpolate
-the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$ by intervening
-at index $i$.
-\[I(\hat{\mathbf{c}}, \mathbf{c}, i) = 
-\mathbb{I}_i \; \mathbf{c} + (1 - \mathbb{I}_i) \; \hat{\mathbf{c}}\]
+can be defined as the following function, where
+the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$ are interpolated
+via the intervention vector $\bm{\mu}$, a multi-hot encoded vector.
+\[I(\hat{\mathbf{c}}, \mathbf{c}, \bm{\mu}) = 
+\bm{\mu} \; \mathbf{c} + (1 - \bm{\mu}) \; \hat{\mathbf{c}} \qquad \hat{\mathbf{c}}, \mathbf{c}, \bm{\mu} \in \{0, 1\}^k\]
 
 \begin{figure}[!h]
     \centering
@@ -48,6 +50,28 @@ at index $i$.
     \label{fig:cbm-interventions}
 \end{figure}
 
+To formalize an intervention policy for this
+project, we define an intervention policy $\mathcal{P}$ to be a policy, either learnt
+or heuristic-based, that determines the order of concepts to intervene 
+on with the goal of maximizing the performance after interventions.
+If the performance of a model is measured by minimizing some loss $L_{\text{task}}$,
+a greedy intervention policy is a collection of policies $\mathcal{P}_i$ that minimizes the following:
+\[\hat{\mathcal{P}} = \bigcup_{i=0}^k \mathop{\mathrm{argmin}}_{\mathcal{P}_i} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
+% \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
+\[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(j))\]
+Which minimizes the loss at each step $j$ for all $k$ concepts. At each
+step, $\hat{\mathbf{c}}_{j-1}$ is the concept after the previous $j-1$ 
+
+interventions, and the policy $\mathcal{P}$ outputs the next concept to 
+intervene on. $L_{\text{task}}$ is used to minimize
+the loss of the output of learnt model $\hat{g}$ on the intervened
+concept vector and label $\mathbf{y}$.
+
+Compared to a greedy intervention policy, a non-greedy intervention 
+policy outputs a set of concept to intervene on for a given budget $j$,
+which we want to maximize the performance 
+
+\subsection{Training CBMs}
 
 There are several different ways to train a CBM. 
 If we let the concept loss $L_{\text{concept}}$ be a loss
@@ -63,10 +87,12 @@ to train a CBM as proposed in~\cite{cbm}.
     \item Independent: Training the two models independently by minimizing
     $L_{\text{concept}}(g(\mathbf{x}), \mathbf{c})$ and $L_{\text{label}}(f(\mathbf{c}), \mathbf{y})$ independently.
     \item Sequential: Training the models one by one, first learning
-    $\hat{g}$ by minimizing $L_{\text{concept}}(g(\mathbf{x}), \mathbf{c})$,
+    $\hat{g}$ by minimizing 
+    
+    $L_{\text{concept}}(g(\mathbf{x}), \mathbf{c})$,
     then learning $f$ by minimizing $L_{\text{label}}(f(\mathbf{\hat{g}(\mathbf{x})}), \mathbf{y})$
-    \item Joint: The model is trained via a weighted sum of the losses given by 
-    $\lambda_{\text{concept}} L_{\text{concept}}(g(\mathbf{x}), \mathbf{c}) + \lambda_{\text{label}} L_{\text{label}}(f(g(\mathbf{x})), \mathbf{y})$,
+    \item Joint: The model is trained via a weighted sum of the losses given by \\ 
+    $\lambda_{\text{concept}} L_{\text{concept}}(g(\mathbf{x}), \mathbf{c}) + \lambda_{\text{label}} L_{\text{label}}(f(g(\mathbf{x})), \mathbf{y})$ \\
     such that both losses are minimised simultaneously.
 \end{enumerate}
 
@@ -94,8 +120,8 @@ $\mathbf{c} \to \mathbf{y}$ independent model is trained to do~\cite{cbm}.
 
 While CBMs proved to be useful in achieving machine learning models with high
 interpretability, they do not perform as well as traditional models that learn a direct
-mapping from input to labels as the label
-prediction relies only on a set of human-interpretable concepts, which limits
+mapping from input to labels. This is because the CBM label
+prediction model relies only on a set of human-interpretable concepts, which limits
 the performance of the model as traditional models can extract
 information outside of these concepts that are potentially not human-interpretable~\cite{cem}. 
 This is even more apparent
@@ -139,6 +165,25 @@ the concepts do not cover all features present in input), and these learnt conce
 embedding representations effectively represent the true concepts measured by an alignment score~\cite{cem}.
 
 \section{IntCEM} % 500
+
+Building on top of CEMs, Zarlenga et al.~\cite{intcem} introduced 
+Intervention-aware CEM (IntCEM), which are CEMs that are augmented
+with a learnable concept intervention policy model. IntCEMs' novelty
+lies in framing the problem of training a CEM and finding
+an intervention policy as a joint optimization problem by augmenting
+existing CEMs with a trainable intervention policy model. 
+This approach offers significant improvements in performance after 
+interventions while maintaining similar performance without 
+interventions. 
+IntCEM achieves this because the intervention policy model
+learn a good intervention policy specific to the CEM, 
+and the CEM also learns to be more sensitive to interventions
+by the model, through the introduction of an intervention loss 
+$L_{\text{int}}$ and an
+intervention task loss $L_{\text{int-task}}$.
+
+
+
 
 \section{RL} % 500
 
