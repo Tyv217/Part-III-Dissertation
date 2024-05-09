@@ -55,21 +55,30 @@ project, we define an intervention policy $\mathcal{P}$ to be a policy, either l
 or heuristic-based, that determines the order of concepts to intervene 
 on with the goal of maximizing the performance after interventions.
 If the performance of a model is measured by minimizing some loss $L_{\text{task}}$,
-a greedy intervention policy is a collection of policies $\mathcal{P}_i$ that minimizes the following:
+a greedy intervention policy is a collection of policies $\mathcal{P}_i$, each
+outputting an index to intervene on at step $i$. The policy aims to minimizes 
+the following:
+
+
 \[\hat{\mathcal{P}} = \bigcup_{i=0}^k \mathop{\mathrm{argmin}}_{\mathcal{P}_i} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 % \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
-\[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(j))\]
-Which minimizes the loss at each step $j$ for all $k$ concepts. At each
-step, $\hat{\mathbf{c}}_{j-1}$ is the concept after the previous $j-1$ 
-
-interventions, and the policy $\mathcal{P}$ outputs the next concept to 
-intervene on. $L_{\text{task}}$ is used to minimize
-the loss of the output of learnt model $\hat{g}$ on the intervened
-concept vector and label $\mathbf{y}$.
+\[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}))\]
+Which minimizes the loss at each step $j$ sequentially
+for all $k$ concepts. At each
+step, $\hat{\mathbf{c}}_{j-1}$ is 
+the concept after the previous $j-1$ interventions,
+Similar to above, the task loss $L_{\text{task}}$ is used to minimize
+the discrepancy of $\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j})$, 
+the output of the label predictor model on the intervened concepts,
+and label $\mathbf{y}$.
 
 Compared to a greedy intervention policy, a non-greedy intervention 
 policy outputs a set of concept to intervene on for a given budget $j$,
-which we want to maximize the performance 
+which we want to maximize the performance of the 
+label predictor model on. This is equivalent to maximizing the following 
+function:
+\[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j=1}^k L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
+\[\hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}, \mathbf{c}, \mathcal{P}(\hat{\mathbf{c}}, j))\]
 
 \subsection{Training CBMs}
 
@@ -80,7 +89,9 @@ the discrepancy between the predicted concepts $\hat{\mathbf{c}}$
 and the actual concepts $\mathbf{c}$, and similarly the 
 label loss $L_{\text{label}}$ measuring the discrepancy
 between the predicted concepts $\hat{\mathbf{y}}$
-and the actual concept $\mathbf{y}$, then there are the following ways
+and the actual concept $\mathbf{y}$,
+both losses as illustrated in Figure~\ref{fig:cbm}.
+There are the following ways
 to train a CBM as proposed in~\cite{cbm}.
 
 \begin{enumerate}
