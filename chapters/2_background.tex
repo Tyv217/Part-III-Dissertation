@@ -60,7 +60,7 @@ outputting an index to intervene on at step $i$. The policy aims to minimizes
 the following:
 
 
-\[\hat{\mathcal{P}} = \bigcup_{i=0}^k \mathop{\mathrm{argmin}}_{\mathcal{P}_i} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
+\[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmin}}_{\mathcal{P}_i} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 % \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}))\]
 Which minimizes the loss at each step $j$ sequentially
@@ -79,6 +79,15 @@ label predictor model on. This is equivalent to maximizing the following
 function:
 \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j=1}^k L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}, \mathbf{c}, \mathcal{P}(\hat{\mathbf{c}}, j))\]
+
+Note that the notion of a budget, defined as the number
+of concepts allowed to intervene on for simplicity, is only
+important for non-greedy policies. Non-greedy policies aim
+to maximize the performance after using up the intervention budget,
+and may have a different set of intervention concepts 
+for different budgets. Greedy policies always select the same
+concepts per step and thus the current or remaining budget does not 
+affect the concept selected by the policy.
 
 \subsection{Training CBMs}
 
@@ -182,7 +191,7 @@ Intervention-aware CEM (IntCEM), which are CEMs that are augmented
 with a learnable concept intervention policy model. IntCEMs' novelty
 lies in framing the problem of training a CEM and finding
 an intervention policy as a joint optimization problem by augmenting
-existing CEMs with a trainable intervention policy model. 
+existing CEMs with a trainable intervention policy model $\psi$. 
 This approach offers significant improvements in performance after 
 interventions while maintaining similar performance without 
 interventions. 
@@ -190,9 +199,27 @@ IntCEM achieves this because the intervention policy model
 learn a good intervention policy specific to the CEM, 
 and the CEM also learns to be more sensitive to interventions
 by the model, through the introduction of an intervention loss 
-$L_{\text{int}}$ and an
-intervention task loss $L_{\text{int-task}}$.
+$L_{\text{int}}$ and task loss $L_{\text{task}}$ for 
+the intervened concepts.
 
+During training, $\psi$ first samples intervention
+logits for the next concept to intervene on, then 
+a Cross Entropys loss $L_{\text{int}}$ is used to
+compute the discrepancy with the output of a greedy 
+optimal policy, found by searching over all concept to
+yield the concept that leads to the highest increase
+in model performance when intervened. This is a Behavioural
+Cloning~\cite{} approach where $\psi$ learns to clone the behaviour of
+a greedy optimal policy.
+
+As mentioned in Section~\ref{background:cbm}, training using
+true concept labels increases the model's sensitivity
+to interventions, leading to better intervention performance.
+IntCEM incorporates this idea by computing task loss
+using the intervened concepts by $\psi$ during training.
+Not only does this increase the model's sensitivity to interventions,
+it specifically increases the model's sensitivity to interventions
+by $\psi$ which further improves its intervention performance.
 
 
 
@@ -200,7 +227,7 @@ intervention task loss $L_{\text{int-task}}$.
 
 \section{AFA}
 
-\section{Problem Setting} % 500
+\subsection{Problem Setting} % 500
 
 \subsection{Surrogate Models} % 500
 
