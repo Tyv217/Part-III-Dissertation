@@ -79,7 +79,7 @@ maximize the overall reward gain
 We use surrogate models to model the probabilities of concepts which are used
 to guide the RL model. Following Li et al.~\cite{afa} which uses Reinforcement Learning
 in the similar problem of Active Feature Acquisition, we use a surrogate model to model
-the conditional probabilities $p(\mathbf{x}_u \mid \mathbf{x}_o, \mahtbf{y})$, 
+the conditional probabilities $p(\mathbf{x}_u \mid \mathbf{x}_o, \mathbf{y})$, 
 where $\mathbf{x}_u$ is the set of unintervened concepts, $\mathbf{x}_o$ is the set of intervened concepts,
 and $\mathbf{y}$ is the label. The surrogate model used is the Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
 model, which are flow-based models augmented with the power to model arbitrary conditional probabilities.
