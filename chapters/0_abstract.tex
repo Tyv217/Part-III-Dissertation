@@ -1,0 +1,37 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter*{Abstract}
+
+
+With the developments made in Concept Bottleneck Models,
+finding optimal interventions for these models
+to maximize their performance under a given budget is an important issue, as it allows
+us to maximize the performance of these interpretable models while minimizing
+the costs related to expert interventions. This project investigates solving this problem
+using a new approach that combines Reinforcement Learning with surrogate models, with the goal
+of maximizing intervention performance while maintaining similar performance to the original model
+when no interventions are performed.
+
+Compared to 
+previous approaches that only use greedy policies, 
+such as heuristic-based methods or learning a Machine Learning model for a greedy policy,
+the main idea of this project
+is to use Reinforcement Learning to learn a non-greedy policy to maximize the performance
+gain from interventions over a budget rather than at each step. This is done by modelling the problem 
+of deciding
+what concept to intervene on as a Reinforcement Learning problem to maximize the final performance,
+using surrogate models that model the distribution of concepts as intermediate rewards. When used in conjunction
+with methods to increase sensitivity of models to interventions, this project successfully develops a novel
+RL-based method that outperforms existing greedy intervention policies for different budgets, while maintaining
+similar un-intervened performance. 
+
+This project proposes the idea of learning non-greedy
+intervention policies for Concept Bottleneck Models and incorporates budgets into the problem setting, 
+and shows that
+different budgets can have different optimal intervention trajectories where
+non-greedy policies outperform greedy policies.
+This project also successfully shows that 
+Reinforcement Learning can be applied to this approach to generate more optimal intervention policies
+that lead to better performance
+compared to existing greedy approaches.
+\end{document}

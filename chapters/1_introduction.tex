@@ -3,86 +3,61 @@
 \chapter{Introduction}
 \label{firstcontentpage}
 
-\section{Concept Bottleneck Models}
-Machine Learning (ML) models are universal approximation solutions to problems
-and have been traditionally viewed and used as "black-box" solutions, 
-where users simply query the model and receive an answer without knowing the
- reasoning process behind it. Over the past decade,
-the increased application of ML models along with this "black-box" property has
-raised many concerns, especially in areas where decisions made are critical to
-human safety, such as in medicine or automated driving. To increase
-interpretability, researchers developed Concept Bottleneck Models (CBMs)~\cite{cbm} that 
-learns to predict a set of human-interpretable concepts from input, and then uses these
-concepts to predict labels. This increases the interpretability of models
-as humans
-can understand the basis of the ML model predictions via the high-level 
-intermediate concepts that the model is trained to predict. 
 
-Another additional benefit of these models is that when used in 
-practice, experts can intervene by correcting incorrect intermediate
-concept predictions to
-generate more accurate final label predictions.
-Given that experts have limited time, determining 
-the order of concepts to query experts to intervene on, 
-to maximize the accuracy of the model, 
-becomes an important problem.
-Since the objective behind developing these models is to
-use them in real life, this project utilizes different
-datasets that reflect properties of problems encountered in real life
-to measure the performance. 
-This is further discussed in Section~\ref{}.
+Regular supervised Machine Learning (ML) models learn to 
+predict the labels of inputs.
+Concept Bottleneck Models~\cite{cbm} (CBMs) and Concept Embedding Models~\cite{cem} (CEMs) are 
+ML models designed to increase the interpretability of model predictions by decomposing a model into
+two submodels, splitting the original process into predicting a set of human-interpretable
+concepts / features present in the input, then predicting the label using these concepts.
+Since these concepts are human-interpretable, it is much more easier to understand
+the reasoning behind the predicted labels, thus mitigating some of the
+potential dangerous downsides associated with using ML models as ''black-box'' models,
+especially in fields where these predictions can have significant consequences to
+human life, such as medicine, criminal justice, autonomous vehicles, etc. 
 
-\section{CEM and IntCEM}
-Current research has made significant progress on optimizing these models for 
-interventions,
-including numerous studies on developing models to learn
-the optimal order of concepts to intervene on~\cite{coop},
-most notably Intervention-aware Concept Embedding Models (IntCEMs)~\cite{intcem}. 
-IntCEMs build on
-Concept Embedding Models~\cite{cem}, a variant of CBMs that utilize 
-embeddings to represent the intermediate concepts. 
-IntCEMs augment CEMs with an additional
-model that learns to predict the next concept to intervene on given the current state
-of the CBM, which is also used during training to increase the CBM's
-sensitivity to interventions. IntCEMs achieve state-of-the-art performance on
-the performance of interventions while still maintaining similar performance when
-no interventions are performed.
+During inference time, professionals can intervene on CBMs and CEMs by correcting
+the predicted concepts leading to more accurate predicted labels. 
+Due to the costs
+associated with performing such an intervention, the question of finding what concepts
+to intervene on in order to maximize the accuracy of the model becomes an important 
+research question. Past methods have mainly focused on greedy approaches, this
+includes using heuristic-based approaches such as intervening on concepts that minimize the
+model's uncertainty~\cite{coop}, or ML-based greedy approaches that learn a intervention policy model
+like in IntCEMs~\cite{intcem}.
+Compared to existing work, we investigate the possibility of learning non-greedy policies
+where we model the problem of deciding what concepts to intervene on as a Reinforcement Learning~\cite{rl} 
+problem. We model the costs
+associated with interventions and budgets for interventions, which are constraints present in
+ real life
+applications of CBMs, and set the main research question to be
+determining the concepts to intervene on for different budgets for a given CEM
+to maximize its performance.
 
-\section{Reinforcement Learning}
-Despite the above-mentioned improvements, there is still a big gap between the
-performance
-of these intervention policies versus the best possible performance, i.e. the performance of 
-intervention policies that have access to the ground truth output labels.
-Additionally, existing approaches such as IntCEM are greedy, which means that
-they learn to predict concepts that maximize the performance at each step.
-We speculate that non-greedy methods may outperform 
-these existing greedy methods, with the objective being maximizing 
-performance after intervening a certain number of concepts rather than maximizing 
-performance at each step. 
-One such approach that may be used to generate non-greedy intervention policies 
-is Reinforcement Learning (RL)~\cite{rl}.
+To answer the above question, we first investigate the differences between greedy and non-greedy policies,
+proving that non-greedy algorithms can outperform
+their greedy counterparts. We then build a Reinforcement Learning agent
+that learns to select the next concept to intervene in order to maximize the model's performance for a given budget.
+To guide the agent throughout the intervention process, we utilize surrogate models that model
+the conditional distribution of concepts. A detailed description of these models are in Section~\ref{method:rlcem}.
+These surrogate models guide the RL agent throughout the intervention
+process by rewarding the agent for intervening on concepts that lead to higher probabilities of
+intervened concepts, and provide auxiliary information such as which of the unintervened concepts 
+are more likely to be correct in order for the agent to make more informed decisions.
+% The output of these surrogate models are then used by a Reinforcement Learning agent in order to
+% perform sequential intervention decisions to maximize the final performance, which is trained
+% in conjunction with a CBM in order to increase the sensitivity of the CBM to
+% the interventions. 
+We augment CEMs with this RL agent and a pretrained surrogate model to form RLCEM, 
+where the CEM and the RL agent is trained simultaneously, which helps learn a non-greedy policy
+and increase the sensitivity of the CEM to these interventions.
 
-This project focuses specifically on trying to solve the 
-question of finding a good intervention policy for a given 
-budget using RL, and Surrogate models to model conditional 
-probabilities to guide the RL model, taking inspiration
-from an approach~\cite{gsmrl} in a similar setting of
-Active Feature Acquisition (AFA)~\cite{afa}.
-
-This project successfully develops a novel RL-based method
-that when used in conjunction with
-existing methods from IntCEM to increase sensitivity
-to interventions, is able to learn a non-greedy intervention policy
-for a Concept Bottleneck Model that outperforms
-existing 
-greedy intervention policies for different budgets, 
-while maintaining similar performance
-when no interventions are performed. To my knowledge,
-this is the first approach that utilises Reinforcement Learning
-to learn an intervention policy, building on top of the
-joint optimization approach from IntCEM to learn better intervention
-policies that offers notably better intervention performances and
-requiring less interventions to reach the same level of intervention performance.
-
+The results show that such a CEM
+outperform existing model when intervened using the learnt policy, while simultaneously achieving 
+similar performance
+under the absence of interventions. This project successfully demonstrates the power of using
+non-greedy policies over greedy policies, and how a non-greedy policy can be learnt that 
+outperforms existing greedy policies using Reinforcement Learning, showing that Reinforcement Learning
+is a viable approach for learning intervention policies.
 
 \end{document}

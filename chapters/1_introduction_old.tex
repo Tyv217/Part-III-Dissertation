@@ -1,0 +1,88 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+\chapter{Introduction}
+\label{firstcontentpage}
+
+\section{Concept Bottleneck Models}
+Machine Learning (ML) models are universal approximation solutions to problems
+and have been traditionally viewed and used as "black-box" solutions, 
+where users simply query the model and receive an answer without knowing the
+ reasoning process behind it. Over the past decade,
+the increased application of ML models along with this "black-box" property has
+raised many concerns, especially in areas where decisions made are critical to
+human safety, such as in medicine or automated driving. To increase
+interpretability, researchers developed Concept Bottleneck Models (CBMs)~\cite{cbm} that 
+learns to predict a set of human-interpretable concepts from input, and then uses these
+concepts to predict labels. This increases the interpretability of models
+as humans
+can understand the basis of the ML model predictions via the high-level 
+intermediate concepts that the model is trained to predict. 
+
+Another additional benefit of these models is that when used in 
+practice, experts can intervene by correcting incorrect intermediate
+concept predictions to
+generate more accurate final label predictions.
+Given that experts have limited time, determining 
+the order of concepts to query experts to intervene on, 
+to maximize the accuracy of the model, 
+becomes an important problem.
+Since the objective behind developing these models is to
+use them in real life, this project utilizes different
+datasets that reflect properties of problems encountered in real life
+to measure the performance. 
+This is further discussed in Section~\ref{}.
+
+\section{CEM and IntCEM}
+Current research has made significant progress on optimizing these models for 
+interventions,
+including numerous studies on developing models to learn
+the optimal order of concepts to intervene on~\cite{coop},
+most notably Intervention-aware Concept Embedding Models (IntCEMs)~\cite{intcem}. 
+IntCEMs build on
+Concept Embedding Models~\cite{cem}, a variant of CBMs that utilize 
+embeddings to represent the intermediate concepts. 
+IntCEMs augment CEMs with an additional
+model that learns to predict the next concept to intervene on given the current state
+of the CBM, which is also used during training to increase the CBM's
+sensitivity to interventions. IntCEMs achieve state-of-the-art performance on
+the performance of interventions while still maintaining similar performance when
+no interventions are performed.
+
+\section{Reinforcement Learning}
+Despite the above-mentioned improvements, there is still a big gap between the
+performance
+of these intervention policies versus the best possible performance, i.e. the performance of 
+intervention policies that have access to the ground truth output labels.
+Additionally, existing approaches such as IntCEM are greedy, which means that
+they learn to predict concepts that maximize the performance at each step.
+We speculate that non-greedy methods may outperform 
+these existing greedy methods, with the objective being maximizing 
+performance after intervening a certain number of concepts rather than maximizing 
+performance at each step. 
+One such approach that may be used to generate non-greedy intervention policies 
+is Reinforcement Learning (RL)~\cite{rl}.
+
+This project focuses specifically on trying to solve the 
+question of finding a good intervention policy for a given 
+budget using RL, and Surrogate models to model conditional 
+probabilities to guide the RL model, taking inspiration
+from an approach~\cite{gsmrl} in a similar setting of
+Active Feature Acquisition (AFA)~\cite{afa}.
+
+This project successfully develops a novel RL-based method
+that when used in conjunction with
+existing methods from IntCEM to increase sensitivity
+to interventions, is able to learn a non-greedy intervention policy
+for a Concept Bottleneck Model that outperforms
+existing 
+greedy intervention policies for different budgets, 
+while maintaining similar performance
+when no interventions are performed. To my knowledge,
+this is the first approach that utilises Reinforcement Learning
+to learn an intervention policy, building on top of the
+joint optimization approach from IntCEM to learn better intervention
+policies that offers notably better intervention performances and
+requiring less interventions to reach the same level of intervention performance.
+
+
+\end{document}
