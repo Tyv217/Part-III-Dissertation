@@ -3,14 +3,13 @@
 \chapter*{Abstract}
 
 
-With the developments made in Concept Bottleneck Models,
+With the recent developments in Concept Bottleneck Models,
 finding optimal interventions for these models
 to maximize their performance under a given budget is an important issue, as it allows
 us to maximize the performance of these interpretable models while minimizing
 the costs related to expert interventions. This project investigates solving this problem
 using a new approach that combines Reinforcement Learning with surrogate models, with the goal
-of maximizing intervention performance while maintaining similar performance to the original model
-when no interventions are performed.
+of maximizing performance using intervention policies learnt by this new method.
 
 Compared to 
 previous approaches that only use greedy policies, 
@@ -20,7 +19,9 @@ is to use Reinforcement Learning to learn a non-greedy policy to maximize the pe
 gain from interventions over a budget rather than at each step. This is done by modelling the problem 
 of deciding
 what concept to intervene on as a Reinforcement Learning problem to maximize the final performance,
-using surrogate models that model the distribution of concepts as intermediate rewards. When used in conjunction
+using surrogate models that model the distribution of concepts to provide intermediate rewards and 
+auxiliary information. 
+When used in conjunction
 with methods to increase sensitivity of models to interventions, this project successfully develops a novel
 RL-based method that outperforms existing greedy intervention policies for different budgets, while maintaining
 similar un-intervened performance. 
@@ -30,8 +31,9 @@ intervention policies for Concept Bottleneck Models and incorporates budgets int
 and shows that
 different budgets can have different optimal intervention trajectories where
 non-greedy policies outperform greedy policies.
-This project also successfully shows that 
-Reinforcement Learning can be applied to this approach to generate more optimal intervention policies
+This project also successfully develops a novel approach to learning intervention policies using
+Reinforcement Learning and demonstrate that this approach generates 
+more optimal intervention policies
 that lead to better performance
-compared to existing greedy approaches.
+compared to existing greedy methods.
 \end{document}
