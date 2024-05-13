@@ -10,18 +10,18 @@ Concept Bottleneck Models~\cite{cbm} (CBMs) and Concept Embedding Models~\cite{c
 ML models designed to increase the interpretability of model predictions by decomposing a model into
 two submodels, splitting the original process into predicting a set of human-interpretable
 concepts / features present in the input, then predicting the label using these concepts.
-Since these concepts are human-interpretable, it is much more easier to understand
-the reasoning behind the predicted labels, thus mitigating some of the
-potential dangerous downsides associated with using ML models as ''black-box'' models,
+Since these concepts are human-interpretable, it becomes much easier to understand
+the reasoning behind the predicted labels, mitigating some of the
+potential dangerous downsides associated with using ML models as ``black-box'' models,
 especially in fields where these predictions can have significant consequences to
 human life, such as medicine, criminal justice, autonomous vehicles, etc. 
 
 During inference time, professionals can intervene on CBMs and CEMs by correcting
-the predicted concepts leading to more accurate predicted labels. 
+the predicted concepts, leading to more accurate predicted labels. 
 Due to the costs
 associated with performing such an intervention, the question of finding what concepts
 to intervene on in order to maximize the accuracy of the model becomes an important 
-research question. Past methods have mainly focused on greedy approaches, this
+research question. Past methods have mainly focused on greedy approaches, which
 includes using heuristic-based approaches such as intervening on concepts that minimize the
 model's uncertainty~\cite{coop}, or ML-based greedy approaches that learn a intervention policy model
 like in IntCEMs~\cite{intcem}.
@@ -30,8 +30,8 @@ where we model the problem of deciding what concepts to intervene on as a Reinfo
 problem. We model the costs
 associated with interventions and budgets for interventions, which are constraints present in
  real life
-applications of CBMs, and set the main research question to be
-determining the concepts to intervene on for different budgets for a given CEM
+applications, and set the main research question to be
+determining the concepts to intervene on for different budgets for a CEM
 to maximize its performance.
 
 To answer the above question, we first investigate the differences between greedy and non-greedy policies,
@@ -42,22 +42,22 @@ To guide the agent throughout the intervention process, we utilize surrogate mod
 the conditional distribution of concepts. A detailed description of these models are in Section~\ref{method:rlcem}.
 These surrogate models guide the RL agent throughout the intervention
 process by rewarding the agent for intervening on concepts that lead to higher probabilities of
-intervened concepts, and provide auxiliary information such as which of the unintervened concepts 
-are more likely to be correct in order for the agent to make more informed decisions.
+intervened concepts, and provide auxiliary information about the unintervened concepts
+ in order for the agent to make more informed decisions.
 % The output of these surrogate models are then used by a Reinforcement Learning agent in order to
 % perform sequential intervention decisions to maximize the final performance, which is trained
 % in conjunction with a CBM in order to increase the sensitivity of the CBM to
 % the interventions. 
 We augment CEMs with this RL agent and a pretrained surrogate model to form RLCEM, 
-where the CEM and the RL agent is trained simultaneously, which helps learn a non-greedy policy
+and train the CEM and the RL agent simultaneously, which helps learn a non-greedy policy
 and increase the sensitivity of the CEM to these interventions.
 
-The results show that such a CEM
-outperform existing model when intervened using the learnt policy, while simultaneously achieving 
+The results show that such RLCEMs
+outperform existing models when intervened using the learnt policy, while achieving 
 similar performance
-under the absence of interventions. This project successfully demonstrates the power of using
-non-greedy policies over greedy policies, and how a non-greedy policy can be learnt that 
-outperforms existing greedy policies using Reinforcement Learning, showing that Reinforcement Learning
-is a viable approach for learning intervention policies.
+under the absence of interventions. This project successfully demonstrates the how a non-greedy 
+policy can be learnt using Reinforcement Learning and surrogate models that 
+outperforms existing greedy policies for different budgets, showing that Reinforcement Learning
+is a viable approach for learning more optimal intervention policies.
 
 \end{document}
