@@ -28,7 +28,15 @@ concepts $\mathbf{c}$ and labels $\mathbf{y}$.
 \end{figure}
 
 CBMs allow for interventions, which are using experts to correct the intermediate concepts
-predicted by the $\mathbf{x} \to \mathbf{c}$ model to improve the performance of the $\mathbf{c} \to \mathbf{y}$ model.
+predicted by the $\mathbf{x} \to \mathbf{c}$ model to improve the performance of the $\mathbf{c} \to \mathbf{y}$ model,
+which is illustrated in Figure~\ref{fig:cbm-interventions}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{figs/background/cbm_interventions.png}
+    \caption{An illustration of intervening on the concepts predicted by a CBM.}
+    \label{fig:cbm-interventions}
+\end{figure}
 
 \subsection{Training CBMs}
 
@@ -170,6 +178,14 @@ where the goal is to minimize the discrepancy between predicted outputs and true
 the goal of Reinforcement Learning is to maximize the cumulative rewards received by the agent
 by taking actions over time. The agent has access to observations which reflect the current state
  of the environment and can take actions to progress to different states until 
+ 
+\section{Flow Models}
+Flow models model probability distributions by leveraging the change of variable property~\cite{normalizing-flows}.
+Given an input distribution $x \sim p_X(\mathbf{x})$, the change of variable property allows us to define
+deterministic invertible transformations $f: \mathbf{x} \to \mathbf{z}$, such that 
+$\mathbf{z} = f(\mathbf{x})$ where there exists a simple invertible function
+$f^{-1}$ such that $\mathbf{z} = f^{-1}(f(z)) \forall z$. 
+
 
 
 \end{document}

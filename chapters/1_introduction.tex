@@ -24,7 +24,10 @@ to intervene on in order to maximize the accuracy of the model becomes an import
 research question. Past methods have mainly focused on greedy approaches, which
 includes using heuristic-based approaches such as intervening on concepts that minimize the
 model's uncertainty~\cite{coop}, or ML-based greedy approaches that learn a intervention policy model
-like in IntCEMs~\cite{intcem}.
+like in IntCEMs~\cite{intcem}. Additionally existing approaches either 
+attempt to model the distribution of concepts and use that to perform interventions~\cite{energycem}, 
+or directly learn a policy~\cite{intcem}, while limited
+work has been done on combining the capabilities of models from these two approaches.
 Compared to existing work, we investigate the possibility of learning non-greedy policies
 where we model the problem of deciding what concepts to intervene on as a Reinforcement Learning~\cite{rl} 
 problem. We model the costs

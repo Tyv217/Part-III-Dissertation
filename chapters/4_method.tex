@@ -5,34 +5,28 @@
 
 \section{Intervention Policies}
 
-Another key advantage of using CBMs is having access to 
+A key advantage of using CBMs is having access to 
 run-time interventions, which is the idea of utilizing professionals
 to modify incorrect concept predictions to improve the 
-performance of the model, as illustrated in Figure~\ref{fig:cbm-interventions} For simplicity, we omit the
-possibility of incorrect interventions, i.e. the scenario
-where the professional misjudges and changes the concept prediction to be incorrect,
+performance of the model.
+For simplicity, in this project we do not consider incorrect interventions, 
+i.e. when the professionals misjudge and modify
+ the predicted concepts to incorrect values,
 and assume that
-all interventions modify the concepts correctly. Thus an intervention
+all interventions are correct. Thus an intervention
 can be defined as the following function, where
 the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$ are interpolated
-via the intervention vector $\bm{\mu}$, a multi-hot encoded vector.
+using a multi-hot encoding intervention vector $\bm{\mu}$.
+
 \[I(\hat{\mathbf{c}}, \mathbf{c}, \bm{\mu}) = 
 \bm{\mu} \; \mathbf{c} + (1 - \bm{\mu}) \; \hat{\mathbf{c}} \qquad \hat{\mathbf{c}}, \mathbf{c}, \bm{\mu} \in \{0, 1\}^k\]
-
-\begin{figure}[!h]
-    \centering
-    \includegraphics[width=\textwidth]{figs/background/cbm_interventions.png}
-    \caption{An illustration of intervening on the concepts predicted by a CBM.}
-    \label{fig:cbm-interventions}
-\end{figure}
 
 To formalize an intervention policy for this
 project, we define an intervention policy $\mathcal{P}$ to be a policy, either learnt
 or heuristic-based, that determines the order of concepts to intervene 
-on with the goal of maximizing the performance after interventions.
-If the performance of a model is measured by minimizing some loss $L_{\text{task}}$,
-a greedy intervention policy is a collection of policies $\mathcal{P}_i$, each
-outputting an index to intervene on at step $i$. The policy aims to minimizes 
+on with the goal of maximizing the accuracy of the $\mathbf{c} \to \mathbf{y}$ concept prediction model.
+A greedy intervention policy is thus a collection of functions $\mathcal{P}_i$, each
+of which outputs the concept to intervene on at step $i$. The policy aims to minimizes 
 the following:
 
 \[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmin}}_{\mathcal{P}_i} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
@@ -49,7 +43,6 @@ and label $\mathbf{y}$.
 
 \subsection{Non-greedy Intervention Policies}
 
-
 Compared to a greedy intervention policy, a non-greedy intervention 
 policy outputs a set of concept to intervene on for a given budget $j$,
 which we want to maximize the performance of the 
@@ -61,33 +54,82 @@ function:
 Note that the notion of a budget, defined as the number
 of concepts allowed to intervene on for simplicity, is only
 important for non-greedy policies. Non-greedy policies aim
-to maximize the performance after using up the intervention budget,
-and may have a different set of intervention concepts 
+to maximize the accuracy of the $\mathbf{c} \to \mathbf{y}$ model after using up the intervention budget,
+and may select different sets of intervention concepts 
 for different budgets. Greedy policies always select the same
-concepts per step and thus the current or remaining budget does not 
+concepts per step and thus the budget does not 
 affect the concept selected by the policy.
 
-We model the problem of finding a non-greedy intervention policy as a 
-Reinforcement Learning problem. As mentioned in Section~\cite{background:rl},
-Reinforcement Learning can be used to find non-greedy solutions to problems
-by design as it models the long-term effects of its actions, and aims to 
-maximize the overall reward gain 
+% Budget
 
-
-\section{Surrogate Models}
+\section{Surrogate Models}\label{method:surrogate}
 
 We use surrogate models to model the probabilities of concepts which are used
 to guide the RL model. Following Li et al.~\cite{afa} which uses Reinforcement Learning
 in the similar problem of Active Feature Acquisition, we use a surrogate model to model
 the conditional probabilities $p(\mathbf{x}_u \mid \mathbf{x}_o, \mathbf{y})$, 
-where $\mathbf{x}_u$ is the set of unintervened concepts, $\mathbf{x}_o$ is the set of intervened concepts,
-and $\mathbf{y}$ is the label. The surrogate model used is the Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
-model, which are flow-based models augmented with the power to model arbitrary conditional probabilities.
+where $\mathbf{x}_u$ is the set of unseen concepts, $\mathbf{x}_o$ is the set of seen concepts,
+and $\mathbf{y}$ is the label. We select a variant of the popular normalizing flow models~\cite{normalizing-flows},
+namely Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
+models as our surrogate models, 
+which are flow models augmented with the power to model arbitrary conditional probabilities.
 
-Flow-based models model probability distributions by leveraging the change of variable property~\cite{flow}.
+As described in Section~ref{background:flow}, normalizing flow models 
+
+
+Flow models define transformations
+using ML models with this property with learnable parameters
+
+Each of these transformations give a normalized
+density, and they can be composed to create more complex invertible distributions.
+This property allows us to define normalizing flow models which learn a series of transformations
+that use a simple latent distribution to model a complex distribution, such as 
+the distribution of concepts within a dataset for CEMs.
+
+Due to the invertible property of the transformation,
+a model learnt this way also allows us to sample from the complex distribution
+according to the underlying probability distribution, which is useful as
+this provide information on which concepts are likely to be present given the current seen concepts.
+For remaining concepts $x_r$, we obtain $p(x_r \mid x_u, x_o, y)$ by sampling from the model, 
+and this information is useful for the RL agent, as for a given set of concepts outputted by 
+the $\mathbf{x} \to \mathbf{c}$ model, this information tells the agent which concepts are likely
+to be predicted correctly and which are not based on the learnt distribution of concepts given the
+predicted label. This allows the RL agent to learn to intervene on concepts that are 
+more likely to be predicted incorrectly and improve the accuracy of the model.
+
 
 
 \section{RLCEM}\label{method:rlcem}
 
-\section{Datasets}
+% Talk about how the RLCEM model is formed
+% The goal, losses etc
+% Detailed description of what happens during training and testing
+% Diagram
+% Talk about design choices: num_rollouts, batch_size sampling of budget etc
+
+\subsection{Reinforcement Learning}
+
+We model the problem of finding a non-greedy intervention policy as a 
+Reinforcement Learning problem. As mentioned in Section~\cite{background:rl},
+Reinforcement Learning are used to find non-greedy solutions to problems
+by design as it models the long-term effects of its actions, and aims to 
+maximize the overall reward gain. 
+
+In order to formulate the problem of finding an optimal non-greedy intervention policy
+as a Reinforcement Learning problem, we model an intervention
+trajectory as a Markov Decision Problem~\cite{rl-mdp} according
+to the following definition:
+\begin{itemize}
+    \item States are the observations of the model, including all the information that the is available
+    at each step. This includes the state of the CEM, including its bottleneck and predicted concepts,
+    the output of the surrogate model, including $p(x_u \mid x_o, y)$, $p(x_r \mid x_u, x_o, y)$,
+    $p(x_r \mid x_u, x_o)$ as described in Section~\ref{method:surrogate}.
+\end{itemize}
+
+\section{Models and Datasets}
+% Brief description of each of these datasets and what they are each used for.
+% Leave full description to be in appendix.
+% Talk about concept groups
+% Talk about subsampling
+
 \end{document}
