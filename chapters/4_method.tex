@@ -1,6 +1,6 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
-\chapter{Design and implementation}
+\chapter{Method}
 
 
 \section{Intervention Policies}
@@ -80,7 +80,7 @@ Networks~\cite{tans} (TANs), and learn to model
 the probabilities for an arbitrary set of variables $p_X(x_0, x_1, \ldots, x_n \mid y)$,
 modelling the underlying latent distribution using an autoregressive approach with Recurrent
 Neural Networks (RNNs)~\cite{rnn}. The RNN learns to model the likelihood of 
-$p_Z(z_0, z_1, \ldots, z_n \mid y)$ by sequentially processing each of the variables $z_i$.
+$p_Z(z_0, \ldots, z_n \mid y)$ by sequentially processing each of the variables $z_i$.
 At each step, the output of the RNN $h_i$ is 
 passed through a learnable linear layer to get parameters for an underlying Gaussian Mixture Model (GMM),
 which allows us to compute $p(z_0, z_1, \ldots, z_n \mid y)$ using a weighted
@@ -103,10 +103,16 @@ set of transformations defined by Li et al.~\cite{acflow} and implement the corr
 transformations. These transformations learn a function $f_i$ where
 
 This is combined with the transformations used in normalizing flows to 
-model the probability density of $p(x_0, x_1, \ldots, x_n)$. AC Flow models
-build on top of this and model the conditional probabilities $p(x_u \mid x_o, y)$, which is the probability of 
+model the probability density of $p(x_0, \ldots, x_n)$. 
+AC Flow models
+build on top of this and model the conditional likelihoods $p(x_0, \ldots, x_n \mid y)$.
+This can then be used to compute the arbitrary conditional likelihood $p(x_u \mid x_o, y)$
+which is the likelihood of 
 seeing a set of unobserved features $x_u$
 given a set of observed features $x_o$ and a class $y$. 
+By using Bayes' theorem, we note that
+\[p(x_u \mid x_o, y) = \frac{p(x_u, x_o \mid y)}{p(x_o \mid y)}\]
+Which the right hand side terms can be computed using the AC Flow model.
 Due to the invertible property of the learnt transformations,
 a model learnt this way also allows us to sample from the data distribution
 by sampling from the underlying probability distribution then applying the transformations, which is useful for
@@ -114,51 +120,18 @@ determining interventions as
 this provides information on which concepts are likely to be present (or not present) given the currently intervened
 concepts.
 
-\subsection{}
-
-In the problem of Active Feature Acquisition, Li et al.~\cite{afa} combine Reinforcement Learning with 
-AC Flow models to give impressive results on finding the optimal features to acquire from the environment. This is done
-first by pre-training an AC Flow model that learns arbitrary conditional distributions about the underlying
-features $p(x_u \mid x_o, y)$. Then, A Reinforcement Learning agent is trained to learn 
-the order of features to acquire in order to maximize the accuracy of a label predictor model. At each
-step, the agent is given the current set of acquired features $x_o$, and the agent samples the next 
-feature to acquire $x_u$, where the agent is rewarded based on the expected information gain
-to the target variable $y$, $H(y \mid x_o) - \mathbb{E} H(y \mid x_u, x_o)$. This can be simplified as
-$H(x_u \mid x_o) - \mathbb{E}H(x_u \mid x_o, y)$. This can directly be estimated by the AC Flow model
-as it can compute the conditional probability densities $p(x_u \mid x_o)$ and $p(x_u \mid x_o, y)$. Li et al.~\cite{afa} 
-also show that using this intermediate reward will not affect the optimality of the learnt policy.
+\subsection{Training Surrogate Models}
 
 In this project, we adapt AC Flow models to model the probabilities of concepts in CEMs during interventions.
 We follow the description of Li et al.~\cite{afa} and implement corresponding AC Flow models to model
-the distribution of concepts. To representa
+the distribution of concepts, and use 
 
-
-These AC Flow models are trained by a combination of two losses, the negative
-log likelihood of the model and the logits.
-
-
-
-
-We pre-train these models on the concept-annotated dataset,
-In particular, during step $i$ of the intervention process, the set of unintervened concepts correspond 
-to the unobserved features, vice versa, and we use the conditional probability density of 
-intervened concepts as rewards to the RL agent similar to above. Additionally, at each step
-with intervened concepts $x_o$, the agent has access to the sampled concepts $x_u$ from the AC Flow model.
-This includes $x_u$ sampled from $p(x_u \mid x_o, y)$ and $p(x_u \mid x_o)$, which provides information
-on the concepts with the highest likelihood of being present given the intervened concepts, both with and without
-the label $y$.  This allows the RL agent to learn to intervene on concepts that are 
-more likely to be predicted incorrectly, leading to improvements in accuracy of the predicted labels.
-
-Compared to Active Feature Acquisition, the problem setting is a lot more complex due to the fact that
-rather than simply acquiring features from the environment, we are trying to determine
-which concepts are more likely to be incorrectly predicted by the $\mathbf{x} \to \mathbf{c}$ model, as well as 
-which concepts are more likely to, when corrected, guide the model towards the correct prediction $\mathbf{y}$.
-Additionally the goal is to train one RL agent to be able to determine which concepts
-to intervene on for different budgets, which adds another layer of complexity as we require
-one unified model for the different tasks with different budgets.
-
-As such corresponding adjustments need to be made, which are illustrated in Sections\ref{} and \ref{}.
-
+We train the AC Flow models using a combination of two losses, a negative
+log likelihood loss $L_{\text{nll}}$ and a cross entropy loss $L_{\text{CE}}$. 
+Since these models output likelihoods directly,
+we can directly maximize the likelihood, or equivalently minimizing the negative log likelihood.
+Additionally, to train the model to learn about the likelihood distribution of concepts
+among classes, 
 
 \section{RLCEM}\label{method:rlcem}
 
@@ -187,12 +160,59 @@ to the following definition:
     $p(x_r \mid x_u, x_o)$ as described in Section~\ref{method:surrogate}.
 \end{itemize}
 
+
+\subsection{Active Feature Acquisition}
+
+In the problem of Active Feature Acquisition as described in Section~\ref{related:afa},
+Li et al.~\cite{afa} combine Reinforcement Learning with 
+AC Flow models to give impressive results on finding the optimal features to acquire from the environment. This is done
+first by pre-training an AC Flow model that learns arbitrary conditional distributions about the underlying
+features $p(x_u \mid x_o, y)$. Then, A Reinforcement Learning agent is trained to learn 
+the order of features to acquire in order to maximize the accuracy of a label predictor model. At each
+step, the agent is given the current set of acquired features $x_o$, and the agent samples the next 
+feature to acquire $x_u$, where the agent is rewarded based on the expected information gain
+to the target variable $y$, $H(y \mid x_o) - \mathbb{E} H(y \mid x_u, x_o)$. This can be simplified as
+$H(x_u \mid x_o) - \mathbb{E}H(x_u \mid x_o, y)$, and can directly be estimated by the AC 
+Flow model by computing the conditional probability densities $p(x_u \mid x_o, y)$, and 
+$p(x_u \mid x_o)$ by marginalization. Li et al.~\cite{afa} 
+also show that using this intermediate reward will not affect the optimality of the learnt policy.
+
+
+We pre-train these models on the concept-annotated dataset, and then use the frozen
+model to train our RL agent.
+In particular, during step $i$ of the intervention process, the set of unintervened concepts correspond 
+to the unobserved features, vice versa, and we use the conditional probability density of 
+intervened concepts as rewards to the RL agent similar to above. Additionally, at each step
+with intervened concepts $x_o$, the agent has access to the sampled concepts $x_u$ from the AC Flow model.
+This includes $x_u$ sampled from $p(x_u \mid x_o, y)$ and $p(x_u \mid x_o)$, which provides information
+on the concepts with the highest likelihood of being present given the intervened concepts, both with and without
+the label $y$.  This allows the RL agent to learn to intervene on concepts that are 
+more likely to be predicted incorrectly, leading to improvements in accuracy of the predicted labels.
+
+Compared to Active Feature Acquisition, the problem setting is a lot more complex due to the fact that
+rather than simply acquiring features from the environment, we are trying to determine
+which concepts are more likely to be incorrectly predicted by the $\mathbf{x} \to \mathbf{c}$ model, as well as 
+which concepts are more likely to, when corrected, guide the model towards the correct prediction $\mathbf{y}$.
+Additionally the goal is to train one RL agent to be able to determine which concepts
+to intervene on for different budgets, which adds another layer of complexity as we require
+one unified model for the different tasks with different budgets.
+
+As such corresponding adjustments need to be made, which are illustrated in Sections\ref{} and \ref{}.
+
+
 \section{Models and Datasets}
 % Brief description of each of these datasets and what they are each used for.
 % Leave full description to be in appendix.
 % Talk about concept groups
 % Talk about subsampling
-We follow Zarlenga et al.~\cite{intcem} and use the datasets MNIST-ADD, CUB, and CelebA for our experiments.
+We follow Zarlenga et al.~\cite{intcem} and use the datasets MNIST-ADD, CUB, and CelebA for 
+our experiments.
+
+\subsection{MNIST-ADD}
+
+\subsection{CUB}
+
+\subsection{CelebA}
 
 
 
