@@ -26,33 +26,28 @@ to be a policy, either learnt
 or heuristic-based, that determines the order of concepts to intervene 
 on with the goal of maximizing the accuracy of the $\mathbf{c} \to \mathbf{y}$ concept prediction model.
 A greedy intervention policy is thus a collection of functions $\mathcal{P}_i$, each
-of which outputs the concept to intervene on at step $i$. The policy aims to minimizes 
-the following:
-
-\[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmax}}_{\mathcal{P}_i} Accuracy(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
+of which outputs the concept to intervene on at step $i$. An optimal greedy policy is the following
+\[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmax}}_{\mathcal{P}_i} Acc(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 % \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}))\]
-Which aims to maximize the accuracy at each step $j$ sequentially
+Which maximizes the accuracy at each step $j$ sequentially
 for all $k$ concepts. At each
 step, $\hat{\mathbf{c}}_{j-1}$ is 
-the concept after the previous $j-1$ interventions,
-Similar to above, the task loss $L_{\text{task}}$ is used to minimize
-the discrepancy of $\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j})$, 
-the output of the label predictor model on the intervened concepts,
-and label $\mathbf{y}$.
+the predicted concept after the previous $j-1$ interventions,
+and we aim to maximize the accuracy of the $\hat{g}: \mathbf{c} \to mathbf{y}$ model
+on the intervened concepts $\hat{\mathbf{c}}_{\mathcal{P}_j}$ and the label $\mathbf{y}$.
 
 \subsection{Non-greedy Intervention Policies}
 
 Compared to a greedy intervention policy, a non-greedy intervention 
 policy outputs a set of concepts to intervene on for a given budget $j$,
 which we want to maximize the accuracy of the 
-label predictor model on. This is equivalent to maximizing the following 
-function:
-\[\hat{\mathcal{P}} = \mathop{\mathrm{argmax}}_{\mathcal{P}} \sum_{j=1}^k Accuracy(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
+label predictor model on. An optimal non-greedy policy maximizes the following
+\[\hat{\mathcal{P}} = \mathop{\mathrm{argmax}}_{\mathcal{P}} \sum_{j=1}^k Acc(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}, \mathbf{c}, \mathcal{P}(\hat{\mathbf{c}}, j))\]
 
 Note that the notion of a budget, defined as the number
-of concepts allowed to intervene on for simplicity, is only
+of concepts the model is allowed to intervene on for simplicity, is only
 important for non-greedy policies. Non-greedy policies aim
 to maximize the accuracy of the $\mathbf{c} \to \mathbf{y}$ model after using up the intervention budget,
 and may select different sets of intervention concepts 
@@ -61,7 +56,7 @@ concepts per step and thus the budget does not
 affect the concept selected by the policy.
 
 % Budget
-In this project, we utilize Reinforcement Learning
+% In this project, we utilize Reinforcement Learning
 
 \section{Surrogate Models}\label{method:surrogate}
 
@@ -69,63 +64,100 @@ We use surrogate models to model the probabilities of concepts which are used
 to guide the RL model. Following Li et al.~\cite{afa} which uses Reinforcement Learning
 in the similar problem of Active Feature Acquisition, we use a surrogate model to model
 the conditional probabilities $p(\mathbf{x}_u \mid \mathbf{x}_o, \mathbf{y})$, 
-where $\mathbf{x}_u$ is the set of unseen concepts, $\mathbf{x}_o$ is the set of seen concepts,
+where $\mathbf{x}_u$ is a set of unacquired concepts, $\mathbf{x}_o$ is a set of acquired concepts,
 and $\mathbf{y}$ is the label. We select a variant of the popular normalizing flow models~\cite{normalizing-flows},
 namely Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
 models as our surrogate models, 
 which are flow models augmented with the power to model arbitrary conditional probabilities.
 
+\subsection{Latent Distribution}
+
 As described in Section~\ref{background:flow}, 
 normalizing flow models utilize the change of variable formula to model probabilities,
 which can be extended to include conditional probabilities. AC Flow models are built on top of
 Transformation Autoregressive
-Networks~\cite{tans} (TANs), which are built to model 
-the probabilities for an arbitrary set of variables $p(x_0, x_1, \ldots, x_n)$.
+Networks~\cite{tans} (TANs), and learn to model 
+the probabilities for an arbitrary set of variables $p_X(x_0, x_1, \ldots, x_n \mid y)$,
+modelling the underlying latent distribution using an autoregressive approach with Recurrent
+Neural Networks (RNNs)~\cite{rnn}. The RNN learns to model the likelihood of 
+$p_Z(z_0, z_1, \ldots, z_n \mid y)$ by sequentially processing each of the variables $z_i$.
+At each step, the output of the RNN $h_i$ is 
+passed through a learnable linear layer to get parameters for an underlying Gaussian Mixture Model (GMM),
+which allows us to compute $p(z_0, z_1, \ldots, z_n \mid y)$ using a weighted
+sum of the probability density of $n$ Gaussian distributions. Experimentally
+we find that setting the number of components $n$ to be the number of classes 
+$y$ can take, or using one Gaussian distribution for each class 
+achieves
+a good balance between model performance and computational efficiency.
+This is discussed further in Section~\ref{eval:surrogate}.
+While using a GMM does not directly gives us the probability
+$p_Z(z_0, z_1, \ldots, z_n)$, it allows us to compute the probability density of the distribution, giving 
+us the likelihood of the set of variables $z_0, z_1, \ldots, z_n$, which provides valuable information
+to the RL agent, and also allows us to sample from the distribution.
 
-TANs model the latent distribution using an autoregressive approach with Recurrent
-Neural Networks (RNNs)~\cite{rnn}. The RNN learns to model
-$p(z_0, z_1, \ldots, z_n)$ by sequentially processing each of the variables $z_i$ and learns
-to output a set of final parameters $\mu, \sigma$ which are used to compute the probability density
-of $p(z_0, z_1, \ldots, z_n)$. This is combined with the transformations used in normalizing flows to 
+\subsection{Transformations}
+
+In order to transform $p(z_0, z_1, \ldots, z_n)$ to $p(x_0, x_1, \ldots, x_n)$, we
+utilize a set of transformations with learnable parameters. We follow the 
+set of transformations defined by Li et al.~\cite{acflow} and implement the corresponding
+transformations. These transformations learn a function $f_i$ where
+
+This is combined with the transformations used in normalizing flows to 
 model the probability density of $p(x_0, x_1, \ldots, x_n)$. AC Flow models
 build on top of this and model the conditional probabilities $p(x_u \mid x_o, y)$, which is the probability of 
 seeing a set of unobserved features $x_u$
 given a set of observed features $x_o$ and a class $y$. 
 Due to the invertible property of the learnt transformations,
-a model learnt this way also allows us to sample from the distribution
-by sampling from the underlying probability distribution, which is useful for
+a model learnt this way also allows us to sample from the data distribution
+by sampling from the underlying probability distribution then applying the transformations, which is useful for
 determining interventions as
 this provides information on which concepts are likely to be present (or not present) given the currently intervened
-concepts, which we know with certainty whether or not they are present.
+concepts.
+
+\subsection{}
 
 In the problem of Active Feature Acquisition, Li et al.~\cite{afa} combine Reinforcement Learning with 
-AC Flows to give impressive results on finding the optimal features to acquire from the environment. This is done
+AC Flow models to give impressive results on finding the optimal features to acquire from the environment. This is done
 first by pre-training an AC Flow model that learns arbitrary conditional distributions about the underlying
-features $p(x_u \mid x_o, y)$. A Reinforcement Learning agent is then trained to learn 
-the order of features to acquire in order to maximize 
+features $p(x_u \mid x_o, y)$. Then, A Reinforcement Learning agent is trained to learn 
+the order of features to acquire in order to maximize the accuracy of a label predictor model. At each
+step, the agent is given the current set of acquired features $x_o$, and the agent samples the next 
+feature to acquire $x_u$, where the agent is rewarded based on the expected information gain
+to the target variable $y$, $H(y \mid x_o) - \mathbb{E} H(y \mid x_u, x_o)$. This can be simplified as
+$H(x_u \mid x_o) - \mathbb{E}H(x_u \mid x_o, y)$. This can directly be estimated by the AC Flow model
+as it can compute the conditional probability densities $p(x_u \mid x_o)$ and $p(x_u \mid x_o, y)$. Li et al.~\cite{afa} 
+also show that using this intermediate reward will not affect the optimality of the learnt policy.
 
 In this project, we adapt AC Flow models to model the probabilities of concepts in CEMs during interventions.
 We follow the description of Li et al.~\cite{afa} and implement corresponding AC Flow models to model
-the distribution of concepts. We pre-train these models on the concept-annotated dataset,
+the distribution of concepts. To representa
+
+
+These AC Flow models are trained by a combination of two losses, the negative
+log likelihood of the model and the logits.
+
+
+
+
+We pre-train these models on the concept-annotated dataset,
 In particular, during step $i$ of the intervention process, the set of unintervened concepts correspond 
 to the unobserved features, vice versa, and we use the conditional probability density of 
-intervened concepts as rewards to the RL agent similar to above.
+intervened concepts as rewards to the RL agent similar to above. Additionally, at each step
+with intervened concepts $x_o$, the agent has access to the sampled concepts $x_u$ from the AC Flow model.
+This includes $x_u$ sampled from $p(x_u \mid x_o, y)$ and $p(x_u \mid x_o)$, which provides information
+on the concepts with the highest likelihood of being present given the intervened concepts, both with and without
+the label $y$.  This allows the RL agent to learn to intervene on concepts that are 
+more likely to be predicted incorrectly, leading to improvements in accuracy of the predicted labels.
 
 Compared to Active Feature Acquisition, the problem setting is a lot more complex due to the fact that
 rather than simply acquiring features from the environment, we are trying to determine
 which concepts are more likely to be incorrectly predicted by the $\mathbf{x} \to \mathbf{c}$ model, as well as 
 which concepts are more likely to, when corrected, guide the model towards the correct prediction $\mathbf{y}$.
-Additionally since and the goal is to train one RL agent to be able to determine which concepts
-to intervene on for different budgets
+Additionally the goal is to train one RL agent to be able to determine which concepts
+to intervene on for different budgets, which adds another layer of complexity as we require
+one unified model for the different tasks with different budgets.
 
 As such corresponding adjustments need to be made, which are illustrated in Sections\ref{} and \ref{}.
-
-Given the already intervened concepts $x_o$, we can sample $x_u$ for the remaining concepts by sampling from the model, 
-and this information is useful for the RL agent, as for a given set of concepts outputted by 
-the $\mathbf{x} \to \mathbf{c}$ model, this information tells the agent which concepts are likely
-to be predicted correctly and which are not based on the learnt distribution of concepts given the
-predicted label. This allows the RL agent to learn to intervene on concepts that are 
-more likely to be predicted incorrectly and improve the accuracy of the model.
 
 
 \section{RLCEM}\label{method:rlcem}
@@ -160,5 +192,8 @@ to the following definition:
 % Leave full description to be in appendix.
 % Talk about concept groups
 % Talk about subsampling
+We follow Zarlenga et al.~\cite{intcem} and use the datasets MNIST-ADD, CUB, and CelebA for our experiments.
+
+
 
 \end{document}
