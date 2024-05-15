@@ -134,3 +134,34 @@ pages = {217 -- 233},
 keywords = {Density estimation, machine learning, maximum likelihood},
 year = {2010},
 }
+
+
+@InProceedings{tans,
+  title = 	 {Transformation Autoregressive Networks},
+  author =       {Oliva, Junier and Dubey, Avinava and Zaheer, Manzil and Poczos, Barnabas and Salakhutdinov, Ruslan and Xing, Eric and Schneider, Jeff},
+  booktitle = 	 {Proceedings of the 35th International Conference on Machine Learning},
+  pages = 	 {3898--3907},
+  year = 	 {2018},
+  editor = 	 {Dy, Jennifer and Krause, Andreas},
+  volume = 	 {80},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {10--15 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v80/oliva18a/oliva18a.pdf},
+  url = 	 {https://proceedings.mlr.press/v80/oliva18a.html},
+  abstract = 	 {The fundamental task of general density estimation $p(x)$ has been of keen interest to machine learning. In this work, we attempt to systematically characterize methods for density estimation. Broadly speaking, most of the existing methods can be categorized into either using: <em>a</em>) autoregressive models to estimate the conditional factors of the chain rule, $p(x_{i}\, |\, x_{i-1}, \ldots)$; or <em>b</em>) non-linear transformations of variables of a simple base distribution. Based on the study of the characteristics of these categories, we propose multiple novel methods for each category. For example we propose RNN based transformations to model non-Markovian dependencies. Further, through a comprehensive study over both real world and synthetic data, we show that jointly leveraging transformations of variables and autoregressive conditional models, results in a considerable improvement in performance. We illustrate the use of our models in outlier detection and image modeling. Finally we introduce a novel data driven framework for learning a family of distributions.}
+}
+
+@article{rnn,
+title = {Fundamentals of Recurrent Neural Network (RNN) and Long Short-Term Memory (LSTM) network},
+journal = {Physica D: Nonlinear Phenomena},
+volume = {404},
+pages = {132306},
+year = {2020},
+issn = {0167-2789},
+doi = {https://doi.org/10.1016/j.physd.2019.132306},
+url = {https://www.sciencedirect.com/science/article/pii/S0167278919305974},
+author = {Alex Sherstinsky},
+keywords = {RNN, RNN unfolding/unrolling, LSTM, External input gate, Convolutional input context windows},
+abstract = {Because of their effectiveness in broad practical applications, LSTM networks have received a wealth of coverage in scientific journals, technical blogs, and implementation guides. However, in most articles, the inference formulas for the LSTM network and its parent, RNN, are stated axiomatically, while the training formulas are omitted altogether. In addition, the technique of “unrolling” an RNN is routinely presented without justification throughout the literature. The goal of this tutorial is to explain the essential RNN and LSTM fundamentals in a single document. Drawing from concepts in Signal Processing, we formally derive the canonical RNN formulation from differential equations. We then propose and prove a precise statement, which yields the RNN unrolling technique. We also review the difficulties with training the standard RNN and address them by transforming the RNN into the “Vanilla LSTM”1 1The nickname “Vanilla LSTM” symbolizes this model’s flexibility and generality (Greff et al., 2015). network through a series of logical arguments. We provide all equations pertaining to the LSTM system together with detailed descriptions of its constituent entities. Albeit unconventional, our choice of notation and the method for presenting the LSTM system emphasizes ease of understanding. As part of the analysis, we identify new opportunities to enrich the LSTM system and incorporate these extensions into the Vanilla LSTM network, producing the most general LSTM variant to date. The target reader has already been exposed to RNNs and LSTM networks through numerous available resources and is open to an alternative pedagogical approach. A Machine Learning practitioner seeking guidance for implementing our new augmented LSTM model in software for experimentation and research will find the insights and derivations in this treatise valuable as well.}
+}

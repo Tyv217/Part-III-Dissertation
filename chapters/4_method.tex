@@ -9,7 +9,7 @@ A key advantage of using CBMs is having access to
 run-time interventions, which is the idea of utilizing professionals
 to modify incorrect concept predictions to improve the 
 performance of the model.
-For simplicity, in this project we do not consider incorrect interventions, 
+For simplicity, we do not consider incorrect interventions, 
 i.e. when the professionals misjudge and modify
  the predicted concepts to incorrect values,
 and assume that
@@ -21,18 +21,18 @@ using a multi-hot encoding intervention vector $\bm{\mu}$.
 \[I(\hat{\mathbf{c}}, \mathbf{c}, \bm{\mu}) = 
 \bm{\mu} \; \mathbf{c} + (1 - \bm{\mu}) \; \hat{\mathbf{c}} \qquad \hat{\mathbf{c}}, \mathbf{c}, \bm{\mu} \in \{0, 1\}^k\]
 
-To formalize an intervention policy for this
-project, we define an intervention policy $\mathcal{P}$ to be a policy, either learnt
+To formalize an intervention policy, we define an intervention policy $\mathcal{P}$ 
+to be a policy, either learnt
 or heuristic-based, that determines the order of concepts to intervene 
 on with the goal of maximizing the accuracy of the $\mathbf{c} \to \mathbf{y}$ concept prediction model.
 A greedy intervention policy is thus a collection of functions $\mathcal{P}_i$, each
 of which outputs the concept to intervene on at step $i$. The policy aims to minimizes 
 the following:
 
-\[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmin}}_{\mathcal{P}_i} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
+\[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmax}}_{\mathcal{P}_i} Accuracy(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 % \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}))\]
-Which minimizes the loss at each step $j$ sequentially
+Which aims to maximize the accuracy at each step $j$ sequentially
 for all $k$ concepts. At each
 step, $\hat{\mathbf{c}}_{j-1}$ is 
 the concept after the previous $j-1$ interventions,
@@ -44,11 +44,11 @@ and label $\mathbf{y}$.
 \subsection{Non-greedy Intervention Policies}
 
 Compared to a greedy intervention policy, a non-greedy intervention 
-policy outputs a set of concept to intervene on for a given budget $j$,
-which we want to maximize the performance of the 
+policy outputs a set of concepts to intervene on for a given budget $j$,
+which we want to maximize the accuracy of the 
 label predictor model on. This is equivalent to maximizing the following 
 function:
-\[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j=1}^k L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
+\[\hat{\mathcal{P}} = \mathop{\mathrm{argmax}}_{\mathcal{P}} \sum_{j=1}^k Accuracy(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}, \mathbf{c}, \mathcal{P}(\hat{\mathbf{c}}, j))\]
 
 Note that the notion of a budget, defined as the number
@@ -61,6 +61,7 @@ concepts per step and thus the budget does not
 affect the concept selected by the policy.
 
 % Budget
+In this project, we utilize Reinforcement Learning
 
 \section{Surrogate Models}\label{method:surrogate}
 
@@ -74,29 +75,57 @@ namely Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
 models as our surrogate models, 
 which are flow models augmented with the power to model arbitrary conditional probabilities.
 
-As described in Section~ref{background:flow}, normalizing flow models 
+As described in Section~\ref{background:flow}, 
+normalizing flow models utilize the change of variable formula to model probabilities,
+which can be extended to include conditional probabilities. AC Flow models are built on top of
+Transformation Autoregressive
+Networks~\cite{tans} (TANs), which are built to model 
+the probabilities for an arbitrary set of variables $p(x_0, x_1, \ldots, x_n)$.
 
+TANs model the latent distribution using an autoregressive approach with Recurrent
+Neural Networks (RNNs)~\cite{rnn}. The RNN learns to model
+$p(z_0, z_1, \ldots, z_n)$ by sequentially processing each of the variables $z_i$ and learns
+to output a set of final parameters $\mu, \sigma$ which are used to compute the probability density
+of $p(z_0, z_1, \ldots, z_n)$. This is combined with the transformations used in normalizing flows to 
+model the probability density of $p(x_0, x_1, \ldots, x_n)$. AC Flow models
+build on top of this and model the conditional probabilities $p(x_u \mid x_o, y)$, which is the probability of 
+seeing a set of unobserved features $x_u$
+given a set of observed features $x_o$ and a class $y$. 
+Due to the invertible property of the learnt transformations,
+a model learnt this way also allows us to sample from the distribution
+by sampling from the underlying probability distribution, which is useful for
+determining interventions as
+this provides information on which concepts are likely to be present (or not present) given the currently intervened
+concepts, which we know with certainty whether or not they are present.
 
-Flow models define transformations
-using ML models with this property with learnable parameters
+In the problem of Active Feature Acquisition, Li et al.~\cite{afa} combine Reinforcement Learning with 
+AC Flows to give impressive results on finding the optimal features to acquire from the environment. This is done
+first by pre-training an AC Flow model that learns arbitrary conditional distributions about the underlying
+features $p(x_u \mid x_o, y)$. A Reinforcement Learning agent is then trained to learn 
+the order of features to acquire in order to maximize 
 
-Each of these transformations give a normalized
-density, and they can be composed to create more complex invertible distributions.
-This property allows us to define normalizing flow models which learn a series of transformations
-that use a simple latent distribution to model a complex distribution, such as 
-the distribution of concepts within a dataset for CEMs.
+In this project, we adapt AC Flow models to model the probabilities of concepts in CEMs during interventions.
+We follow the description of Li et al.~\cite{afa} and implement corresponding AC Flow models to model
+the distribution of concepts. We pre-train these models on the concept-annotated dataset,
+In particular, during step $i$ of the intervention process, the set of unintervened concepts correspond 
+to the unobserved features, vice versa, and we use the conditional probability density of 
+intervened concepts as rewards to the RL agent similar to above.
 
-Due to the invertible property of the transformation,
-a model learnt this way also allows us to sample from the complex distribution
-according to the underlying probability distribution, which is useful as
-this provide information on which concepts are likely to be present given the current seen concepts.
-For remaining concepts $x_r$, we obtain $p(x_r \mid x_u, x_o, y)$ by sampling from the model, 
+Compared to Active Feature Acquisition, the problem setting is a lot more complex due to the fact that
+rather than simply acquiring features from the environment, we are trying to determine
+which concepts are more likely to be incorrectly predicted by the $\mathbf{x} \to \mathbf{c}$ model, as well as 
+which concepts are more likely to, when corrected, guide the model towards the correct prediction $\mathbf{y}$.
+Additionally since and the goal is to train one RL agent to be able to determine which concepts
+to intervene on for different budgets
+
+As such corresponding adjustments need to be made, which are illustrated in Sections\ref{} and \ref{}.
+
+Given the already intervened concepts $x_o$, we can sample $x_u$ for the remaining concepts by sampling from the model, 
 and this information is useful for the RL agent, as for a given set of concepts outputted by 
 the $\mathbf{x} \to \mathbf{c}$ model, this information tells the agent which concepts are likely
 to be predicted correctly and which are not based on the learnt distribution of concepts given the
 predicted label. This allows the RL agent to learn to intervene on concepts that are 
 more likely to be predicted incorrectly and improve the accuracy of the model.
-
 
 
 \section{RLCEM}\label{method:rlcem}
