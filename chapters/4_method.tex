@@ -100,7 +100,9 @@ to the RL agent, and also allows us to sample from the distribution.
 In order to transform $p(z_0, z_1, \ldots, z_n)$ to $p(x_0, x_1, \ldots, x_n)$, we
 utilize a set of transformations with learnable parameters. We follow the 
 set of transformations defined by Li et al.~\cite{acflow} and implement the corresponding
-transformations. These transformations learn a function $f_i$ where
+transformations. These transformations learn a function $f_i$ such that
+
+
 
 This is combined with the transformations used in normalizing flows to 
 model the probability density of $p(x_0, \ldots, x_n)$. 
@@ -131,7 +133,9 @@ log likelihood loss $L_{\text{nll}}$ and a cross entropy loss $L_{\text{CE}}$.
 Since these models output likelihoods directly,
 we can directly maximize the likelihood, or equivalently minimizing the negative log likelihood.
 Additionally, to train the model to learn about the likelihood distribution of concepts
-among classes, 
+among classes, we add a cross entropy loss between the predicted label $\hat{y} = \mathop{\mathrm{argmax}}_y p(x_u, x_o \mid y)$ and the
+true label. This helps ensure the model learn to scale the likelihood of concepts according to the 
+label, and helps the model learn the probabilities $p(x_u \mid x_o, y)$.
 
 \section{RLCEM}\label{method:rlcem}
 
