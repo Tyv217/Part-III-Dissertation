@@ -122,11 +122,11 @@ determining interventions as
 this provides information on which concepts are likely to be present (or not present) given the currently intervened
 concepts.
 
-\subsection{Training Surrogate Models}
+\subsection{Training the Surrogate Models}
 
 In this project, we adapt AC Flow models to model the probabilities of concepts in CEMs during interventions.
 We follow the description of Li et al.~\cite{afa} and implement corresponding AC Flow models to model
-the distribution of concepts, and use 
+the distribution of concepts, which adapt several 
 
 We train the AC Flow models using a combination of two losses, a negative
 log likelihood loss $L_{\text{nll}}$ and a cross entropy loss $L_{\text{CE}}$. 
@@ -149,7 +149,7 @@ label, and helps the model learn the probabilities $p(x_u \mid x_o, y)$.
 
 We model the problem of finding a non-greedy intervention policy as a 
 Reinforcement Learning problem. As mentioned in Section~\cite{background:rl},
-Reinforcement Learning are used to find non-greedy solutions to problems
+Reinforcement Learning is used to find non-greedy solutions to problems
 by design as it models the long-term effects of its actions, and aims to 
 maximize the overall reward gain. 
 
@@ -167,7 +167,7 @@ to the following definition:
 
 \subsection{Active Feature Acquisition}
 
-In the problem of Active Feature Acquisition as described in Section~\ref{related:afa},
+In Active Feature Acquisition as described in Section~\ref{related:afa},
 Li et al.~\cite{afa} combine Reinforcement Learning with 
 AC Flow models to give impressive results on finding the optimal features to acquire from the environment. This is done
 first by pre-training an AC Flow model that learns arbitrary conditional distributions about the underlying
@@ -181,8 +181,7 @@ Flow model by computing the conditional probability densities $p(x_u \mid x_o, y
 $p(x_u \mid x_o)$ by marginalization. Li et al.~\cite{afa} 
 also show that using this intermediate reward will not affect the optimality of the learnt policy.
 
-
-We pre-train these models on the concept-annotated dataset, and then use the frozen
+We pre-train these models on the concept-annotated dataset, and then use the frozen AC Flow
 model to train our RL agent.
 In particular, during step $i$ of the intervention process, the set of unintervened concepts correspond 
 to the unobserved features, vice versa, and we use the conditional probability density of 
