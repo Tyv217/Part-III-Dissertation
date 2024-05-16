@@ -4,63 +4,125 @@
 \label{firstcontentpage}
 
 
+% open problem
 Regular supervised Machine Learning (ML) models learn to 
 predict the labels of inputs.
-Concept Bottleneck Models~\cite{cbm} (CBMs) and Concept Embedding Models~\cite{cem} (CEMs) are 
+Concept Bottleneck Models~\cite{cbm} (CBMs) are 
 ML models designed to increase the interpretability of model predictions by decomposing a model into
 two submodels, splitting the original process into predicting a set of human-interpretable
 concepts / features present in the input, then predicting the label using these concepts.
-Since these concepts are human-interpretable, it becomes much easier to understand
-the reasoning behind the predicted labels, mitigating some of the
-potential dangerous downsides associated with using ML models as ``black-box'' models,
-especially in fields where these predictions can have significant consequences to
-human life, such as medicine, criminal justice, autonomous vehicles, etc. 
-
-During inference time, professionals can intervene on CBMs and CEMs by correcting
+This allows us to understand the reasoning behind the predications better, 
+mitigating some of the downsides associated with using ML models as ``black-box'' models.
+During inference time, professionals can intervene on CBMs by correcting
 the predicted concepts, leading to more accurate predicted labels. 
+This leads to the problem of determining the concepts to intervene on in order
+to achieve the best model performance.
+
+% why it is important and why we should care to solve this (motivation)
+Previous studies have shown that the choice of concepts to 
+intervene on can have significant impacts on the accuracy of the model~\cite{coop, intcem},
+and thus it is important to find a good policy to determine what concepts
+we should intervene on.
 Due to the costs
-associated with performing such an intervention, the question of finding what concepts
-to intervene on in order to maximize the accuracy of the model becomes an important 
-research question. Past methods have mainly focused on greedy approaches, which
-includes using heuristic-based approaches such as intervening on concepts that minimize the
-model's uncertainty~\cite{coop}, or ML-based greedy approaches that learn a intervention policy model
+associated with performing such an intervention, we introduce budgets,
+which add constraints on the number of interventions allowed. 
+This
+reflects real-life scenarios where
+there exists limits on the number of times we 
+can query an expert to intervene on concepts.
+
+% your research question(s)
+The problem then becomes finding policies that can determine the best 
+concepts to perform interventions on for a given budget. In particular,
+we investigate finding a non-greedy policy to determine
+the set of concepts to intervene on for a budget,
+as we hypothesize that non-greedy policies
+yield more optimal solutions as they maximize 
+the model accuracy after a number of interventions rather than at each step.
+
+% what other have done and how their work is deficient with regards to your question(s)
+Past methods have mainly focused on greedy approaches, which
+includes heuristic-based approaches such as intervening on concepts that minimize the
+model's uncertainty~\cite{coop}, or ML-based approaches that learn a greedy policy
 like in IntCEMs~\cite{intcem}. Additionally existing approaches either 
-attempt to model the distribution of concepts and use that to perform interventions~\cite{energycem}, 
+attempt to model the distribution of concepts and use that
+to sample interventions~\cite{energycem}, 
 or directly learn a policy~\cite{intcem}, while limited
-work has been done on combining the capabilities of models from these two approaches.
-Compared to existing work, we investigate the possibility of learning non-greedy policies
-where we model the problem of deciding what concepts to intervene on as a Reinforcement Learning~\cite{rl} 
-problem. We model the costs
-associated with interventions and budgets for interventions, which are constraints present in
- real life
-applications, and set the main research question to be
-determining the concepts to intervene on for different budgets for a CEM
-to maximize its performance.
+work has been done on combining the capabilities of models 
+from these two approaches.
 
-To answer the above question, we first investigate the differences between greedy and non-greedy policies,
-proving that non-greedy algorithms can outperform
-their greedy counterparts. We then build a Reinforcement Learning agent
-that learns to select the next concept to intervene in order to maximize the model's performance for a given budget.
-To guide the agent throughout the intervention process, we utilize surrogate models that model
-the conditional distribution of concepts. A detailed description of these models are in Section~\ref{method:rlcem}.
-These surrogate models guide the RL agent throughout the intervention
-process by rewarding the agent for intervening on concepts that lead to higher probabilities of
-intervened concepts, and provide auxiliary information about the unintervened concepts
- in order for the agent to make more informed decisions.
-% The output of these surrogate models are then used by a Reinforcement Learning agent in order to
-% perform sequential intervention decisions to maximize the final performance, which is trained
-% in conjunction with a CBM in order to increase the sensitivity of the CBM to
-% the interventions. 
-We augment CEMs with this RL agent and a pretrained surrogate model to form RLCEM, 
-and train the CEM and the RL agent simultaneously, which helps learn a non-greedy policy
-and increase the sensitivity of the CEM to these interventions.
+% The key technical idea (not abstract but technical detail) and innovation that you did that enabled you to answer your question
+To find a non-greedy policy, we investigate using Reinforcement Learning~\cite{rl} (RL) 
+to learn a policy that maximizes
+the model accuracy after a set number of interventions,
+using the accuracy of the CBM as a reward to train the RL agent.
+In order
+to guide the agent throughout the intervention process,
+we use surrogate models that model the distribution of concepts,
+to provide intermediate rewards and auxiliary information to the agent.
 
-The results show that such RLCEMs
-outperform existing models when intervened using the learnt policy, while achieving 
-similar performance
-under the absence of interventions. This project successfully demonstrates the how a non-greedy 
-policy can be learnt using Reinforcement Learning and surrogate models that 
-outperforms existing greedy policies for different budgets, showing that Reinforcement Learning
-is a viable approach for learning more optimal intervention policies.
+% How you did it (methodology)
+After pretraining a surrogate model to learn the distribution of concepts,
+we train a Reinforcement Learning agent in conjunction with a CBM to learn a 
+non-greedy intervention policy, using
+the expected information gain from the surrogate model
+as a reward, and a final reward based on the 
+accuracy of the CBM after all interventions.
+During training,
+the agent learns a policy to select
+the optimal concepts for interventions,
+whereas the CBM is also trained on the sampled interventions
+to increase its sensitivity to interventions determined by 
+the learnt policy.
+
+% What the results were
+We show that this approach can outperform existing greedy policies
+for different budgets, achieving better model performance
+after a set number of interventions, 
+while maintaining similar performance under 
+the absence of interventions. However, we note that
+this approach also has its drawbacks, including high time complexity
+and the need for a good surrogate model.
+
+% % What impact could your contributions have
+To sum up, this project successfully develops a novel approach in using
+Reinforcement Learning to learn a non-greedy intervention policy 
+for different budgets,
+where we successfully show that our RL-based approach
+learns non-greedy policies that outperform existing
+greedy policies for different budgets.
+
+%  We model the costs
+% associated with interventions and budgets for interventions, which are constraints present in
+%  real life
+% applications, and set the main research question to be
+% determining the concepts to intervene on for different budgets for a CEM
+% to maximize its performance.
+
+% To answer the above question, we first investigate the differences between greedy and non-greedy policies,
+% proving that non-greedy algorithms can outperform
+% their greedy counterparts. We then build a Reinforcement Learning agent
+% that learns to select the next concept to intervene in order to maximize the model's performance for a given budget.
+% To guide the agent throughout the intervention process, we utilize surrogate models that model
+% the conditional distribution of concepts. A detailed description of these models are in Section~\ref{method:rlcem}.
+% These surrogate models guide the RL agent throughout the intervention
+% process by rewarding the agent for intervening on concepts that lead to higher probabilities of
+% intervened concepts, and provide auxiliary information about the unintervened concepts
+%  in order for the agent to make more informed decisions.
+% % The output of these surrogate models are then used by a Reinforcement Learning agent in order to
+% % perform sequential intervention decisions to maximize the final performance, which is trained
+% % in conjunction with a CBM in order to increase the sensitivity of the CBM to
+% % the interventions. 
+% We augment CEMs with this RL agent and a pretrained surrogate model to form RLCEM, 
+% and train the CEM and the RL agent simultaneously, which helps learn a non-greedy policy
+% and increase the sensitivity of the CEM to these interventions.
+
+% The results show that such RLCEMs
+% outperform existing models when intervened using the learnt policy, while achieving 
+% similar performance
+% under the absence of interventions. This project successfully demonstrates the how a non-greedy 
+% policy can be learnt using Reinforcement Learning and surrogate models that 
+% outperforms existing greedy policies for different budgets, showing that Reinforcement Learning
+% is a viable approach for learning more optimal intervention policies.
 
 \end{document}
