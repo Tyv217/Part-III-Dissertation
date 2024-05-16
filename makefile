@@ -7,8 +7,8 @@
 
 # Rules for building LaTeX documents (see Unix Tools course)
 %.pdf %.aux %.idx: %.tex
-	pdflatex -halt-on-error $<
-	while grep 'Rerun to get ' $*.log ; do pdflatex $< ; done
+	pdflatex -halt-on-error $< > /dev/null
+	while grep 'Rerun to get ' $*.log ; do pdflatex $< > /dev/null ; done
 %.ind: %.idx
 	makeindex $*
 %.bbl: %.aux

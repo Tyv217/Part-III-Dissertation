@@ -3,37 +3,92 @@
 \chapter*{Abstract}
 
 
-With the recent developments in Concept Bottleneck Models,
-finding optimal interventions for these models
-to maximize their performance under a given budget is an important issue, as it allows
-us to maximize the performance of these interpretable models while minimizing
-the costs related to expert interventions. This project investigates solving this problem
-using a new approach that combines Reinforcement Learning with surrogate models, with the goal
-of maximizing performance using intervention policies learnt by this new method.
 
-Compared to 
-previous approaches that only use greedy policies, 
-such as heuristic-based methods or learning a Machine Learning model for a greedy policy,
-the main idea of this project
-is to use Reinforcement Learning to learn a non-greedy policy to maximize the performance
-gain from interventions over a budget rather than at each step. This is done by modelling the problem 
-of deciding
-what concept to intervene on as a Reinforcement Learning problem to maximize the final performance,
-using surrogate models that model the distribution of concepts to provide intermediate rewards and 
-auxiliary information. 
-When used in conjunction
-with methods to increase sensitivity of models to interventions, this project successfully develops a novel
-RL-based method that outperforms existing greedy intervention policies for different budgets, while maintaining
-similar un-intervened performance. 
 
-This project proposes the idea of learning non-greedy
-intervention policies for Concept Bottleneck Models and incorporates budgets into the problem setting, 
-and shows that
-different budgets can have different optimal intervention trajectories where
-non-greedy policies outperform greedy policies.
-This project also successfully develops a novel approach to learning intervention policies using
-Reinforcement Learning and demonstrate that this approach generates 
-more optimal intervention policies
-that lead to better performance
-compared to existing greedy methods.
+% open problem
+Concept Bottleneck Models (CBMs) are designed for high interpretability by predicting 
+human-interpretable concepts from input, 
+then predicting labels from these concepts. During run-time, experts can intervene on the 
+predicted concepts
+by correcting them to improve the accuracy of the predicted label. Previous 
+studies have shown that the choice of concepts to intervene on 
+can have significant impacts to the accuracy of the CBM.
+% and many efforts have been 
+% made to develop methods to determine the best order of concepts to intervene on.
+% why it is important and why we should care to solve this (motivation)
+Since experts have limited time, it is important to develop methods that can 
+determine the best order of concepts to intervene on to maximize the performance of the model 
+while minimizing the costs that come with interventions. Given a budget
+for interventions, we want to develop methods that achieve the best model performance
+using the limited number of interventions allowed.
+% your research question(s)
+We investigate methods to learn a non-greedy policy that determines an optimal set of 
+concepts to intervene on
+for a given budget, with the goal of maximizing the label prediction accuracy of the underlying CBM.
+% what other have done and how their work is deficient with regards to your question(s)
+Past methods in developing intervention policies are limited in
+that they only use greedy policies 
+that attempt to maximize the accuracy of the CBM at each step.
+They do not incorporate the notion of intervention budgets,
+which we believe is an important issue to consider when using CBMs for real-life applications.
+We hypothesize that non-greedy policies can find more optimal concepts to intervene on for a 
+given budget,
+as they maximize the final performance after a number of interventions rather than at each step.
+% The key technical idea (not abstract but technical detail) and innovation that you did that enabled you to answer your question
+To learn a non-greedy policy, we model the problem of determining what concepts to intervene on
+as a Markov Decision Process
+and apply Reinforcement Learning by training the model to maximize the final performance of the CBM
+after a set number of interventions.
+We also use a surrogate model to model the distribution of concepts to provide intermediate rewards and auxiliary information to the
+Reinforcement Learning agent.
+% How you did it (methodology)
+Using a pre-trained surrogate model, a Reinforcement Learning agent 
+is trained in conjunction with a CBM, 
+which learns a policy for determining the choice of concepts
+to intervene on for a given budget.
+% What the results were
+We first show that non-greedy policies can outperform 
+greedy policies for different budgets.
+We then show that we can learn a non-greedy policy using Reinforcement Learning which outperforms
+existing greedy policies for different intervention budgets, 
+while maintaining similar 
+performance under the absence of interventions.
+% What impact could your contributions have
+In summary, We show that Reinforcement Learning serves as a viable approach to 
+learning intervention policies more optimal than
+existing appraoches for different budgets, 
+opening the door to further research in non-greedy intervention policies.
+% With the recent developments in Concept Bottleneck Models,
+% finding optimal interventions for these models
+% to maximize their performance under a given budget is an important issue, as it allows
+% us to maximize the performance of these interpretable models while minimizing
+% the costs related to expert interventions. This project investigates solving this problem
+% using a new approach that combines Reinforcement Learning with surrogate models, with the goal
+% of maximizing performance using intervention policies learnt by this new method.
+
+% Compared to 
+% previous approaches that only use greedy policies, 
+% such as heuristic-based methods or learning a Machine Learning model for a greedy policy,
+% the main idea of this project
+% is to use Reinforcement Learning to learn a non-greedy policy to maximize the performance
+% gain from interventions over a budget rather than at each step. This is done by modelling the problem 
+% of deciding
+% what concept to intervene on as a Reinforcement Learning problem to maximize the final performance,
+% using surrogate models that model the distribution of concepts to provide intermediate rewards and 
+% auxiliary information. 
+% When used in conjunction
+% with methods to increase sensitivity of models to interventions, this project successfully develops a novel
+% RL-based method that outperforms existing greedy intervention policies for different budgets, while maintaining
+% similar un-intervened performance. 
+
+% This project proposes the idea of learning non-greedy
+% intervention policies for Concept Bottleneck Models and incorporates budgets into the problem setting, 
+% and shows that
+% different budgets can have different optimal intervention trajectories where
+% non-greedy policies outperform greedy policies.
+% This project also successfully develops a novel approach to learning intervention policies using
+% Reinforcement Learning and demonstrate that this approach generates 
+% more optimal intervention policies
+% that lead to better performance
+% compared to existing greedy methods.
 \end{document}
