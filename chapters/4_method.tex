@@ -69,6 +69,10 @@ and $\mathbf{y}$ is the label. We select a variant of the popular normalizing fl
 namely Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
 models as our surrogate models, 
 which are flow models augmented with the power to model arbitrary conditional probabilities.
+While these AC Flow models are used to model the likelihoods
+$p(\mathbf{x}_u \mid \mathbf{x}_o)$, they can easily be extended to model the 
+likelihoods
+$p(\mathbf{x}_u \mid \mathbf{x}_o, \mathbf{y})$.
 
 \subsection{Latent Distribution}
 
@@ -77,43 +81,44 @@ normalizing flow models utilize the change of variable formula to model probabil
 which can be extended to include conditional probabilities. AC Flow models are built on top of
 Transformation Autoregressive
 Networks~\cite{tans} (TANs), and learn to model 
-the probabilities for an arbitrary set of variables $p_X(x_0, x_1, \ldots, x_n \mid y)$,
+the probabilities for an arbitrary set of variables $p_X(\mathbf{x}_0,\ldots, \mathbf{x}_n \mid \mathbf{y})$,
 modelling the underlying latent distribution using an autoregressive approach with Recurrent
 Neural Networks (RNNs)~\cite{rnn}. The RNN learns to model the likelihood of 
-$p_Z(z_0, \ldots, z_n \mid y)$ by sequentially processing each of the variables $z_i$.
-At each step, the output of the RNN $h_i$ is 
+$p_Z(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid \mathbf{y})$ by sequentially processing each of the variables $\mathbf{z}_i$.
+At each step, the output of the RNN $\mathbf{h}_i$ is 
 passed through a learnable linear layer to get parameters for an underlying Gaussian Mixture Model (GMM),
-which allows us to compute $p(z_0, z_1, \ldots, z_n \mid y)$ using a weighted
-sum of the probability density of $n$ Gaussian distributions. Experimentally
-we find that setting the number of components $n$ to be the number of classes 
-$y$ can take, or using one Gaussian distribution for each class 
+a mixture of $K$ different Gaussian distributions~\cite{gmm}.
+This allows us to compute $p(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid \mathbf{y})$ 
+using a weighted
+sum of the probability density of the $K$ Gaussian distributions. Experimentally
+we find that setting the number of components $K$ to be the number of classes 
+$y$ can take, which is using one Gaussian distribution per class 
 achieves
 a good balance between model performance and computational efficiency.
 This is discussed further in Section~\ref{eval:surrogate}.
 While using a GMM does not directly gives us the probability
-$p_Z(z_0, z_1, \ldots, z_n)$, it allows us to compute the probability density of the distribution, giving 
-us the likelihood of the set of variables $z_0, z_1, \ldots, z_n$, which provides valuable information
+$p_Z(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid \mathbf{y})$, it allows us to compute the probability density of the distribution, giving 
+us the conditional likelihood of the set of variables $\mathbf{z}_0, \ldots, \mathbf{z}_n$, which provides valuable information
 to the RL agent, and also allows us to sample from the distribution.
 
 \subsection{Transformations}
 
-In order to transform $p(z_0, z_1, \ldots, z_n)$ to $p(x_0, x_1, \ldots, x_n)$, we
+In order to transform $p(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid y)$ to $p(\mathbf{x}_0,\ldots, \mathbf{x}_n \mid \mathbf{y})$, we
 utilize a set of transformations with learnable parameters. We follow the 
 set of transformations defined by Li et al.~\cite{acflow} and implement the corresponding
-transformations. These transformations learn a function $f_i$ such that
-
-
+transformations. These transformations learn a transformation $q_{\mathbf{x}_o}$ that is conditional on 
+observed features $\mathbf{x}_o$
 
 This is combined with the transformations used in normalizing flows to 
-model the probability density of $p(x_0, \ldots, x_n)$. 
+model the probability density of $p(\mathbf{x}_0, \ldots, \mathbf{x}_n)$. 
 AC Flow models
-build on top of this and model the conditional likelihoods $p(x_0, \ldots, x_n \mid y)$.
-This can then be used to compute the arbitrary conditional likelihood $p(x_u \mid x_o, y)$
-which is the likelihood of 
-seeing a set of unobserved features $x_u$
-given a set of observed features $x_o$ and a class $y$. 
+build on top of this and model the conditional likelihoods $p(\mathbf{x}_0, \ldots, \mathbf{x}_n \mid \mathbf{y})$.
+This can then be used to compute the arbitrary conditional likelihood $p(\mathbf{x}_u \mid \mathbf{x}_o, \mathbf{y})$
+which is the likelihood of
+seeing a set of unobserved features $\mathbf{x}_u$
+given a set of observed features $\mathbf{x}_o$ and a class $\mathbf{y}$. 
 By using Bayes' theorem, we note that
-\[p(x_u \mid x_o, y) = \frac{p(x_u, x_o \mid y)}{p(x_o \mid y)}\]
+\[p(\mathbf{x}_u \mid \mathbf{x}_o, \mathbf{y}) = \frac{p(\mathbf{x}_u, \mathbf{x}_o \mid \mathbf{y})}{p(\mathbf{x}_o \mid \mathbf{y})}\]
 Which the right hand side terms can be computed using the AC Flow model.
 Due to the invertible property of the learnt transformations,
 a model learnt this way also allows us to sample from the data distribution
@@ -126,13 +131,24 @@ concepts.
 
 In this project, we adapt AC Flow models to model the probabilities of concepts in CEMs during interventions.
 We follow the description of Li et al.~\cite{afa} and implement corresponding AC Flow models to model
-the distribution of concepts, which adapt several 
+the distribution of concepts.
 
 We train the AC Flow models using a combination of two losses, a negative
-log likelihood loss $L_{\text{nll}}$ and a cross entropy loss $L_{\text{CE}}$. 
+log likelihood loss and a mean-squared error (MSE) loss . 
 Since these models output likelihoods directly,
 we can directly maximize the likelihood, or equivalently minimizing the negative log likelihood.
-Additionally, to train the model to learn about the likelihood distribution of concepts
+Additionally, an MSE loss is incorporated to train the model to learn to sample the most probable unobserved features
+$x_u$ given $x_o, y$ to provide
+to the RL agent as auxiliary information. For $x_o, y$ we obtain $\mathbb{E}_{p_X(x_u \mid x_o)} [x_u]$ 
+by computing the expected latent features $\bar{z} = \mathbb{E}_{p_Z(z \mid x_o)} [z]$, and then inverting 
+the conditional transformations to obtain the expected unobserved features $q_{x_o}^{-1} (\bar{z})$, then compute the 
+MSE loss with the true unobserved features. The loss thus becomes
+\[Loss = - \log p(x_u \mid x_o, y) + ||q_{x_o}^{-1}(\bar{z} - x_u)||^2\]
+
+
+
+
+to train the model to learn about the likelihood distribution of concepts
 among classes, we add a cross entropy loss between the predicted label $\hat{y} = \mathop{\mathrm{argmax}}_y p(x_u, x_o \mid y)$ and the
 true label. This helps ensure the model learn to scale the likelihood of concepts according to the 
 label, and helps the model learn the probabilities $p(x_u \mid x_o, y)$.

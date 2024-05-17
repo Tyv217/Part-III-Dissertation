@@ -7,7 +7,7 @@
 % open problem
 Regular supervised Machine Learning (ML) models learn to 
 predict the labels of inputs.
-Concept Bottleneck Models~\cite{cbm} (CBMs) are 
+Concept Bottleneck Models~\cite{cbm} (CBMs) and Concept Embedding Models~\cite{cem} (CEMs) are 
 ML models designed to increase the interpretability of model predictions by decomposing a model into
 two submodels, splitting the original process into predicting a set of human-interpretable
 concepts / features present in the input, then predicting the label using these concepts.
@@ -63,7 +63,7 @@ to provide intermediate rewards and auxiliary information to the agent.
 
 % How you did it (methodology)
 After pretraining a surrogate model to learn the distribution of concepts,
-we train a Reinforcement Learning agent in conjunction with a CBM to learn a 
+we train a Reinforcement Learning agent in conjunction with a CEM, which we name RLCEM, to learn a 
 non-greedy intervention policy, using
 the expected information gain from the surrogate model
 as a reward, and a final reward based on the 
