@@ -58,8 +58,13 @@ the model accuracy after a set number of interventions,
 using the accuracy of the CBM as a reward to train the RL agent.
 In order
 to guide the agent throughout the intervention process,
-we use surrogate models that model the distribution of concepts,
-to provide intermediate rewards and auxiliary information to the agent.
+we use surrogate models that model the distribution of concepts using
+a variant of normalizing flow models. These models learn a latent distribution
+and an invertible transformation to model the distribution of the concepts.
+This allows us to compute the conditional likelihood of concepts 
+and use as an intermediate reward to the RL agent. Additionally we can sample
+from the underlying distribution to obtain concepts with the highest likelihood,
+which provides auxiliary information to the agent.
 
 % How you did it (methodology)
 After pretraining a surrogate model to learn the distribution of concepts,
@@ -70,27 +75,53 @@ as a reward, and a final reward based on the
 accuracy of the CBM after all interventions.
 During training,
 the agent learns a policy to select
-the optimal concepts for interventions,
+the optimal concepts for interventions for different budgets,
 whereas the CBM is also trained on the sampled interventions
 to increase its sensitivity to interventions determined by 
 the learnt policy.
 
 % What the results were
+To evaluate this approach, we train RLCEM on two different datasets
+and compare its performance to IntCEM, the state-of-the-art 
+model for intervention performance that learns a greedy policy 
+for interventions.
 We show that this approach can outperform existing greedy policies
 for different budgets, achieving better model performance
-after a set number of interventions, 
-while maintaining similar performance under 
+after a set number of interventions and reaching similar
+model performance with 25\% less interventions. 
+At the same time the model maintains similar performance under 
 the absence of interventions. However, we note that
-this approach also has its drawbacks, including high time complexity
-and the need for a good surrogate model.
+this approach also has its drawbacks, including
+higher time complexity, and its effectiveness is dependent on 
+the nature of the task and concepts, which affects the robustness of the method.
 
 % % What impact could your contributions have
-To sum up, this project successfully develops a novel approach in using
-Reinforcement Learning to learn a non-greedy intervention policy 
-for different budgets,
-where we successfully show that our RL-based approach
-learns non-greedy policies that outperform existing
-greedy policies for different budgets.
+To sum up, this project has the following contributions:
+\begin{itemize}
+    \item Introduce budgets into the problem setting and shown that non-greedy policies can outperform greedy policies.
+    \item Develop and train Surrogate models by adapting AC Flow models to be used to model conditional concept likelihoods.
+    \item Train RL Concept Embedding Models that utilize Reinforcement Learning
+    to learn a non-greedy intervention policy that can learn an intervention policy
+    with better intervention performance than existing methods, achieving similar performance
+    with up to 25\% less interventions.
+\end{itemize}
+
+\textbf{Terminology}
+The term ``concepts'' hereafter strictly refers to the labelled concepts present
+in the annotated dataset
+that are used to make label predictions
+. For example, in a dataset of identifying birds,
+these concepts include ``has a red beak'', ``has white feathers'', etc.
+Other similar terms such as ``features'', ``attributes'', do not refer to the same thing
+and will not be used interchangeably with
+"concepts''.
+
+% successfully develops a novel approach in using
+% Reinforcement Learning to learn a non-greedy intervention policy 
+% for different budgets,
+% where we successfully show that our RL-based approach
+% learns non-greedy policies that can outperform existing
+% greedy policies for different budgets, 
 
 %  We model the costs
 % associated with interventions and budgets for interventions, which are constraints present in

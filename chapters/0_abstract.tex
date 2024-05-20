@@ -8,27 +8,29 @@
 % open problem
 Concept Bottleneck Models (CBMs) are designed for high interpretability by predicting 
 human-interpretable concepts from input, 
-then predicting labels from these concepts. During run-time, experts can intervene on the 
+then predicting labels from these concepts. Experts can intervene on the 
 predicted concepts
 by correcting them to improve the accuracy of the predicted label. Previous 
-studies have shown that the choice of concepts to intervene on 
+studies have shown that the choice of intervention concepts 
 can have significant impacts to the accuracy of the CBM.
 % and many efforts have been 
 % made to develop methods to determine the best order of concepts to intervene on.
 % why it is important and why we should care to solve this (motivation)
-Since experts have limited time, it is important to develop methods that can 
-determine the best order of concepts to intervene on to maximize the performance of the model 
-while minimizing the costs that come with interventions. Given a budget
+Since experts have limited time, it is important to develop ways to
+determine the best concepts to intervene on to maximize the performance 
+of the CBM
+while minimizing the intervention costs. Given a budget
 for interventions, we want to develop methods that achieve the best model performance
 using the limited number of interventions allowed.
 % your research question(s)
 We investigate methods to learn a non-greedy policy that determines an optimal set of 
 concepts to intervene on
-for a given budget, with the goal of maximizing the label prediction accuracy of the underlying CBM.
+for a given budget, with the goal of maximizing the accuracy of the CBM.
 % what other have done and how their work is deficient with regards to your question(s)
-Past methods in developing intervention policies are limited in
-that they only use greedy policies 
-that attempt to maximize the accuracy of the CBM at each step.
+
+Past methods in finding intervention policies are limited in
+only using greedy policies 
+that attempt to maximize the CBM's at each step.
 They do not incorporate the notion of intervention budgets,
 which we believe is an important issue to consider when using CBMs for real-life applications.
 We hypothesize that non-greedy policies can find more optimal concepts to intervene on for a 
@@ -47,17 +49,19 @@ is trained in conjunction with a CBM,
 which learns a policy for determining the choice of concepts
 to intervene on for a given budget.
 % What the results were
+
 We first show that non-greedy policies can outperform 
 greedy policies for different budgets.
 We then show that we can learn a non-greedy policy using Reinforcement Learning which outperforms
-existing greedy policies for different intervention budgets, 
-while maintaining similar 
+existing greedy policies for different intervention budgets, achieving 
+similar intervention performance with up to 25\% less interventions.
+Simultaneously the model maintains similar 
 performance under the absence of interventions.
 % What impact could your contributions have
-In summary, We show that Reinforcement Learning serves as a viable approach to 
-learning intervention policies more optimal than
-existing appraoches for different budgets, 
-opening the door to further research in non-greedy intervention policies.
+This shows that Reinforcement Learning can
+ learn intervention policies more optimal than
+existing approaches for different budgets, 
+opening further research in non-greedy intervention policies.
 % With the recent developments in Concept Bottleneck Models,
 % finding optimal interventions for these models
 % to maximize their performance under a given budget is an important issue, as it allows

@@ -2,7 +2,21 @@
 \begin{document}
 \chapter{Evaluation}
 
+We compare our RLCEM which is a CEM augmented with an RL agent to learn 
+a non-greedy intervention policy, to our baseline, which is IntCEM, and CooP,
+the state-of-the-art heuristic-based greedy intervention policy which 
+selects the concept that minimizes the uncertainty of the CEM at each step. Additionally,
+as a further baseline we compare our learnt RL policy to Random,
+which is when a random intervention is selected.
+
 \section{Non-greedy policies}
+
+Before evaluating the performance of RLCEM, it is important to know that 
+non-greedy policies can outperform greedy policies. Therefore we conduct an
+ablation study on the MNIST-ADD dataset, comparing two policies:
+GreedyOptimal and TrueOptimal.
+During testing, both policies have access to the true label
+$\mathbf{y}$, 
 
 \section{Surrogate Models}
 

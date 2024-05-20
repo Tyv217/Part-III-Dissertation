@@ -14,8 +14,8 @@ to the output label $\mathbf{y} = f(\mathbf{c})$, as shown in Figure~\ref{fig:cb
 These types of model can be created by simply adding a new layer in traditional models
 with the same number of neurons as the number of concepts, where this layer
 is referred to as the "CBM Bottleneck". 
-Henceforth $g$ is referred to as the ''concept predictor $\mathbf{x} \to \mathbf{c}$ model'' and $f$ as the
-''label $\mathbf{c} \to \mathbf{y}$ predictor model''.
+Henceforth $g$ is referred to as the ``concept predictor $\mathbf{x} \to \mathbf{c}$ model'' and $f$ as the
+``label $\mathbf{c} \to \mathbf{y}$ predictor model''.
  Training such a model requires a
 dataset of inputs $\mathbf{x}$ annotated with the corresponding 
 concepts $\mathbf{c}$ and labels $\mathbf{y}$. 
@@ -179,6 +179,14 @@ where the goal is to minimize the discrepancy between predicted outputs and true
 the goal of Reinforcement Learning is to maximize the cumulative rewards received by the agent
 by taking actions over time. The agent has access to observations which reflect the current state
  of the environment and can take actions to progress to different states until 
+
+ The PPO algorithm is a policy gradient method that 
+combines the strengths of traditional policy-based approaches
+and value-based approaches~\cite{deep-q-learning, deep-q-learning-2}
+
+and 
+is one of the most popular Reinforcement Learning algorithms for learning
+an optimal policy due to its robustness.
  
 \section{Flow Models}\label{background:flow}
 Flow models model probability distributions by leveraging the change of variable property~\cite{normalizing-flows}.
