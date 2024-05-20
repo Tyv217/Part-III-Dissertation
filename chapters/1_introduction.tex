@@ -2,6 +2,8 @@
 \begin{document}
 \chapter{Introduction}
 \label{firstcontentpage}
+% write more about motivating things before jumping into solution 
+% paragraph above to sum up: same as contribution -> can be left out or merged
 
 
 % open problem
@@ -12,7 +14,11 @@ ML models designed to increase the interpretability of model predictions by deco
 two submodels, splitting the original process into predicting a set of human-interpretable
 concepts / features present in the input, then predicting the label using these concepts.
 This allows us to understand the reasoning behind the predications better, 
-mitigating some of the downsides associated with using ML models as ``black-box'' models.
+mitigating some of the downsides associated with using ML models as ``black-box'' models,
+especially in areas where 
+decisions made can be critical to 
+human safety, such as medicine
+and criminal justice.
 During inference time, professionals can intervene on CBMs by correcting
 the predicted concepts, leading to more accurate predicted labels. 
 This leads to the problem of determining the concepts to intervene on in order
@@ -34,9 +40,11 @@ can query an expert to intervene on concepts.
 % your research question(s)
 The problem then becomes finding policies that can determine the best 
 concepts to perform interventions on for a given budget. In particular,
-we investigate finding a non-greedy policy to determine
-the set of concepts to intervene on for a budget,
-as we hypothesize that non-greedy policies
+we investigate 
+the research question of 
+finding a non-greedy policy to determine
+the set of concepts to intervene on for a budget.
+We hypothesize that non-greedy policies
 yield more optimal solutions as they maximize 
 the model accuracy after a number of interventions rather than at each step.
 
@@ -85,15 +93,11 @@ To evaluate this approach, we train RLCEM on two different datasets
 and compare its performance to IntCEM, the state-of-the-art 
 model for intervention performance that learns a greedy policy 
 for interventions.
-We show that this approach can outperform existing greedy policies
-for different budgets, achieving better model performance
-after a set number of interventions and reaching similar
-model performance with 25\% less interventions. 
-At the same time the model maintains similar performance under 
-the absence of interventions. However, we note that
-this approach also has its drawbacks, including
-higher time complexity, and its effectiveness is dependent on 
-the nature of the task and concepts, which affects the robustness of the method.
+% We show that this approach can outperform existing greedy policies
+% for different budgets, achieving better model performance
+% after a set number of interventions and reaching similar
+% model performance with 25\% less interventions. 
+
 
 % % What impact could your contributions have
 To sum up, this project has the following contributions:
@@ -103,18 +107,24 @@ To sum up, this project has the following contributions:
     \item Train RL Concept Embedding Models that utilize Reinforcement Learning
     to learn a non-greedy intervention policy that can learn an intervention policy
     with better intervention performance than existing methods, achieving similar performance
-    with up to 25\% less interventions.
+    with up to 25\% less interventions. At the same time the model maintains similar performance under 
+the absence of interventions. 
 \end{itemize}
 
-\textbf{Terminology}
-The term ``concepts'' hereafter strictly refers to the labelled concepts present
-in the annotated dataset
-that are used to make label predictions
-. For example, in a dataset of identifying birds,
-these concepts include ``has a red beak'', ``has white feathers'', etc.
-Other similar terms such as ``features'', ``attributes'', do not refer to the same thing
-and will not be used interchangeably with
-"concepts''.
+However, we note that
+this approach also has its drawbacks, including
+higher time complexity, and its effectiveness is dependent on 
+the nature of the task and concepts, which affects the robustness of the method.
+
+% \textbf{Terminology}
+% The term ``concepts'' hereafter strictly refers to the labelled concepts present
+% in the annotated dataset
+% that are used to make label predictions
+% . For example, in a dataset of identifying birds,
+% these concepts include ``has a red beak'', ``has white feathers'', etc.
+% Other similar terms such as ``features'', ``attributes'', do not refer to the same thing
+% and will not be used interchangeably with
+% "concepts''.
 
 % successfully develops a novel approach in using
 % Reinforcement Learning to learn a non-greedy intervention policy 

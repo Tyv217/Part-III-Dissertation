@@ -2,21 +2,172 @@
 \begin{document}
 \chapter{Evaluation}
 
+In this chapter, we evaluate the performance of our RLCEM. All experiments in this chapter
+are conducted across multiple trials, where we report the mean
+and standard deviation. This helps make our results statistically significant and reduces the errors
+that arise from randomness, which is unavoidable in Machine
+Learning experiments.
 We compare our RLCEM which is a CEM augmented with an RL agent to learn 
-a non-greedy intervention policy, to our baseline, which is IntCEM, and CooP,
-the state-of-the-art heuristic-based greedy intervention policy which 
-selects the concept that minimizes the uncertainty of the CEM at each step. Additionally,
-as a further baseline we compare our learnt RL policy to Random,
-which is when a random intervention is selected.
+a non-greedy intervention policy, to our baseline, which is IntCEM, and a number of other
+heuristic-based intervention policies, 
+including CooP that selects the 
+concept which minimizes uncertainty, and Random that selects
+random concepts to intervene on.
 
+\section{Models and Datasets}\label{method:datasets}
+% Brief description of each of these datasets and what they are each used for.
+% Leave full description to be in appendix.
+% Talk about concept groups
+% Talk about subsampling
+To evaluate the performance of our RLCEM model,
+we follow Zarlenga et al.~\cite{intcem} and select the datasets MNIST-ADD and CUB for 
+our experiments. Since these datasets have different input image sizes
+and different number of possible classes,
+the $\mathbf{x} \to \mathbf{c}$ and $\mathbf{c} \to \mathbf{y}$ models 
+are slightly different, which we directly select the same 
+models as Zarlenga et al.~\cite{intcem}
+for a fair comparison. These CEM sub-models are kept the same
+for RLCEM and the baseline IntCEM to ensure the results reflect a fair comparison 
+of the learnt intervention policy.
+Additionally for most of our ablation studies,
+we conduct it on MNIST-ADD due to its straightforwardness.
+
+\subsection{MNIST-ADD}
+MNIST-ADD is a synthetic dataset created from 
+the MNIST~\cite{mnist} dataset, a dataset of handwritten digits from 0 to 9.
+The MNIST dataset contains black-and-white samples with an input size 
+of $1 \times 28 \times 28$, and as shown in Table~\ref{table:datasets}, 
+MNIST-ADD sample 
+selects 12 images from the MNIST dataset as input $\mathbf{x}$,
+with concepts corresponding to the values of each of the input images.
+To model concept-incompleteness in real life datasetss,
+which is when the 
+concept annotations in the dataset may not contain all
+possible concepts relevant, we select only the concepts corresponding to 8
+of the input images, ensuring that the same conceps are selected across
+all samples. This produces $54$ concepts which are then grouped into 8 
+mutually-exclusive concept groups corresponding to images, 
+and the label for each MNIST-ADD sample
+is a binary label $\mathbf{y}$ corresponding to whether or not the sum of the input
+12 images is greater than half of the possible maximum value.
+ To generate the MNIST-ADD dataset,
+we generate 10,000 training samples and 10,000 test samples by choosing
+each of the 12 input images randomly from the MNIST training and testing
+datasets respectively.
+
+For this dataset, we use a ResNet-18~\cite{resnet} backbone for the $\mathbf{x} \to \mathbf{y}$
+model with its output linear layer modified to 54 activations, corresponding
+to the 54 concepts. The ResNet-18 backbone consists of 18 residual layers,
+each containing two convolutional layers with batch normalization non-linear
+activation functions, and is a popular backbone for image-related tasks.
+The $\mathbf{c} \to \mathbf{y}$ model is an MLP with \{128, 128\} as the hidden
+layers, and forwards the 54 predicted concepts to predict the binary label.
+
+\subsection{CUB}
+
+CUB~\cite{cub} is a real-life dataset that identifies bird attributes.
+As shown in Table~\ref{table:datasets}, 
+input $\mathbf{x}$ consist of $3 \times 299 \times 299$ images of 
+ birds, and output $\mathbf{y}$ is a label representing the bird species.
+We construct
+112 annotation concepts 
+using identifying features of birds such as their colour, shape, etc.,
+then group it into 28 concept groups according
+to Zarlenga et al~\cite{intcem}. We further group these
+into 7 different concept groups for easy visualization and a better comparison
+with MNIST-AFA. This also allows us to use the same RL models across datasets
+as the size of the action space is simiar. There are 
+5,994 training samples and 5,794 testing samples, which we fully
+utilise during training and testing.
+
+For this dataset, we use a ResNet-34~\cite{resnet} backbone for the $\mathbf{x} \to \mathbf{y}$
+model with its output linear layer modified to 112 activations, corresponding
+to the 112 concepts. The ResNet-34 is similar to the ResNet-18 backbone,
+except with more layers, deigned to process larger and more complicated images.
+The $\mathbf{c} \to \mathbf{y}$ model is an MLP with \{128, 128\} as the hidden
+layers, and forwards the 112 predicted concepts to predict the label out of 200 classes.
+% \subsection{CelebA}
+
+% CelebA is another synthetic dataset constructed from 
+% the popular CelebA dataset, a dataset that identifies celebrity face attributes.
+
+\begin{table}
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{c|cc}
+    % Dataset & Training Samples & Test Samples & Input Size & Concepts (k) & 
+    % Concept Groups (n) & Output classes \\
+    % \hline
+    % MNIST-ADD & 10,000 & 10,000 & [12,28,28] & 54 & 8 & 2 \\
+    % CUB & 5,994 & 5,794 & [3,299,299] & 112 & 28 & 200
+
+    Dataset & MNIST-ADD & CUB \\
+    \hline
+    Training Samples & 10,000 & 5,994 \\
+    Testing Samples & 10,000 & 5,794 \\
+    Input Size & [12,28,28] & [3,299,299]\\
+    Concepts (k) & 54 & 112 \\
+    Concept Groups (n) & 8 & 7 \\
+    Output classes & 2 & 100
+    \end{tabular}
+    \caption{The datasets and tasks used in this project.}
+    \label{table:datasets}
+\end{table}
+
+More details on the datasets used can be found at Appendix~\ref{appendix:datasets}.
+
+\subsection{Reinforcement Learning Agent Model}
+We adopt the same MLP for 
+both the Actor and Critic model in the RL agent. 
+We use the same number of layers as the MLP intervention policy
+ model used in IntCEM, but increase the number of neurons in the hidden layers
+ to \{512, 512, 256, 256\} from \{128, 128, 64, 64\}
+ of as 
+ our problem is more complex, requiring 
+ learning $O(n^2)$ tasks instead of $O(n)$.
+ The same model is kept 
+ the same for all datasets as the number of concept groups for intervention,
+ which corresponds to the action space,
+ is similar. We find that increasing the number of hidden layer neurons
+ in the MLP used by 
+ IntCEM to \{512, 512, 256, 256\} does not have any noticeable improvements
+ to the intervention measured by its performance
+ on a validation set.
+    
 \section{Non-greedy policies}
 
-Before evaluating the performance of RLCEM, it is important to know that 
-non-greedy policies can outperform greedy policies. Therefore we conduct an
+Before evaluating the performance of RLCEM, it is important to test whether or not 
+non-greedy policies can outperform greedy policies. 
+Therefore we conduct an
 ablation study on the MNIST-ADD dataset, comparing two policies:
 GreedyOptimal and TrueOptimal.
-During testing, both policies have access to the true label
-$\mathbf{y}$, 
+These are both the optimal policies,
+i.e. the policies that select the concepts to intervene
+on that lead to the highest accuracy. During 
+testing, both of these policies have access to the true label $\mathbf{y}$, which 
+allows them to find the concepts to intervene on 
+such that the output
+$\hat{\mathbf{y}} = \hat{g}(\hat{\mathbf{c}})$ 
+has the highest accuracy.
+
+While GreedyOptimal searches for the best concept group
+out of all remaining un-intervened groups
+to select at each step, TrueOptimal searches through
+all possible combinations of concept groups to intervene at each budget, costing a time complexity of $O(n!)$ compared to
+$O(n)$. This is also why while IntCEM can 
+train a greedy intervention policy model directly
+by training it to mimic the behaviour of a Greedy Optimal 
+policy, it is infeasible to train a non-greedy intervention policy
+model to mimic the behaviour of a True Optimal policy.
+
+GreedyOptimal and TrueOptimal represent the theoretical
+upper bound intervention performance
+that greedy and non-greedy policies can achieve,
+and we compare the two to see if the optimal 
+non-greedy intervention policy can outperform the 
+optimal greedy
+intervention policy.
+
 
 \section{Surrogate Models}
 

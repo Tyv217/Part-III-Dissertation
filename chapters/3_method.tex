@@ -1,18 +1,23 @@
 \csname documentclass\endcsname[../main.tex]{subfiles}
 \begin{document}
 \chapter{Method}
-
-Building on top of IntCEMs, which train a CEM
-augmented with a greedy intervention policy model and trains the two simultaneously,
+Building on top of IntCEMs, which augment a CEM
+with a greedy intervention policy model and train the two simultaneously,
 we propose RLCEM,
 a novel CEM model augmented with a Reinforcement Learning agent
 that learns a non-greedy intervention policy.
 The two are trained simultaneously, similar to IntCEM, 
 where the sampled interventions are used to increase the sensitivity of the
 $\mathbf{c} \to \mathbf{y}$ label prediction model.
-
+In this chapter, we document how we propose 
+to learn such a non-greedy intervention policy.
+We first
+formalize interventions and intervention policies,
+then introduce the surrogate models we use
+to calculate rewards,
+and finally, present how Reinforcement Learning is used 
+to learn a non-greedy intervention policy.
 \section{Interventions}
-
 A key advantage of using CBMs is having access to 
 run-time interventions, which is the idea of utilizing professionals
 to modify incorrect concept predictions to improve the 
@@ -42,9 +47,7 @@ a binary mask $\bm{\mu}$ from the predicted concepts $\hat{\mathbf{c}}$ and the 
 
 \subsection{Intervention Policies}
 
-To formalize an intervention policy, we define an intervention policy $\mathcal{P}$ 
-to be a policy, either learnt
-or heuristic-based, that determines the order of concepts to intervene 
+An intervention policy $\mathcal{P}$ determines the order of concepts to intervene 
 on with the goal of maximizing the accuracy of the $\mathbf{c} \to \mathbf{y}$ concept prediction model.
 A greedy intervention policy is thus a collection of functions $\mathcal{P}_i$, each
 of which outputs the concept to intervene on at step $i$. An optimal greedy policy is the following
@@ -80,42 +83,57 @@ affect the concept selected by the policy.
 
 \section{Surrogate Models}\label{method:surrogate}
 
-We use generative surrogate models to model the probabilities of concepts which are used
+We use generative surrogate models to model the probabilities of concepts which is used
 to guide the RL model. 
-The reason behind needing such a surrogate model is because
-to find a non-greedy policy, the reward, measured by the accuracy
-of the model after all interventions, is returned after the final step.
-If we were to reward the RL agent in the intermediate steps,
+Such a surrogate model is needed because
+when we are using RL to learn 
+a non-greedy policy, the reward, measured by the accuracy
+of the model after all interventions, is returned after the final step,
+if we were to reward the RL agent in the intermediate steps
 this would become a greedy policy. However, previous studies have shown that
-using delayed rewards, where the agent is only rewarded after long episodes,
+using delayed rewards, where the agent is only rewarded only
+at termination after long episodes,
 can pose a challenge to its learning as the agent struggles to learn
 which actions lead to what consequences and what
-rewards~\cite{temporal-credit-assignment, steps-towards-ai},
+rewards~\cite{ steps-towards-ai, temporal-credit-assignment},
 and thus struggles to learn to make the correct decisions.
 Therefore there is a need to introduce intermediate rewards 
-to guide the RL agent to make the correct interventions that lead 
-to the largest improvement in accuracy.
+to guide the RL agent to make the correct intermediate
+interventions that lead 
+to the largest accuracy at the end.
 
 Following Li et al.~\cite{afa} which uses Reinforcement 
 Learning
 in the similar problem of Active Feature Acquisition, we use a surrogate model 
 to model
 the conditional probabilities $p(\mathbf{c}_u \mid \mathbf{c}_o, \mathbf{y})$, 
-where $\mathbf{c}_u$ is a set of unacquired concepts, $\mathbf{c}_o$ is a set of acquired concepts,
+where $\mathbf{c}_u$ is a set of un-intervened
+concepts, $\mathbf{c}_o$ a set of intervened concepts,
 and $\mathbf{y}$ is the label. We select a variant of the popular normalizing flow models~\cite{normalizing-flows},
 namely Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
-models as our surrogate models, 
-which are flow models augmented with the power to model arbitrary conditional probabilities.
+models as our generative surrogate models, 
+which are flow models augmented to model arbitrary conditional probabilities of sets of variables $\mathbf{c}_u$ and $\mathbf{c}_o$.
 While these AC Flow models are used to model the likelihoods
-$p(\mathbf{c}_u \mid \mathbf{c}_o)$, they can easily be extended to model the 
+$p(\mathbf{c}_u \mid \mathbf{c}_o)$, they can easily be extended to model the class-conditional
 likelihoods
-$p(\mathbf{c}_u \mid \mathbf{c}_o, \mathbf{y})$. In order to represent
-these set of features while keeping the input of constant size,
+$p(\mathbf{c}_u \mid \mathbf{c}_o, \mathbf{y})$. To represent
+these sets of concepts while keeping the input of constant size,
 the entire concept vector $\mathbf{c}$ is passed in alongside
-binary masks $b$ and $m$, used to represent the concepts we are interested in
+binary masks $b$ and $m$, used to represent the concepts we are interested in. $\mathbf{c} \cdot b$ gives us 
+the set of concepts $\mathbf{c}_o$ represented as a vector,
+and $\mathbf{c} \cdot m$ gives us 
+the set of concepts $\mathbf{c}_o$ represented as a vector
 \[\mathbf{c}_o = \mathbf{c} \cdot b\]
 \[\mathbf{c}_u, \mathbf{c}_o = \mathbf{c} \cdot m\]
 \[\mathbf{c}_u = \mathbf{c} \cdot (1 - b) \cdot m\]
+While the mask $b$ represents
+the already intervened concepts, the mask $m$ represents
+the missing concepts, which are concepts we are not interested
+in yet. During an intervention, if the currently
+already intervened concepts are $\mathbf{c}_o$,
+and we want to learn about the next concept to intervene
+$\mathbf{c}_u$, then the rest of the concepts 
+will be masked out using $m$ as they are not of concern.
 
 \subsection{Latent Distribution}
 
@@ -449,121 +467,22 @@ This limitation
 and its impacts
 are further discussed in Section\ref{eval:limitations}.
 
-\section{Models and Datasets}\label{method:datasets}
-% Brief description of each of these datasets and what they are each used for.
-% Leave full description to be in appendix.
-% Talk about concept groups
-% Talk about subsampling
-To evaluate the performance of our RLCEM model,
-we follow Zarlenga et al.~\cite{intcem} and use the datasets MNIST-ADD and CUB for 
-our experiments. Since these datasets have different input image sizes
-and different number of possible classes,
-the $\mathbf{x} \to \mathbf{c}$ and $\mathbf{c} \to \mathbf{y}$ models 
-are slightly different, which we directly follow Zarlenga et al.~\cite{intcem}'s 
-implementation of IntCEM for each dataset. These CEM sub-models are kept the same
-for RLCEM and the baseline IntCEM to ensure the results reflect a fair comparison 
-of the learnt intervention policy.
-Additionally for most of our ablation studies,
-we conduct it on MNIST-ADD due to its straightforwardness.
 
-\subsection{MNIST-ADD}
-MNIST-ADD is a synthetic dataset created from 
-the MNIST~\cite{mnist} dataset, a dataset of handwritten digits from 0 to 9.
-The MNIST dataset contains black-and-white samples with an input size 
-of $1 \times 28 \times 28$, and as shown in Table~\ref{table:datasets}, 
-MNIST-ADD sample 
-selects 12 images from the MNIST dataset as input $\mathbf{x}$,
-with concepts corresponding to the values of each of the input images.
-To model concept-incompleteness in real life datasetss,
-which is when the 
-concept annotations in the dataset may not contain all
-possible concepts relevant, we select only the concepts corresponding to 8
-of the input images, ensuring that the same conceps are selected across
-all samples. This produces $54$ concepts which are then grouped into 8 
-mutually-exclusive concept groups corresponding to images, 
-and the label for each MNIST-ADD sample
-is a binary label $\mathbf{y}$ corresponding to whether or not the sum of the input
-12 images is greater than half of the possible maximum value.
- To generate the MNIST-ADD dataset,
-we generate 10,000 training samples and 10,000 test samples by choosing
-each of the 12 input images randomly from the MNIST training and testing
-datasets respectively.
+In this chapter we presented a new method 
+that utilises the powerful Reinforcement Learning
+to learn a non-greedy intervention policy,
+along with how a surrogate model can be trained to 
+provide intermediate rewards that signal to the .
+This directly solves our research question of 
+developing a method to find non-greedy intervention policies.
+In the next chapter, we evaluate the performance of the proposed
+RLCEM against current methods to learning
+intervention policies.
 
-For this dataset, we use a ResNet-18~\cite{resnet} backbone for the $\mathbf{x} \to \mathbf{y}$
-model with its output linear layer modified to 54 activations, corresponding
-to the 54 concepts. The ResNet-18 backbone consists of 18 residual layers,
-each containing two convolutional layers with batch normalization non-linear
-activation functions, and is a popular backbone for image-related tasks.
-The $\mathbf{c} \to \mathbf{y}$ model is an MLP with \{128, 128\} as the hidden
-layers, and forwards the 54 predicted concepts to predict the binary label.
+ % In this chapter we presented a new method, in the next chapter we evaluate etc etc
+ % be explicit, announce what you're saying eg. this chapter, next chapter, the research question 
 
-\subsection{CUB}
-
-CUB~\cite{cub} is a real-life dataset that identifies bird attributes.
-As shown in Table~\ref{table:datasets}, 
-input $\mathbf{x}$ consist of $3 \times 299 \times 299$ images of 
- birds, and output $\mathbf{y}$ is a label representing the bird species.
-We construct
-112 annotation concepts 
-using identifying features of birds such as their colour, shape, etc.,
-then group it into 28 concept groups according
-to Zarlenga et al~\cite{intcem}. We further group these
-into 7 different concept groups for easy visualization and a better comparison
-with MNIST-AFA. This also allows us to use the same RL models across datasets
-as the size of the action space is simiar. There are 
-5,994 training samples and 5,794 testing samples, which we fully
-utilise during training and testing.
-
-For this dataset, we use a ResNet-34~\cite{resnet} backbone for the $\mathbf{x} \to \mathbf{y}$
-model with its output linear layer modified to 112 activations, corresponding
-to the 112 concepts. The ResNet-34 is similar to the ResNet-18 backbone,
-except with more layers, deigned to process larger and more complicated images.
-The $\mathbf{c} \to \mathbf{y}$ model is an MLP with \{128, 128\} as the hidden
-layers, and forwards the 112 predicted concepts to predict the label out of 200 classes.
-% \subsection{CelebA}
-
-% CelebA is another synthetic dataset constructed from 
-% the popular CelebA dataset, a dataset that identifies celebrity face attributes.
-
-\begin{table}
-    \centering
-    \renewcommand{\arraystretch}{1.5}
-    \begin{tabular}{c|cc}
-    % Dataset & Training Samples & Test Samples & Input Size & Concepts (k) & 
-    % Concept Groups (n) & Output classes \\
-    % \hline
-    % MNIST-ADD & 10,000 & 10,000 & [12,28,28] & 54 & 8 & 2 \\
-    % CUB & 5,994 & 5,794 & [3,299,299] & 112 & 28 & 200
-
-    Dataset & MNIST-ADD & CUB \\
-    \hline
-    Training Samples & 10,000 & 5,994 \\
-    Testing Samples & 10,000 & 5,794 \\
-    Input Size & [12,28,28] & [3,299,299]\\
-    Concepts (k) & 54 & 112 \\
-    Concept Groups (n) & 8 & 7 \\
-    Output classes & 2 & 100
-    \end{tabular}
-    \caption{The datasets and tasks used in this project.}
-    \label{table:datasets}
-\end{table}
-
-More details on the datasets used can be found at Appendix~\ref{appendix:datasets}.
-
-\subsection{Reinforcement Learning Agent Model}
-We adopt the same MLP for 
-both the Actor and Critic model in the RL agent. 
-We use the same number of layers as the MLP intervention policy
- model used in IntCEM, but increase the number of neurons in the hidden layers
- to \{512, 512, 256, 256\} instead of \{128, 128, 64, 64\}
- of as 
- our problem is more complex, requiring 
- learning $O(n^2)$ tasks instead of $O(n)$.
- The same model is kept 
- the same for all datasets as the number of concept groups for intervention,
- which corresponds to the action space,
- is similar. Experimentation shows that increasing the number of hidden layer neurons
- in the MLP used by 
- IntCEM to \{512, 512, 256, 256\} does not have any noticable improvements
- to the intervention performance.
+ % datasets goes to evaluation
+ % baseline etc
+ % 
 \end{document}
