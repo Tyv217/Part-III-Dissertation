@@ -1,4 +1,4 @@
-\documentclass[../main.tex]{subfiles}
+\csname documentclass\endcsname[../main.tex]{subfiles}
 \begin{document}
 \chapter{Method}
 
@@ -272,14 +272,14 @@ the intervention performance.
 
 
 We model the problem of finding a non-greedy intervention policy as a 
-Reinforcement Learning problem. As mentioned in Section~\cite{background:rl},
+Reinforcement Learning problem. As mentioned in Section~\ref{background:rl},
 Reinforcement Learning is used to find non-greedy solutions to problems
 by design as it models the long-term effects of its actions, and aims to 
 maximize the overall reward gain. 
 
-In order to formulate the problem of finding an optimal non-greedy intervention policy
+In order to formulate the problem
 as a Reinforcement Learning problem, we model the problem
-of deciding the concepts of 
+of deciding the concepts to intervene on  
 as a Markov Decision Problem~\cite{rl-mdp}.
 
 \begin{itemize}
