@@ -82,8 +82,8 @@ utilise during training and testing.
 
 For this dataset, we use a ResNet-34~\cite{resnet} backbone for the $\mathbf{x} \to \mathbf{y}$
 model with its output linear layer modified to 112 activations, corresponding
-to the 112 concepts. The ResNet-34 is similar to the ResNet-18 backbone,
-except with more layers, deigned to process larger and more complicated images.
+to the 112 concepts. The ResNet-34 uses the same layers as ResNet-18
+with more layers deigned to process larger and more complicated images.
 The $\mathbf{c} \to \mathbf{y}$ model is an MLP with \{128, 128\} as the hidden
 layers, and forwards the 112 predicted concepts to predict the label out of 200 classes.
 % \subsection{CelebA}
@@ -119,19 +119,18 @@ More details on the datasets used can be found at Appendix~\ref{appendix:dataset
 \subsection{Reinforcement Learning Agent Model}
 We adopt the same MLP for 
 both the Actor and Critic model in the RL agent. 
-We use the same number of layers as the MLP intervention policy
- model used in IntCEM, but increase the number of neurons in the hidden layers
- to \{512, 512, 256, 256\} from \{128, 128, 64, 64\}
- of as 
+We use the same number of layers as the intervention policy
+ MLP used in IntCEM, but increase the number of neurons in the hidden layers
+ to \{512, 512, 256, 256\} from \{128, 128, 64, 64\} as
  our problem is more complex, requiring 
  learning $O(n^2)$ tasks instead of $O(n)$.
- The same model is kept 
- the same for all datasets as the number of concept groups for intervention,
+ The same model is used
+ for all datasets as the number of concept groups for intervention,
  which corresponds to the action space,
  is similar. We find that increasing the number of hidden layer neurons
  in the MLP used by 
  IntCEM to \{512, 512, 256, 256\} does not have any noticeable improvements
- to the intervention measured by its performance
+ to the intervention performance
  on a validation set.
     
 \section{Non-greedy policies}
@@ -170,6 +169,15 @@ intervention policy.
 
 
 \section{Surrogate Models}
+
+We also look into the training of the 
+surrogate models.
+As mentioned in Section\ref{method:surrogate}, 
+we start off by training the AC Flow model
+with a negative log likelihood loss and a cross
+entropy loss. 
+
+
 
 \section{RLCEM Performance}
 

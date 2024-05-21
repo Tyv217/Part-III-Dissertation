@@ -431,18 +431,41 @@ CEM also learns to be more sensitive to interventions, achieving higher label pr
 when concepts are intervened. Thus we also combine the training of the RL agent and the CEM
 as a joint optimization problem, and train
 both simultaneously in one training loop.
-As depicted in Figure~\ref{}, the joint RLCEM
+As depicted in Figure~\ref{fig:rlcem}, the joint RLCEM
 is trained as follows:
 
 \begin{enumerate}
     \item The $\mathbf{x} \to \mathbf{c}$ model first computes the predicted concepts $\mathbf{c}$.
-    We then compute a loss.
+    We then compute a concept loss $L_{\text{concept}}$ with the true concepts.
+    We also compute a task loss $L_{\text{task}}$ with the true labels
+    which is then 
+    back-propagated through the $\mathbf{c} \to \mathbf{y}$ model.
     \item Since we want to train the RL agent to be able to learn 
     the concepts to intervene for different budgets, thus during training 
-    for each mini-batch, we sample $n_{\text{rollout}}$ different budgets,
-    and compute the 
+    for each mini-batch, we sample $n_{\text{rollout}}$ different budgets.
+    For each sampled budget, the RL agent samples actions, which we then use to 
+    update the intervened concepts and calculate the corresponding rewards
+    using the AC Flow model and true label according to Section\ref{}.
+    \item For each budget $T$, 
+    the intervened concepts after consuming the budget $\hat{\mathbf{c}}$,
+    as well as the prediction $\hat{\mathbf{y}}$ using $\hat{\mathbf{c}}$,
+    is then used to compute a task loss $L_{\text{task}}$ 
+    discounted by $\gamma^T$, similar to IntCEM.
+    \item Additionally, we compute the true value of each state 
+    that we pass to the RL agent using the discounted future rewards.
+    We compute a value loss with respect to the
+    Critic model's estimate of the value of states.
+    Additionally we compute a policy loss for the 
+    Actor model's policy by comparing the value of states
+    before and after the sampled actions.
 \end{enumerate}
 
+The overall idea is similar to IntCEM. We compute a concept loss
+and a task loss without interventions.
+Then we sample interventions according to our intervention policy model,
+and compute a task loss using the intervened concepts to increase 
+the CEM's sensitivty to interventions. Then we train our intervention policy
+model so that it makes interventions that lead to a higher accuracy.
 
 \subsection{Limitations}
 
@@ -465,19 +488,19 @@ time complexity can reach up to $O(n^2k)$ compared to $O(n)$ of the current
 greedy intervention policy methods which adds a lot of cost to training.
 This limitation
 and its impacts
-are further discussed in Section\ref{eval:limitations}.
-
+are further discussed in Section\ref{eval:limitations}.\\
 
 In this chapter we presented a new method 
-that utilises the powerful Reinforcement Learning
+that utilises powerful Reinforcement Learning
 to learn a non-greedy intervention policy,
 along with how a surrogate model can be trained to 
-provide intermediate rewards that signal to the .
-This directly solves our research question of 
+provide intermediate rewards that signal to the RL agent during
+training and testing.
+This serves as a direct solution to our research question of 
 developing a method to find non-greedy intervention policies.
 In the next chapter, we evaluate the performance of the proposed
-RLCEM against current methods to learning
-intervention policies.
+RLCEM against current methods on how
+they perform with and without interventions.
 
  % In this chapter we presented a new method, in the next chapter we evaluate etc etc
  % be explicit, announce what you're saying eg. this chapter, next chapter, the research question 
