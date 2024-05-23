@@ -105,15 +105,17 @@ To sum up, this project has the following contributions:
     \item Introduce budgets into the problem setting and shown that non-greedy policies can outperform greedy policies.
     \item Develop and train Surrogate models by adapting AC Flow models to be used to model conditional concept likelihoods.
     \item Train RL Concept Embedding Models that utilize Reinforcement Learning
-    to learn a non-greedy intervention policy that can learn an intervention policy
-    with better intervention performance than existing methods, achieving similar performance
+    that can learn a non-greedy intervention policy
+    with better intervention performance than existing methods, achieving better performance
     with up to 25\% less interventions. At the same time the model maintains similar performance under 
 the absence of interventions. 
+    \item Standardize the RL environment of RLCEMs inheriting from the Gymnasium Interface~\cite{gymnasium} which
+    can be used in future research in RL-based intervention policies.
 \end{itemize}
 
 However, we note that
 this approach also has its drawbacks, including
-higher time complexity, and its effectiveness is dependent on 
+higher time complexity, and its performance is very dependent on 
 the nature of the task and concepts, which affects the robustness of the method.
 
 % \textbf{Terminology}

@@ -9,7 +9,7 @@
 %.pdf %.aux %.idx: %.tex
 	pdflatex -halt-on-error $<
 	while grep 'Rerun to get ' $*.log ; do pdflatex $< ; done
-%.quiet: %.tex
+%.quick: %.tex
 	pdflatex -halt-on-error $< > /dev/null 
 	while grep 'Rerun to get ' $*.log ; do pdflatex $< > /dev/null; done
 %.ind: %.idx
@@ -44,7 +44,7 @@ help:
 view-%: %.pdf
 	( okular --unique $< || evince $< ) &
 
-main.pdf: makefile.txt proposal.tex main.bbl
+main.pdf: makefile.txt main.bbl
 
 makefile.txt: makefile
 	expand makefile >makefile.txt
@@ -56,11 +56,11 @@ count:
 # detex main.tex | tr -cd '0-9A-Za-z \n' | wc -w
 	texcount -inc main.tex
 
-all: proposal.pdf main.pdf clean
+all: main.pdf clean
 
-quiet: proposal.quiet main.quiet clean
+quick: main.quick clean
 
-allclean: proposal.pdf main.pdf clean
+allclean: main.pdf clean
 
 pub: main.pdf
 	rsync -t $+ $(HOME)/public_html/demodiss.pdf
