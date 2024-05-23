@@ -59,12 +59,13 @@
 %TC:group lstlisting 0 1
 %TC:group algorithm 1 1
 \newif\ifsubmission % Boolean flag for distinguishing submitted/final version
+% \submissiontrue
 
 % Change the following lines to your own project title, name, college, course
 \title{Ain't Nobody Got Time For That: Budget-aware Concept Intervention Policies}
 \author{Thomas Yuan}
 \date{May 2024}
-\newcommand{\candidatenumber}{1234N}
+\newcommand{\candidatenumber}{2509T}
 \newcommand{\college}{Downing College}
 \newcommand{\course}{Computer Science Tripos, Part III}
 %\newcommand{\course}{Master of Philosophy in Advanced Computer Science}
@@ -152,17 +153,23 @@ Main chapters (excluding front-matter, references and appendix):
 \contentpages~pages
 (pp~\pageref{firstcontentpage}--\pageref{lastcontentpage})
 
-Main chapters word count: 467
+Main chapters word count: 7564
 
 Methodology used to generate that word count:
 
+\begin{itemize}
+  \item Using appropriate flags to tell texcount to only count the main chapters, then
+\end{itemize}
+
 \begin{quote}
 \begin{verbatim}
-$ make wordcount
-gs -q -dSAFER -sDEVICE=txtwrite -o - \
-   -dFirstPage=6 -dLastPage=11 report-submission.pdf | \
-egrep '[A-Za-z]{3}' | wc -w
-467
+
+$ let total=$(texcount -merge main.tex | awk '/Words in text/ {print $4}')+
+$(texcount -merge main.tex | awk '/Words in headers/ {print $4}')+
+$(texcount -merge main.tex | awk '/Words outside text/ {print $6}');
+echo $total
+
+7564
 \end{verbatim}
 \end{quote}
 

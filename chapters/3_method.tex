@@ -58,143 +58,153 @@ Which maximizes the accuracy at each step $j$ sequentially
 for all $k$ concepts. At each
 step, $\hat{\mathbf{c}}_{j-1}$ is 
 the predicted concept after the previous $j-1$ interventions,
-and we aim to maximize the accuracy of the $\hat{g}: \mathbf{c} \to \mathbf{y}$ model
-on the intervened concepts $\hat{\mathbf{c}}_{\mathcal{P}_j}$ and the label $\mathbf{y}$.
+and we aim to maximize the accuracy of the prediction made by the
+$\hat{g}: \mathbf{c} \to \mathbf{y}$ model.
 
 
 Compared to a greedy intervention policy, a non-greedy intervention 
-policy outputs a set of concepts to intervene on for a given budget $j$,
-which we want to maximize the accuracy of the 
-label predictor model on. An optimal non-greedy policy maximizes the following
+policy outputs a set of concepts to intervene on for a budget $j$,
+which we want to maximize the accuracy of the $\mathbf{c} \to \mathbf{y}$ model on. 
+An optimal non-greedy policy maximizes the following
 \[\hat{\mathcal{P}} = \mathop{\mathrm{argmax}}_{\mathcal{P}} \sum_{j=1}^k Acc(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}, \mathbf{c}, \mathcal{P}(\hat{\mathbf{c}}, j))\]
 
 Note that the notion of a budget, defined as the number
 of concepts the model is allowed to intervene on for simplicity, is only
-important for non-greedy policies. Non-greedy policies aim
+meaningful for non-greedy policies. Non-greedy policies aim
 to maximize the accuracy of the $\mathbf{c} \to \mathbf{y}$ model after using up the intervention budget,
 and may select different sets of intervention concepts 
 for different budgets. Greedy policies always select the same
 concepts per step and thus the budget does not 
 affect the concept selected by the policy.
+This is why existing intervention policies do not consider
+budgets, and why we consider them in our research question.
 
 % Budget
 % In this project, we utilize Reinforcement Learning
 
 \section{Surrogate Models}\label{method:surrogate}
 
-We use generative surrogate models to model the probabilities of concepts which is used
+We use generative surrogate models that models the probabilities of concepts
 to guide the RL model. 
 Such a surrogate model is needed because
-when we are using RL to learn 
-a non-greedy policy, the reward, measured by the accuracy
-of the model after all interventions, is returned after the final step,
-if we were to reward the RL agent in the intermediate steps
-this would become a greedy policy. However, previous studies have shown that
-using delayed rewards, where the agent is only rewarded only
-at termination after long episodes,
+when we are learning
+a non-greedy policy, its performance is measured by the accuracy
+of the model after all interventions in the end.
+When training an RL agent to learn such a policy, this corresponds
+to rewarding it at the final step based 
+on the final accuracy, and training it to maximize this reward.
+% if we were to train an RL agent by rewarding it in the intermediate steps
+% this would become a greedy policy.
+However, previous studies have shown that
+using delayed rewards, where the agent is only rewarded after long episodes,
 can pose a challenge to its learning as the agent struggles to learn
-which actions lead to what consequences and what
-rewards~\cite{ steps-towards-ai, temporal-credit-assignment},
+the consequences of its actions~\cite{ steps-towards-ai, temporal-credit-assignment},
 and thus struggles to learn to make the correct decisions.
-Therefore there is a need to introduce intermediate rewards 
+Therefore we introduce intermediate rewards 
 to guide the RL agent to make the correct intermediate
 interventions that lead 
-to the largest accuracy at the end.
+to the largest final accuracy.
 
-Following Li et al.~\cite{afa} which uses Reinforcement 
-Learning
-in the similar problem of Active Feature Acquisition, we use a surrogate model 
-to model
-the conditional probabilities $p(\mathbf{c}_u \mid \mathbf{c}_o, \mathbf{y})$, 
-where $\mathbf{c}_u$ is a set of un-intervened
-concepts, $\mathbf{c}_o$ a set of intervened concepts,
-and $\mathbf{y}$ is the label. We select a variant of the popular normalizing flow models~\cite{normalizing-flows},
-namely Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
-models as our generative surrogate models, 
-which are flow models augmented to model arbitrary conditional probabilities of sets of variables $\mathbf{c}_u$ and $\mathbf{c}_o$.
-While these AC Flow models are used to model the likelihoods
-$p(\mathbf{c}_u \mid \mathbf{c}_o)$, they can easily be extended to model the class-conditional
+Following Li et al.~\cite{afa} in Active Feature Acquisition,
+we use a surrogate model 
+to approximate
+the conditional probabilities $p(\mathcal{C}_u \mid \mathcal{C}_o, \mathbf{y})$, 
+where $\mathcal{C}_u$ is a set of un-intervened
+concepts, $\mathcal{C}_o$ a set of intervened concepts,
+and $\mathbf{y}$ the label. 
+In the context of an intervention, the previously intervened concepts would be $\mathcal{C}_o$,
+and the current concept we are intervening on would be
+$\mathcal{C}_u$.
+
+We use a variant of the popular normalizing flow models~\cite{normalizing-flows},
+namely Arbitrary Conditional Flow~\cite{acflow} (AC Flow)
+models as our surrogate models.
+These models are 
+flow models augmented to model arbitrary conditional probabilities $p(\mathcal{C}_u \mid \mathcal{C}_o)$
+between sets of variables $\mathcal{C}_u$ and $\mathcal{C}_o$.
+We extend these models to approximate the class-conditional
 likelihoods
-$p(\mathbf{c}_u \mid \mathbf{c}_o, \mathbf{y})$. To represent
-these sets of concepts while keeping the input of constant size,
-the entire concept vector $\mathbf{c}$ is passed in alongside
-binary masks $b$ and $m$, used to represent the concepts we are interested in. $\mathbf{c} \cdot b$ gives us 
-the set of concepts $\mathbf{c}_o$ represented as a vector,
-and $\mathbf{c} \cdot m$ gives us 
-the set of concepts $\mathbf{c}_o$ represented as a vector
-\[\mathbf{c}_o = \mathbf{c} \cdot b\]
-\[\mathbf{c}_u, \mathbf{c}_o = \mathbf{c} \cdot m\]
-\[\mathbf{c}_u = \mathbf{c} \cdot (1 - b) \cdot m\]
-While the mask $b$ represents
+$p(\mathcal{C}_u \mid \mathcal{C}_o, \mathbf{y})$. To represent
+these sets of concept,
+we use concept vectors $\mathcal{c}$ along with
+binary masks $b$ and $m$.
+The mask $b$ represents
 the already intervened concepts, the mask $m$ represents
-the missing concepts, which are concepts we are not interested
-in yet. During an intervention, if the currently
-already intervened concepts are $\mathbf{c}_o$,
-and we want to learn about the next concept to intervene
-$\mathbf{c}_u$, then the rest of the concepts 
-will be masked out using $m$ as they are not of concern.
+the concepts we are interested in ($\mathcal{C}_u$ and $\mathcal{C}_o$).
+Mathematically this gives us two concept vectors
+\[\mathbf{c}_o = \mathbf{c} \cdot b\]
+% \[\mathbf{c}_u, \mathbf{c}_o = \mathbf{c} \cdot m\]
+\[\mathbf{c}_u = \mathbf{c} \cdot (1 - b) \cdot m\]
+For convenience, we use $\mathbf{c}_u$ and $\mathbf{c}_o$ from now on
+to represent the sets of concepts $\mathcal{C}_u$ and $\mathcal{C}_o$, with
+$c_i \in \mathbf{c}_u, \mathbf{c}_o$ representing the individual concepts.
 
 \subsection{Latent Distribution}
 
 As described in Section~\ref{background:flow}, 
 normalizing flow models utilize the change of variable formula to model probabilities,
-which can be extended to include conditional probabilities. AC Flow models are built on top of
+which can be extended to include conditional probabilities. AC Flow models build on
 Transformation Autoregressive
 Networks~\cite{tans} (TANs), and learn to model 
-the probabilities for an arbitrary set of variables $p_C(\mathbf{c}_0,\ldots, \mathbf{c}_n \mid \mathbf{y})$,
+likelihoods $p(c_0,\ldots, c_n \mid \mathbf{y})$,
 modelling the underlying latent distribution using an autoregressive approach with Recurrent
 Neural Networks (RNNs)~\cite{rnn}. The RNN learns to model the likelihood of 
-$p_Z(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid \mathbf{y})$ by sequentially processing each of the variables $\mathbf{z}_i$.
-At each step, the output of the RNN $\mathbf{h}_i$ is 
-passed through a learnable linear layer to get parameters for an underlying Gaussian Mixture Model (GMM),
-a mixture of $K$ different Gaussian distributions~\cite{gmm}.
-This allows us to compute $p(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid \mathbf{y})$ 
+$p(z_0, \ldots, z_n \mid \mathbf{y})$ by sequentially processing each of the variables
+ $z_i$.
+At each step $i$, an RNN outputs parameters for an underlying Gaussian Mixture Model (GMM),
+which is a mixture of $K$ different Gaussian distributions~\cite{gmm}.
+This allows us to compute $p(z_0, \ldots, z_i \mid \mathbf{y})$,
+the likelihood of the current $i$ variables,
 using a weighted
 sum of the probability density of the $K$ Gaussian distributions. Experimentally
-we find that setting the number of components $K$ to be the number of classes 
-$\mathbf{y}$ can take, which is equivalent to using one Gaussian distribution per 
+we find that setting the number of components $K$ to be the number of classes of
+$\mathbf{y}$, equivalent to one Gaussian distribution per 
 class 
 achieves
-a good balance between model performance and computational efficiency,
-which is discussed further in Section~\ref{eval:surrogate}.
-While using a GMM does not directly gives us the probability
-$p_Z(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid \mathbf{y})$, it allows us to compute the probability density of the distribution, giving 
-us the conditional likelihood of the set of variables $\mathbf{z}_0, \ldots, \mathbf{z}_n$, which provides valuable information
-to the RL agent, and also allows us to sample from the distribution.
+a good balance between model performance and computational efficiency.
+% , which is discussed further in Section~\ref{eval:surrogate}.
+While using a GMM does not directly gives us the probability of
+$p(z_0, \ldots, z_n \mid \mathbf{y})$, 
+it allows us to compute the probability density which tells us the likelihood of the
+ variables $z_0, \ldots, z_n$, which is proportional
+ to the actual probability and also allows us to sample from the distribution.
 
 \subsection{Transformations}
-In order to transform latent likelihoods $p(\mathbf{z}_0, \ldots, \mathbf{z}_n \mid \mathbf{y})$ to 
-the concept likelihoods in our data
-$p(\mathbf{c}_0,\ldots, \mathbf{c}_n \mid \mathbf{y})$, we
+In order to transform latent likelihoods $p(z_0, \ldots, z_n \mid \mathbf{y})$ to 
+the concept likelihoods
+$p(c_0,\ldots, c_n \mid \mathbf{y})$, we
 utilize a set of transformations with learnable parameters that 
-map input variables $\mathbf{c}_i$ to latent variables $\mathbf{z}_i$. We follow the 
-set of conditional transformations defined by Li et al.~\cite{acflow}, extend them to
-be label $\mathbf{y}$ specific, and implement them.
-These transformation $q_{\mathbf{c}_o, b, \mathbf{y}}$ are
+map input concepts $c_i$ to latent variables $z_i$. We follow the 
+set of conditional transformations defined by Li et al.~\cite{acflow}, and extend them to
+be label $\mathbf{y}$ specific.
+These transformations $q_{\mathbf{c}_o, b, \mathbf{y}}$ are
 conditional on 
-observed concepts $\mathbf{c}_o$, binary mask $b$, and label $\mathbf{y}$, 
+intervened concepts $\mathbf{c}_o$, binary mask $b$, and label $\mathbf{y}$, 
 and are invertible so that we can obtain the liklihood and 
 sample from the latent distribution. 
-For all un-observed concepts $\mathbf{c}_i$,
-the transformation maps them to a latent variable $q_{\mathbf{c}_o, b}(\mathbf{c}_i) = \mathbf{z}_i$. 
+For all un-intervened concepts $\mathbf{c}_u$,
+the transformation maps these concepts to latent variables $q_{\mathbf{c}_o, b}(\mathbf{c}_u) = \mathbf{z}_u$. 
 We can then apply the change
 of variable theorem with a conditional extension, and using
-the Jacobian determinant tells us how much the likelihood changes~\cite{normalizing-flows}
+the Jacobian determinant tells us how the likelihood changes~\cite{normalizing-flows}
 
 \[p(\mathbf{c}_u \mid \mathbf{c}_o, b, y) = \left | 
 \mathop{\mathrm{det}} \frac{d q_{\mathbf{c}_o, b}}{d \mathbf{c}_u}
 \right | p(q_{\mathbf{c}_o, b}(\mathbf{c}_u) \mid \mathbf{c}_o, b, y)\]
 
 In the AC Flow model, we mainly leverage
-linear transformations, where we use a MultiLayer Perceptron (MLP)~\cite{feedforward} $\phi$ to learn 
-to output a weight matrix $\mathbf{W}$ and bias vector $\mathbf{t}$
+linear transformations. We use Multi-Layer Perceptrons~\cite{feedforward} (MLP) 
+$\phi$ to learn 
+a weight matrix $\mathbf{W}$ and bias vector $\mathbf{t}$
 \[\mathbf{W}, \mathbf{t} = \phi(\mathbf{c}_o, b, \mathbf{y})\]
 As shown in Figure~\ref{fig:linear-transformation},
 this gives us a linear transformation for all possible concepts,
-and by indexing $\mathbf{W}_{u} = W[1-b][1-b], \mathbf{b}_{u} = \mathbf{b}[1-b]$
-to select the entries corresponding to the rest of the concepts, we obtain
-$\mathbf{c}_u = \mathbf{W}_{u}z_u + \mathbf{b}_{u}$. This transformation is 
+and by indexing 
+\[\mathbf{W}_{u} = W[1-b][1-b], \mathbf{b}_{u} = \mathbf{b}[1-b]\]
+to select the entries corresponding to the un-intervened concepts, we obtain
+\[\mathbf{c}_u = \mathbf{W}_{u}\mathbf{z}_u + \mathbf{b}_{u}\]
+ This transformation is 
 straightforward to invert, and we can find the Jacobian determinant easily and apply the change of variable
 theorem illustrated above to get the probability $p(\mathbf{c}_u \mid y)$.
 Other variants, such as using an RNN to learn a linear transformation
@@ -445,7 +455,7 @@ is trained as follows:
     for each mini-batch, we sample $n_{\text{rollout}}$ different budgets.
     For each sampled budget, the RL agent samples actions, which we then use to 
     update the intervened concepts and calculate the corresponding rewards
-    using the AC Flow model and true label according to Section\ref{}.
+    using the AC Flow model and true label according to Section~\ref{}.
     \item For each budget $T$, 
     the intervened concepts after consuming the budget $\hat{\mathbf{c}}$,
     as well as the prediction $\hat{\mathbf{y}}$ using $\hat{\mathbf{c}}$,
@@ -488,14 +498,15 @@ time complexity can reach up to $O(n^2k)$ compared to $O(n)$ of the current
 greedy intervention policy methods which adds a lot of cost to training.
 This limitation
 and its impacts
-are further discussed in Section\ref{eval:limitations}.\\
+are further discussed in Section~\ref{eval:limitations}.\\
 
 In this chapter we presented a new method 
-that utilises powerful Reinforcement Learning
+that utilises Reinforcement Learning
 to learn a non-greedy intervention policy,
-along with how a surrogate model can be trained to 
-provide intermediate rewards that signal to the RL agent during
-training and testing.
+along with how we propose 
+to train a generative AC Flow model to
+provide intermediate rewards to the RL agent during
+training and testing to guide its intervention decisions.
 This serves as a direct solution to our research question of 
 developing a method to find non-greedy intervention policies.
 In the next chapter, we evaluate the performance of the proposed
