@@ -474,8 +474,8 @@ CEM also learns to be more sensitive to interventions, achieving higher label pr
 when concepts are intervened. Thus we also combine the training of the RL agent and the CEM
 as a joint optimization problem, and train
 both simultaneously in one training loop.
-As shown in Figure~\ref{fig:rlcem}, the joint RLCEM
-is trained as follows:
+As shown in Figure~\ref{fig:rlcem}, the training loop
+of the RLCEM is as follows:
 
 \begin{enumerate}
     \item The $\mathbf{x} \to \mathbf{c}$ model first computes the predicted concepts $\mathbf{c}$.
