@@ -1,6 +1,17 @@
 \csname documentclass\endcsname[../main.tex]{subfiles}
 \begin{document}
 \chapter{Method}
+
+
+In this chapter, we document how we propose 
+to learn a non-greedy intervention policy.
+We first
+formalize interventions and intervention policies,
+then introduce the surrogate models we use
+to calculate intermediate rewards,
+and finally, present how Reinforcement Learning is used 
+to learn a non-greedy intervention policy.
+
 Building on top of IntCEMs, which augment a CEM
 with a greedy intervention policy model and train the two simultaneously,
 we propose RLCEM,
@@ -10,14 +21,24 @@ The two are trained simultaneously, similar to IntCEM,
 where the sampled interventions are used to increase the sensitivity of the
 $\mathbf{c} \to \mathbf{y}$ label prediction model.
 
-In this chapter, we document how we propose 
-to learn such a non-greedy intervention policy.
-We first
-formalize interventions and intervention policies,
-then introduce the surrogate models we use
-to calculate intermediate rewards,
-and finally, present how Reinforcement Learning is used 
-to learn a non-greedy intervention policy.
+An overview of the general structure of our RLCEM is in Figure~\ref{fig:rlcem-overview}.
+The RL Agent learns to output interventions, which are 
+used to train the CEM to increase sensitivity of 
+CEM to interventions. After all interventions from the RL Agent,
+the CEM prediction is used to calculate the final
+reward to train RL Agent. Additionally, the surrogate model
+is used to calculate intermediate rewards which are used to train and guide the 
+RL Agent to make more optimal intermediate interventions.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figs/method/rlcem_overview.png}
+    \caption{An overview of the structure of RLCEM. The RL Agent samples interventions for the CEM, which is used to calculate
+    the final reward to train the Agent. The surrogate model is used to calculate intermediate rewards
+    to train the Agent.}
+    \label{fig:rlcem-overview}
+\end{figure}
+
 \section{Interventions}
 A key advantage of using CBMs is having access to 
 run-time interventions, which is the idea of utilizing professionals
@@ -39,10 +60,12 @@ Figure~\ref{fig:interventions} demonstrates how an intervention
 is formed using 
 a binary mask $\bm{\mu}$ from the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{figs/method/interventions.png}
-    \caption{A figure of how interventions are formed using binary masks.}
+    \caption{An example of how interventions are formed from the predicted concepts $\hat{\mathbf{c}}$
+    and true concepts $\mathbf{c}$
+     using binary mask $\bm{\mu}$.}
     \label{fig:interventions}
 \end{figure}
 
@@ -354,8 +377,11 @@ For simplicity, we group concepts into groups, and each action intervenes on all
 within a group.
 
 \textbf{Rewards} are the increase in 
-    information to the target $y$~\cite{afa} given by
+    information, calculated using entropy, to the target $y$~\cite{afa} given by
     \[\text{Reward} = H(y \mid \mathbf{c}_o) - \mathbb{E}_{p(\mathbf{c}_u \mid \mathbf{c}_o)} [H(y \mid x_u, x_o)]\]
+    This is because we want to encourage the RL agent to make interventions
+    that provide more information to the target variable, or reduce uncertainty, an idea that has shown
+    to work well in CooP~\cite{coop}.
     Simplifying gives us
     \[\text{Reward} = H(\mathbf{c}_u \mid \mathbf{c}_o) - 
     \mathbb{E}_{p(\mathbf{y} \mid \mathbf{c}_o)} [H(\mathbf{c}_u \mid y, \mathbf{c}_o)]\]
@@ -372,6 +398,11 @@ within a group.
     require knowledge of the ground truth label at each step to compute the intermediate rewards.
     Li et al.~\cite{afa} 
     also show that using this intermediate reward will not affect the optimality of the learnt policy.
+    Using these two rewards
+     results in an RL agent that learns to balance between making interventions that
+    increase the information to the target variable, which should lead to better final accuracy,
+    and other types of interventions that also result in a higher final accuracy.
+
     
 \textbf{Termination} is when the remaining budget is insufficient for more interventions.
     
@@ -390,7 +421,6 @@ To model budgets and acquisition costs, we can either
     the reward only contains the information gain in each step. 
     We manually step to the termination
     step if and only if the the remaining budget does not allow for future interventions.
-    
 \end{enumerate}
 
 The first approach
@@ -514,7 +544,10 @@ of the RLCEM is as follows:
 \begin{figure}
     \centering
     \includegraphics*[width=\textwidth]{figs/method/rlcem.png}
-    \caption{The training loop of RLCEM.}
+    \caption{The training loop of RLCEM. T is the sampled budget, $\mathcal{E}$ is the RL environment, $\mathcal{A}$ the RL agent, 
+    and $\hat{V}, \hat{Q}$ the estimated value functions from the agent. The loop computes concept loss $L_{\text{concept}}$,
+    intervention loss $L_{\text{intervention}}$, and task loss $L_{\text{task}}$ which is used to update the
+    RLCEM.}
     \label{fig:rlcem}
 \end{figure}
 
@@ -525,6 +558,10 @@ Then we sample interventions according to our intervention policy model,
 and compute task losses with respect to the intervened concepts to increase 
 the CEM's sensitivty to interventions. Then we update our intervention policy
 model so that it makes better interventions which lead to a higher accuracy.
+Similar to IntCEM, final loss for training the model is given by 
+\[L = \lambda_{\text{concept}} L_{\text{concept}}
++  \lambda_{\text{task}} L_{\text{task}}
++  \lambda_{\text{intervention}} L_{\text{intervention}}\]
 
 \subsection{Limitations}
 

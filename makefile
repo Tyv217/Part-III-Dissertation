@@ -69,6 +69,7 @@ clean:
 	rm -f *.aux *.log *.err *.out
 	rm -f *~ *.lof *.toc *.blg *.bbl
 	rm -f makefile.txt
+	rm -f chapters/*.aux chapters/*.pdf chapters/*.bbl chapters/*.synctex.gz chapters/*.aux chapters/*.out
 
 distclean: clean
 	rm -f figs/*.pdf chapters/*.pdf proposal.pdf main.pdf
