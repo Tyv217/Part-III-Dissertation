@@ -9,7 +9,7 @@
 % open problem
 Regular supervised Machine Learning (ML) models learn to 
 predict the labels of inputs.
-Concept Bottleneck Models~\cite{cbm} (CBMs) and Concept Embedding Models~\cite{cem} (CEMs) are 
+Concept Bottleneck Models (CBMs)~\cite{cbm}and Concept Embedding Models (CEMs)~\cite{cem} are 
 ML models designed to increase the interpretability of model predictions by decomposing a model into
 two submodels, splitting the original process into predicting a set of human-interpretable
 concepts / features present in the input, then predicting the label using these concepts.
@@ -60,7 +60,7 @@ work has been done on combining the capabilities of models
 from these two approaches.
 
 % The key technical idea (not abstract but technical detail) and innovation that you did that enabled you to answer your question
-To find a non-greedy policy, we investigate using Reinforcement Learning~\cite{rl} (RL) 
+To find a non-greedy policy, we investigate using Reinforcement Learning (RL)~\cite{rl}
 to learn a policy that maximizes
 the model accuracy after a set number of interventions,
 using the accuracy of the CBM as a reward to train the RL agent.

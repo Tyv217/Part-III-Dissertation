@@ -5,10 +5,18 @@
 In this chapter, we evaluate the performance of our RLCEM, and compare it 
 against existing greedy intervention policies. RLCEM is a CEM augmented with an RL agent
 to learn a non-greedy intervention policy, and trained according to Section~\ref{method:rlcem}.
-We compare RLCEM to our baseline, a learnt greedy intervention policy IntCEM, and other
-heuristic-based greedy intervention policies, 
-including CooP that selects concepts to minimizes uncertainty, 
-and Random that selects
+We compare RLCEM to our baseline, 
+including two of the known best-performing~\cite{intcem} 
+greedy intervention policies
+IntCEM and CooP. IntCEM learns a greedy intervention policy
+by mimicking the behaviour of an optimal greedy policy,
+and CooP is a heuristic-based greedy intervention policy
+that selects concepts to intervene based on its associated uncertainty
+and importance score. As mentioned in
+Section~\ref{background:coop}, CooP uses a weighted average
+of three scores, and thus we perform a grid search for the weight 
+of these three weights, and select the combination of weights with the best performance.
+We also compare RLCEM to Random, a policy that selects
 random concepts to intervene on.
 
 
@@ -132,7 +140,7 @@ More details on the datasets used can be found at Appendix~\ref{appendix:dataset
 % \subsection{Evaluating Performance}
 
 
-\subsection{Reinforcement Learning Agent Model}
+\subsection{Reinforcement Learning agent Model}
 We adopt the same MLP for 
 both the Actor and Critic model in the RL agent, 
 using the same MLP structure as that in the IntCEM intervention policy model,
@@ -335,9 +343,9 @@ with the RLCEM policy.
 The hyperparameters used for training IntCEM and an RLCEM are similar,
 consisting of the weights of the losses in the overall loss equation
 
-\[L = \lambda_{\text{concept}} L_{\text{concept}}
-+  \lambda_{\text{task}} L_{\text{task}}
-+  \lambda_{\text{intervention}} L_{\text{intervention}}\]
+\[\mathcal{L} = \lambda_{\text{concept}} \mathcal{L}_{\text{concept}}
++  \lambda_{\text{task}} \mathcal{L}_{\text{task}}
++  \lambda_{\text{intervention}} \mathcal{L}_{\text{intervention}}\]
 The task loss discount factor for interventions $\gamma$,
 and other common hyperparameters for Machine Learning such as learning rate
 and batch size.
@@ -349,28 +357,34 @@ the same loss weights except $\lambda_{\text{intervention}}$,
 the weight of the loss used to train the intervention policy model.
 For RLCEM, we search over $\lambda_{\text{intervention}} \in [0.2, 1, 5]$, and select based on validation
 intervention performance.
-We train all models using the Adam optimizer with a learning rate of 1e-5,
-selected by validation performance from [1e-4, 4e-5, 1e-5], and 
+We train all models using the Adam~\cite{adam} optimizer, with learning rates
+from [1e-3, 1e-4, 1e-5], and 
 batch size to fit the hardware we use.
-To prevent over-fitting,
-we stop training if the validation loss stops improving over 15 epochs.
+We train for a maximum of 300 epochs,
+and stop training if the validation loss stops improving over 15 epochs
+to prevent over-fitting.
 A summary of the hyperparameters used is shown in 
 Table~\ref{table:hyperparameters}.
 
 \begin{table}[!ht]
     \centering
     \renewcommand{\arraystretch}{1.5}
-    \begin{tabular}{c|cc}
-        Hyperparameter & IntCEM & RLCEM \\
+    \begin{tabular}{c|cccc}
+        Hyperparameter & \multicolumn{2}{c}{IntCEM} & \multicolumn{2}{c}{RLCEM} \\
         \hline
-        $\lambda_{\text{concept}}$ & 5 & 5\\
-        $\lambda_{\text{task}}$ & 1 & 1\\
-        $\lambda_{\text{intervention}}$ & 1 & 1\\
-        $\gamma$ & 1.1 & 1.1 \\
-        Learning Rate & 1e-5 & 1e-5  \\
-        Intervention Policy Model Hidden Layers & \{128, 128, 64, 64\} & \{512, 512, 256, 256\} \\
+        Task & MNIST-ADD & CUB &
+        MNIST-ADD & CUB \\ 
+        Learning Rate & 1e-5 & 1e-4 & 1e-5 & 1e-4 \\
+        \hline
+        $\lambda_{\text{concept}}$ & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{5}\\
+        $\lambda_{\text{task}}$ & \multicolumn{2}{c}{1} & \multicolumn{2}{c}{1}\\
+        $\lambda_{\text{intervention}}$ & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{1}\\
+        $\gamma$ & \multicolumn{2}{c}{1.1} & \multicolumn{2}{c}{1.1} \\
+        Policy Model Activations & \multicolumn{2}{c}{\{128, 128, 64, 64\}}
+        &  \multicolumn{2}{c}{\{512, 512, 256, 256\}} \\
     \end{tabular}
-    \caption{Training Hyperparameters used to train IntCEM and RLCEM.}
+    \caption{Training Hyperparameters used to train IntCEM and RLCEM for the 
+    two tasks MNIST-ADD and CUB. }
     \label{table:hyperparameters}
 \end{table}
 
@@ -389,15 +403,18 @@ We see that barring the first and last intervention performance,
 where all non-greedy and greedy intervention policies perform similarly,
 RLCEM outperforms all of IntCEM, CooP and Random, yielding a 
 higher AUC under the same number of interventions.
-Additionally without any interventions, RLCEM has a similar performance to 
+When no interventions are performed, 
+RLCEM has a similar performance to 
 IntCEM, showing that the intervention performance
 increase does not come at the expense of un-intervened performance.
 This is expected as the base CEMs are trained 
-in a similar fashion. Additionally, the overall performance of IntCEM policy
-compared to Random, where IntCEM outperforms Random at first but the performance of 
+in a similar fashion. Additionally, IntCEM outperforms Random
+ at first but the performance of 
 IntCEM degrades as interventions increase,
-also supports the hypothesis that greedy intervention policies may learn
-sub-optimal policies for different budgets, especially for larger budgets.
+also supports the hypothesis that greedy intervention policies 
+may learn
+sub-optimal policies for different budgets, especially for larger
+ budgets.
 RLCEM combines the strategy of directly learning a policy from IntCEM,
 and the uncertainty-based strategy of CooP, and learns an intervention policy
 that dynamically balances between them based on the budget.
@@ -409,7 +426,7 @@ that dynamically balances between them based on the budget.
     \includegraphics[width=0.9\textwidth]{figs/evaluation/mnist_rlcem_performance.png}
     \caption{
         Intervention AUC (\%) of RLCEM intervention
-    policy compared to existing intervention policies.
+    policy compared to existing intervention policies on MNIST-ADD.
     }
     \label{fig:mnist-performance-no-l2}
 \end{figure}
@@ -418,7 +435,8 @@ We also perform a numerical analysis of the intervention performance,
 comparing the intervention performance across quartiles of interventions
 performed.
 Table~\ref{table:mnist-performance-no-l2} shows the 
-test intervention AUC of the different intervention policies. 
+test intervention AUC of the different intervention policies, across 
+quartiles of interventions.
 We see that 
 RLCEM outperforms all other intervention policies,
 reaching similar or better intervention performance with 25\% less groups
@@ -443,7 +461,7 @@ $75\%$ & $\mathbf{93.5} \pm 0.3$ & $91.7 \pm 0.3$ & $93.0 \pm 0.4$ & $93.1 \pm 0
 $100\%$ & $\mathbf{94.6} \pm 0.2$ & $94.2 \pm 0.3$ & $\mathbf{94.6} \pm 0.2$ & $\mathbf{94.6} \pm 0.2$ \\
     \end{tabular}
     \caption{Intervention AUC (\%) of RLCEM intervention
-    policy compared to existing intervention policies,
+    policy compared to existing intervention policies on MNIST-ADD,
     across quartiles of interventions performed.
     Higher is better. We highlight the 
     best performing policy in each row and values within 1 standard deviation.}
@@ -454,7 +472,7 @@ We have successfully shown that RLCEM is able to find a better
 policy than CooP and Random, since all these policies were tested
 on the same CEMs. However despite RLCEM outperforming 
 IntCEM in intervention performance, to analyze the RLCEM and IntCEM 
-policies we need to take into account their sensitivities 
+policies we need to take into account the sensitivities 
 to interventions, as these 
 two policies are tested on their respective trained CEMs, and the performance
 difference could be attributed to the CEM rather than the policy. To test 
@@ -463,7 +481,7 @@ applying Random interventions to the two trained CEMs.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=0.9\textwidth]{figs/evaluation/mnist_random_off.png}
+    \includegraphics[width=0.9\textwidth]{figs/evaluation/mnist_performance_random_off.png}
     \caption{
         Intervention AUC (\%) of Random Interventions on RLCEM and IntCEM.
     }
@@ -510,7 +528,6 @@ RL agent, as seen in Figure~\ref{fig:cub-v-loss-spike} where the y-axis is
 logarithmic.
 
 
-
 \begin{figure}[!h]
     \centering
     \includegraphics[width=0.9\textwidth]{figs/evaluation/cub_v_loss_spike.png}
@@ -523,27 +540,39 @@ logarithmic.
     \label{fig:cub-v-loss-spike}
 \end{figure}
 
-The reason for this is the output of the AC Flow model.
+The reason for this is the outputs of the AC Flow model
+are too large.
 In Section~\ref{eval:surrogate} we mentioned measures we took to prevent
 the likelihood values outputted by the AC Flow model from being too large.
 However, CUB has a large number of concepts and 
 the relationships between concepts is more straightforward,
-where the 
-
-
+where features can be grouped by
+whether they appear on the same bird species.
 This is not the case in MNIST-ADD as the distribution of concepts corresponding to 
 different 
-digits are more independent from each other.
+digits are independent of each other.
 The model for CUB quickly converges and the outputted log likelihoods 
 for concepts increase rapidly which leads to an exponential increase 
 in outputted likelihoods. This means that the rewards for the RL agent
 are also very large, which result in enormous value losses.
-Not only does this damage the model's ability to learn,
-as
+Not only does this damage the model's ability to learn
+as the large loss values and updates cause instability and numerical
+issues in training,
+it also means that the intermediate rewards will overpower the final reward,
+rendering it useless in training the model.
+This means that the agent only learns to 
+maximize expected information gain rather than
+also maximizing the post-intervention performance,
+which is our main goal.
 Since the issue is with the output of the AC Flow model
 which is used as rewards, common methods to prevent loss spiking
 and exploding gradients,
 such as clipping the gradient or losses, did not alleviate the problem.
+Normalizing the outputs is also infeasible as that would require
+normalizing over all concept and label combinations in 
+$p(\mathbf{c}_u \mid \mathbf{c}_o, \mathbf{y})$,
+which is a massive space.
+
 
 % Another supporting statistic for this is that the validation 
 % accuracy of the AC Flow model for CUB reaches higher than $85\%$ out of 
@@ -562,26 +591,89 @@ Experimentally we find that setting $\lambda_{l2} = 0.5$ results
 in this term almost completely offsetting the training 
 effects of the NLL loss, resulting in 
 poor validation performance. Thus we set $\lambda_{l2} = 0.4$,
-which does not significantly impact the validation performance of the trained AC Flow model.
-The training and validation performance of 
+which does not significantly impact the validation accuracy of the trained AC Flow model.
+The performance of the AC Flow model with and without the L2 Penalty is shown 
+in Appendix~\ref{appendix:l2-penalty}.
+
+After adding the penalty to the loss term of the AC Flow model, we train new AC Flow models 
+and use them to train RLCEMs on the CUB task. We then evaluate them against 
+the same existing greedy intervention policies. Figure~\ref{fig:cub-rlcem_performance-l2}
+shows the performance of RLCEM against existing greedy intervention policies.
+We note that while RLCEM still has better performance than CooP and Random,
+it performs similarly and even more poorly in some cases than IntCEM.
 
 
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/evaluation/cub_rlcem_performance_l2.png}
+    \caption{
+        Intervention Accuracy (\%) of RLCEM intervention
+        policy trained with L2 Penalty, compared to existing intervention policies on CUB.
+    }
+    \label{fig:cub-rlcem_performance-l2}
+\end{figure}
 
+This is further shown in Table~\ref{table:cub-performance-l2},
+where we tabulate the intervention accuracies 
+of RLCEM compared to other greedy policies 
+across quartiles of interventions performed.
+For each quartile, the accuracy is calculated by 
+linearly interpolating the two points around the quartile
+boundary. For example, to calculate 
+the 50\% quartiles, we take the mean of the 
+intervention accuracy with 3 and 4 groups intervened.
+From the results we can see that RLCEM only outperforms
+IntCEM and the other policies at one quartile, and that the 
+RLCEM results have very high standard deviation.
 
-We also investigate the performance of RLCEM on MNIST-ADD with and without
-this L2 penalty.
-As shown in Figure~\ref{fig:mnist-rlcem_performance-l2},
-after adding a L2 Penalty to the AC Flow model,
-while still slightly better than Random, the intervention performance of RLCEM significantly decreases.
-This shows that RLCEM's intervention performance is highly dependent on its AC Flow
-model, which the AC Flow model when trained with an L2 Penalty can result in inconsistent and poorer performing
-models,
-which is seen from the high variance and poorer
-intervention performances when we add in the penalty. Penalizing large outputs 
+\begin{table}[!ht]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{c|ccccc}
+        \begin{tabular}{@{}c@{}}Concept Groups \\ Intervened\end{tabular} & RLCEM (Ours) & IntCEM & CooP & Random \\
+    \hline
+    % $0\%$ & $\mathbf{88.2} \pm 0.3$ & $\mathbf{88.24} \pm 0.09$ & $\mathbf{88.24} \pm 0.09$ & $\mathbf{88.24} \pm 0.09$ \\
+    % $25\%$ & $\mathbf{91.1} \pm 0.4$ & $\mathbf{90.7} \pm 0.3$ & $88.7 \pm 0.2$ & $89.55 \pm 0.08$ \\
+    % $50\%$ & $\mathbf{93.2} \pm 0.2$ & $91.1 \pm 0.3$ & $91.1 \pm 0.2$ & $91.24 \pm 0.07$ \\
+    % $75\%$ & $\mathbf{94.0} \pm 0.2$ & $91.7 \pm 0.3$ & $93.4 \pm 0.2$ & $92.7 \pm 0.2$ \\
+    % $100\%$ & $\mathbf{94.5} \pm 0.4$ & $\mathbf{94.2} \pm 0.3$ & $\mathbf{94.2} \pm 0.3$ & $\mathbf{94.2} \pm 0.3$ \\
+    $0\%$ & $\mathbf{74} \pm 1$ & $\mathbf{75} \pm 1$ & $\mathbf{74} \pm 1$ & $\mathbf{74} \pm 1$ \\
+    $25\%$ & $\mathbf{87} \pm 2$ & $\mathbf{85} \pm 1$ & $\mathbf{85} \pm 3$ & $84 \pm 2$ \\
+    $50\%$ & $\mathbf{93} \pm 2$ & $\mathbf{93} \pm 1$ & $\mathbf{92} \pm 3$ & $\mathbf{91} \pm 3$ \\
+    $75\%$ & $97 \pm 2$ & $\mathbf{98.1} \pm 0.7$ & $97 \pm 2$ & $96 \pm 2$ \\
+    $100\%$ & $98.8 \pm 0.8$ & $\mathbf{99.9} \pm 0.1$ & $98.8 \pm 0.8$ & $98.8 \pm 0.8$ \\
+    \end{tabular}
+    \caption{Intervention Accuracy (\%) of RLCEM intervention
+    policy trained with L2 Penalty, compared to existing intervention policies on CUB.
+    We display the results across quartiles of interventions performed.
+    Higher is better. We highlight the 
+    best performing policy in each row and values within 1 standard deviation.
+    }
+    \label{table:cub-performance-l2}
+\end{table}
+
+Therefore we cannot conclude that RLCEM is better than the greedy
+intervention policies. Penalizing large outputs 
 in the AC Flow model results in more similar output values for the likelihood
 of different concepts, and the approximated information gain is no longer
 accurate and cannot act as a useful reward to guide the RL agent to make 
-the optimal interventionsm, and the RL agent struggles to learn a good intervention policy.
+the optimal interventions, and the RL agent struggles to learn a good intervention policy.
+The large standard deviation also shows that this method is not robust
+and the performance can greatly differ.
+
+\subsection{Back to MNIST-ADD}
+To demonstrate that the L2 Penalty negatively affects
+the RL agent, we investigate the performance of RLCEM on MNIST-ADD with and without
+this L2 penalty.
+As shown in Figure~\ref{fig:mnist-rlcem-performance-l2},
+after adding a L2 Penalty to the AC Flow model,
+while still slightly better than Random, the intervention performance of RLCEM significantly decreases.
+This confirms that adding the L2 Penalty
+to the AC Flow model worsens the intervention performance of 
+RLCEM, resulting in poor performing 
+AC Flow models.
+This leads to the inconsistent and poorer
+intervention performances.
 
 \begin{figure}[!h]
     \centering
@@ -590,11 +682,68 @@ the optimal interventionsm, and the RL agent struggles to learn a good intervent
         Intervention AUC (\%) of RLCEM trained with and without an L2 Penalty (for the used AC Flow model).
         We also include IntCEM and Random for reference.
     }
-    \label{fig:mnist-rlcem_performance-l2}
+    \label{fig:mnist-rlcem-performance-l2}
 \end{figure}
 
 
 
 \section{Limitations}\label{eval:limitations}
+While we have shown that RLCEM can learn a non-greedy intervention 
+policy that outperforms existing greedy intervention
+policies, it also has its drawbacks. Most notably the largest
+drawback is its inconsistent performances which are dependent
+on the output of the AC Flow model. When we add an L2 Penalty
+to train the AC Flow model, it then struggles to learn to 
+output accurate conditional likelihood. This then affects the RL 
+agent, which struggles to learn the optimal interventions with a 
 
+
+Another limitation of RLCEM is its time complexity.
+Table~\ref{table:training-times} shows the per-epoch
+training times of RLCEM. As mentioned in Section~\ref{method:limitations}
+RLCEM has a training time complexity of $O(n^2k)$ compared
+to IntCEM's $O(n)$, which makes it not scalable for tasks
+with large concepts. This is reflected by the much higher
+per-epoch training time of RLCEM compared to IntCEM, especially
+fo CUB where one epoch of RLCEM takes more than ten times longer
+than IntCEM, as CUB has a large number of concepts
+. This number further increases if we want to increase 
+the number of budgets sampled for training for each mini-batch.
+
+\begin{table}[!ht]
+    \renewcommand{\arraystretch}{1.5}
+    \centering
+    \begin{tabular}{c|cc}
+        Task & RLCEM & IntCEM \\
+        \hline
+        MNIST-ADD & $77.8 \pm 0.8$ & $13.96 \pm 0.04$ \\
+        CUB & $610 \pm 30$ & $44 \pm 5$ 
+        
+    \end{tabular}
+    \caption{Per epoch Training Time in seconds of RLCEM vs IntCEM.}
+    \label{table:training-times}
+\end{table}
+
+Lastly, RLCEM is also impacted by concept leakage present in 
+CEMs. As mentioned in Section~\ref{background:cem},
+the concept embeddings used by CEM result in leakage 
+of information representing other concepts within the concept embeddings.
+This weakens the performance of the AC Flow models 
+are trained purely on the concept annotations, and concept
+leakage makes it so the approximated distribution of concepts 
+do not accurately represent the distribution of concepts embeddings.
+
+In this chapter, we have successfully evaluated the performance
+of RLCEM against existing greedy intervention policies 
+and random.
+We have showns that RLCEM outperforms the SOTA 
+greedy intervention
+policies on MNIST-ADD, achieving similar or better
+intervention performance with 25\% less interventions performed.
+However, this method is not robust as seen from its
+failures in learning a good non-greedy intervention policy from the 
+CUB task. The method is highly dependent on the quality of 
+outputs from the pre-trained AC Flow model, which in turn can
+vary
+from task to task.
 \end{document}

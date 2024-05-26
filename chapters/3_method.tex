@@ -22,20 +22,24 @@ where the sampled interventions are used to increase the sensitivity of the
 $\mathbf{c} \to \mathbf{y}$ label prediction model.
 
 An overview of the general structure of our RLCEM is in Figure~\ref{fig:rlcem-overview}.
-The RL Agent learns to output interventions, which are 
+The RL agent learns to output interventions, which are 
 used to train the CEM to increase sensitivity of 
-CEM to interventions. After all interventions from the RL Agent,
+CEM to interventions. After all interventions from the RL agent,
 the CEM prediction is used to calculate the final
-reward to train RL Agent. Additionally, the surrogate model
+reward to train RL agent. Additionally, the surrogate model
 is used to calculate intermediate rewards which are used to train and guide the 
-RL Agent to make more optimal intermediate interventions.
+RL agent to make more optimal intermediate interventions.
+We select Arbitrary Conditional Flow (AC Flow)
+models~\cite{acflow} as our surrogate models, and use 
+Proximal Policy Optimization~\cite{ppo}
+to train our RL agent.
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.4\textwidth]{figs/method/rlcem_overview.png}
-    \caption{An overview of the structure of RLCEM. The RL Agent samples interventions for the CEM, which is used to calculate
-    the final reward to train the Agent. The surrogate model is used to calculate intermediate rewards
-    to train the Agent.}
+    \caption{An overview of the structure of RLCEM. The RL agent samples interventions for the CEM, which is used to calculate
+    the final reward to train the agent. The surrogate model is used to calculate intermediate rewards
+    to train the agent.}
     \label{fig:rlcem-overview}
 \end{figure}
 
@@ -76,7 +80,7 @@ on with the goal of maximizing the accuracy of the $\mathbf{c} \to \mathbf{y}$ c
 A greedy intervention policy is thus a collection of functions $\mathcal{P}_i$, each
 of which outputs the concept to intervene on at step $i$. An optimal greedy policy is the following
 \[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmax}}_{\mathcal{P}_i} Acc(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
-% \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} L_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
+% \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} \mathcal{L}_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
 \[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}))\]
 Which maximizes the accuracy at each step $j$ sequentially
 for all $k$ concepts. At each
@@ -142,7 +146,7 @@ and the current concept we are intervening on would be
 $\mathcal{C}_u$.
 
 We use a variant of the popular normalizing flow models~\cite{normalizing-flows},
-namely Arbitrary Conditional Flow~\cite{acflow} (AC Flow)
+namely Arbitrary Conditional Flow (AC Flow)~\cite{acflow}
 models as our surrogate models.
 These models are 
 flow models augmented to model arbitrary conditional likelihoods $p(\mathcal{C}_u \mid \mathcal{C}_o)$
@@ -170,7 +174,7 @@ As described in Section~\ref{background:flow},
 normalizing flow models utilize the change of variable formula to model likelihoods,
 which can be extended to include conditional likelihoods. AC Flow models build on
 Transformation Autoregressive
-Networks~\cite{tans} (TANs), and learn to model 
+Networks (TANs)~\cite{tans}, and learn to model 
 likelihoods $p(c_0,\ldots, c_n \mid \mathbf{c}_o ,\mathbf{y})$,
 modelling the underlying latent distribution using an autoregressive approach with Recurrent
 Neural Networks (RNNs)~\cite{rnn}. The RNN learns to model the likelihood of 
@@ -218,7 +222,7 @@ the Jacobian determinant tells us how the likelihood changes~\cite{normalizing-f
 \right | p(q_{\mathbf{c}_o, b, \mathbf{y}}(\mathbf{c}_u) \mid \mathbf{c}_o, b, y)\]
 
 In the AC Flow model, we mainly leverage
-linear transformations. We use Multi-Layer Perceptrons~\cite{feedforward} (MLP) 
+linear transformations. We use Multi-Layer Perceptrons (MLP)~\cite{feedforward} 
 $\phi$ to learn 
 a weight matrix $\mathbf{W}$ and bias vector $\mathbf{t}$
 \[\mathbf{W}, \mathbf{t} = \phi(\mathbf{c}_o, b, \mathbf{y})\]
@@ -430,7 +434,7 @@ To further simplify, we assume that all concept groups have the same cost
 to intervene on. Thus we set the cost of each intervention to be 1, and the budget
 becomes the number of possible interventions.
 
-\subsection{Training the Agent}
+\subsection{Training the agent}
 
 In Active Feature Acquisition as described in Section~\ref{background:afa},
 Li et al.~\cite{afa} combine Reinforcement Learning with 
@@ -467,27 +471,19 @@ one unified model for the different tasks with different budgets.
 
 As mentioned in Section~\ref{background:rl}, the state-of-the-art RL algorithm 
 for learning
-a policy is Proximal Policy Optimization~\cite{ppo} (PPO), which we use
+a policy is Proximal Policy Optimization (PPO)~\cite{ppo}, which we use
 to train a RL agent that learns a non-greedy intervention policy.
 PPO utilizes a Critic model to estimate
 the value of a particular state, which is the discounted expected future rewards. Then
 an Actor model learns a policy
 for taking actions that lead to states with higher values as estimated by the
 Critic model.
-This model effectively balances the tradeoff between exploration and exploitation
-present in Reinforcement Learning problems,
-as initially the Actor model explores states which may have low true values
-which are not learnt by the Critic model, and as the Critic model
-learns to estimate the values of states better, the Actor model also 
-learns a better policy.
 
 During training, a state and its true value is computed
 and compared to the estimated value by the Critic, and a value loss is computed to minimize
 the discrepancy between these two values. Then a policy loss is computed
 by the discrepancy between actions selected for states and the estimated
-change in value by taking that action. It also utilizes
-a clipping function to prevent the policy update 
-to be too large or too small.
+change in value by taking that action.
 Ultimately, the Critic model
 should be able to estimate the value of a state which reflects
 its future label prediction accuracy after all interventions,
@@ -509,8 +505,8 @@ of the RLCEM is as follows:
 
 \begin{enumerate}
     \item The $\mathbf{x} \to \mathbf{c}$ model first computes the predicted concepts $\mathbf{c}$.
-    We then compute a concept loss $L_{\text{concept}}$ with the true concepts.
-    We also compute a task loss $L_{\text{task}}$ with the true labels
+    We then compute a concept loss $\mathcal{L}_{\text{concept}}$ with the true concepts.
+    We also compute a task loss $\mathcal{L}_{\text{task}}$ with the true labels
     which is then 
     back-propagated through the $\mathbf{c} \to \mathbf{y}$ model.
     \item Since we want to train the RL agent $\mathcal{A}$ to be able to learn 
@@ -530,13 +526,13 @@ of the RLCEM is as follows:
     the corresponding rewards $r$, are used to calculate the true values of states.
     This is then compared against the values estimated by the Critic model
     $\hat{V}(\textbf{obs})$
-    to compute a value loss $L_{\text{value}}$ for the Critic model.
+    to compute a value loss $\mathcal{L}_{\text{value}}$ for the Critic model.
     Then the estimated values $\hat{V}(\textbf{obs})$ and the estimated 
     next state values $\hat{Q}(\textbf{obs}, \hat{a}, r)$
     are used to compute the advantage function $\hat{A}$ which tells us
     the advantage of taking actions. These advantages are then used to compute
-    a policy loss $L_{\text{policy}}$ to update the Actor model.
-    These two losses combine to give us the intervention loss $L_{\text{intervention}}$.
+    a policy loss $\mathcal{L}_{\text{policy}}$ to update the Actor model.
+    These two losses combine to give us the intervention loss $\mathcal{L}_{\text{intervention}}$.
     \item Lastly, we compute task losses for both concepts before intervention and after intervention,
     discounted by $\gamma^T$, similar to IntCEM.
 \end{enumerate}
@@ -545,8 +541,8 @@ of the RLCEM is as follows:
     \centering
     \includegraphics*[width=\textwidth]{figs/method/rlcem.png}
     \caption{The training loop of RLCEM. T is the sampled budget, $\mathcal{E}$ is the RL environment, $\mathcal{A}$ the RL agent, 
-    and $\hat{V}, \hat{Q}$ the estimated value functions from the agent. The loop computes concept loss $L_{\text{concept}}$,
-    intervention loss $L_{\text{intervention}}$, and task loss $L_{\text{task}}$ which is used to update the
+    and $\hat{V}, \hat{Q}$ the estimated value functions from the agent. The loop computes concept loss $\mathcal{L}_{\text{concept}}$,
+    intervention loss $\mathcal{L}_{\text{intervention}}$, and task loss $\mathcal{L}_{\text{task}}$ which is used to update the
     RLCEM.}
     \label{fig:rlcem}
 \end{figure}
@@ -559,11 +555,11 @@ and compute task losses with respect to the intervened concepts to increase
 the CEM's sensitivty to interventions. Then we update our intervention policy
 model so that it makes better interventions which lead to a higher accuracy.
 Similar to IntCEM, final loss for training the model is given by 
-\[L = \lambda_{\text{concept}} L_{\text{concept}}
-+  \lambda_{\text{task}} L_{\text{task}}
-+  \lambda_{\text{intervention}} L_{\text{intervention}}\]
+\[\mathcal{L} = \lambda_{\text{concept}} \mathcal{L}_{\text{concept}}
++  \lambda_{\text{task}} \mathcal{L}_{\text{task}}
++  \lambda_{\text{intervention}} \mathcal{L}_{\text{intervention}}\]
 
-\subsection{Limitations}
+\subsection{Limitations}\label{method:limitations}
 
 A major concern is the Time Complexity associated with learning
 such an RLCEM. As mentioned in~\ref{method:rl}, in order to ensure

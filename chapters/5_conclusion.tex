@@ -2,6 +2,77 @@
 \begin{document}
 \chapter{Summary and conclusions}
 
+To summarize, we have presented a new CEM-based model,
+which we name RLCEM, that utilizes Arbitrary Conditional Flow 
+models and Reinforcement Learning to learn a non-greedy 
+intervention policy. A variant of AC Flow model is used to 
+learn the class-specific
+conditional distribution between concepts, which is then used 
+to train a Reinforcement Learning agent that learns
+a non-greedy intervention policy. The AC Flow model 
+provides intermediate rewards to the agent based on the
+expected information gain to the target variable,
+and the post-intervention Cross-Entropy loss is used as a final reward
+to train the agent to make more optimal 
+interventions that lead to 
+higher label prediction accuracies. The sampled interventions
+are also used to update the CEM to increase its sensitivity
+to interventions, further boosting the performance of the learnt
+intervention policy.
+
+We have also evaluated RLCEM against existing greedy intervention
+policies IntCEM, CooP, and a policy where we randomly select
+concepts to intervene. We show that RLCEM was able to outperform 
+these greedy intervention policies, learning a more optimal
+non-greedy intervention policy. RLCEM achieves similar or 
+better performance than the other policies while requiring
+25\% less interventions, 
+showing that it is able to learn a non-greedy policy that 
+outperforms existing greedy policies in intervention
+performance. At the same time,
+we show that RLCEM achieves similar un-intervened performance
+to existing models.
+
+However, we also show that RLCEM
+does not learn a more optimal intervention policy
+in certain tasks due to sub-optimal AC Flow models.
+We show that the performance of RLCEM is highly dependent on
+the trained AC Flow model, which performance can vary. 
+Hence, this method
+is not very robust. Additionally, we show that 
+RLCEM also suffers from other problems like 
+high time complexity and concept leakage.
+
 \section{Future Work}
+Due to the limitations of RLCEM, there is room for future 
+work to find solutions and improvements to these limitations.
+For example, using a different approach to model
+the distribution of concepts, such as 
+a different latent distribution model for the AC Flow model,
+or using a completely different surrogate models. Further 
+research can investigate these different solutions to 
+improve the robustness of the overall RLCEM 
+by improving the robustness of the surrogate model itself.
+
+Currently the 
+AC Flow model uses an RNN based approach
+to model the conditional distribution of concepts,
+which takes $O(d)$ steps per output and is one of the reasons
+for the high time complexity of our RLCEM approach.
+ Future work can
+look into using more efficient models to improve
+the scalability of the AC Flow model, for example transformer-based
+architectures that have replaced RNNs. However, the current
+RNN-based approach uses a sequential approach
+for sampling, which is not straightforward to translated
+to a transformer-based architecture, and appropriate changes 
+will have to be made.
+
+Lastly, more research can be done on the effects
+of concept leakage on modelling the distribution
+of concepts in CEMs. Methods to combat the negative
+effects of concept leakage, such as dynamically updating
+the AC Flow model based on the distribution of concept 
+embeddings may be worth exploring.
 
 \end{document}
