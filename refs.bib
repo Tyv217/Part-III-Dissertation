@@ -82,13 +82,13 @@ doi = {10.1609/aaai.v37i5.25736}
   abstract = 	 {Many real-world situations allow for the acquisition of additional relevant information when making an assessment with limited or uncertain data. However, traditional ML approaches either require all features to be acquired beforehand or regard part of them as missing data that cannot be acquired. In this work, we consider models that perform active feature acquisition (AFA) and query the environment for unobserved features to improve the prediction assessments at evaluation time. Our work reformulates the Markov decision process (MDP) that underlies the AFA problem as a generative modeling task and optimizes a policy via a novel model-based approach. We propose learning a generative surrogate model (GSM) that captures the dependencies among input features to assess potential information gain from acquisitions. The GSM is leveraged to provide intermediate rewards and auxiliary information to aid the agent navigate a complicated high-dimensional action space and sparse rewards. Furthermore, we extend AFA in a task we coin active instance recognition (AIR) for the unsupervised case where the target variables are the unobserved features themselves and the goal is to collect information for a particular instance in a cost-efficient way. Empirical results demonstrate that our approach achieves considerably better performance than previous state of the art methods on both supervised and unsupervised tasks.}
 }
 
-@proceedings {cbm-hybrid,
-	title = {Promises and Pitfalls of Black-Box Concept Learning Models},
-	journal = {proceeding at the  International Conference on Machine Learning: Workshop on Theoretic Foundation, Criticism, and Application Trend of Explainable AI,},
-	volume = {1},
-	year = {2021},
-	pages = {1-13},
-	author = {A. Mahinpei and J. Clark and I. Lage and Doshi-Velez, F. and P. WeiWei}
+@article{cbm-hybrid,
+  title={Promises and Pitfalls of Black-Box Concept Learning Models},
+  author={Anita Mahinpei and Justin Clark and Isaac Lage and Finale Doshi-Velez and Weiwei Pan},
+  journal={ArXiv},
+  year={2021},
+  volume={abs/2106.13314},
+  url={https://api.semanticscholar.org/CorpusID:235652059}
 }
 
 @misc{acflow,
@@ -305,4 +305,122 @@ author={Sungbin Shin and Yohan Jo and Sungsoo Ahn and Namhoon Lee},
 booktitle={Workshop on Trustworthy and Socially Responsible Machine Learning, NeurIPS 2022},
 year={2022},
 url={https://openreview.net/forum?id=PUspzfGsgY}
+}
+
+
+@Article{xai,
+AUTHOR = {Linardatos, Pantelis and Papastefanopoulos, Vasilis and Kotsiantis, Sotiris},
+TITLE = {Explainable AI: A Review of Machine Learning Interpretability Methods},
+JOURNAL = {Entropy},
+VOLUME = {23},
+YEAR = {2021},
+NUMBER = {1},
+ARTICLE-NUMBER = {18},
+URL = {https://www.mdpi.com/1099-4300/23/1/18},
+PubMedID = {33375658},
+ISSN = {1099-4300},
+ABSTRACT = {Recent advances in artificial intelligence (AI) have led to its widespread industrial adoption, with machine learning systems demonstrating superhuman performance in a significant number of tasks. However, this surge in performance, has often been achieved through increased model complexity, turning such systems into “black box” approaches and causing uncertainty regarding the way they operate and, ultimately, the way that they come to decisions. This ambiguity has made it problematic for machine learning systems to be adopted in sensitive yet critical domains, where their value could be immense, such as healthcare. As a result, scientific interest in the field of Explainable Artificial Intelligence (XAI), a field that is concerned with the development of new methods that explain and interpret machine learning models, has been tremendously reignited over recent years. This study focuses on machine learning interpretability methods; more specifically, a literature review and taxonomy of these methods are presented, as well as links to their programming implementations, in the hope that this survey would serve as a reference point for both theorists and practitioners.},
+DOI = {10.3390/e23010018}
+}
+
+@inproceedings{xai-1,
+  title={Explanations based on the Missing: Towards Contrastive Explanations with Pertinent Negatives},
+  author={Amit Dhurandhar and Pin-Yu Chen and Ronny Luss and Chun-Chen Tu and Pai-Shun Ting and Karthikeyan Shanmugam and Payel Das},
+  booktitle={Neural Information Processing Systems},
+  year={2018},
+  url={https://api.semanticscholar.org/CorpusID:3401346}
+}
+
+@article{xai-2,
+author = {Rudin, Cynthia},
+year = {2019},
+month = {05},
+pages = {206-215},
+title = {Stop Explaining Black Box Machine Learning Models for High Stakes Decisions and Use Interpretable Models Instead},
+volume = {1},
+journal = {Nature Machine Intelligence},
+doi = {10.1038/s42256-019-0048-x}
+}
+
+@inproceedings{non-greedy-1,
+  title={Joint Active Feature Acquisition and Classification with Variable-Size Set Encoding},
+  author={Hajin Shim and Sung Ju Hwang and Eunho Yang},
+  booktitle={Neural Information Processing Systems},
+  year={2018},
+  url={https://api.semanticscholar.org/CorpusID:54025962}
+}
+
+@inproceedings{non-greedy-2,
+    title = "Improving Information Extraction by Acquiring External Evidence with Reinforcement Learning",
+    author = "Narasimhan, Karthik  and
+      Yala, Adam  and
+      Barzilay, Regina",
+    editor = "Su, Jian  and
+      Duh, Kevin  and
+      Carreras, Xavier",
+    booktitle = "Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing",
+    month = nov,
+    year = "2016",
+    address = "Austin, Texas",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D16-1261",
+    doi = "10.18653/v1/D16-1261",
+    pages = "2355--2365",
+}
+
+@inproceedings{
+intervention-policies,
+title={Learning from uncertain concepts via test time interventions},
+author={Ivaxi Sheth and Aamer Abdul Rahman and Laya Rafiee Sevyeri and Mohammad Havaei and Samira Ebrahimi Kahou},
+booktitle={Workshop on Trustworthy and Socially Responsible Machine Learning, NeurIPS 2022},
+year={2022},
+url={https://openreview.net/forum?id=WVe3vok8Cc3}
+}
+
+@inproceedings{
+non-greedy-3,
+author = {Kanani, Pallika H. and McCallum, Andrew K.},
+title = {Selecting actions for resource-bounded information extraction using reinforcement learning},
+year = {2012},
+isbn = {9781450307475},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2124295.2124328},
+doi = {10.1145/2124295.2124328},
+abstract = {Given a database with missing or uncertain content, our goal is to correct and fill the database by extracting specific information from a large corpus such as the Web, and to do so under resource limitations. We formulate the information gathering task as a series of choices among alternative, resource-consuming actions and use reinforcement learning to select the best action at each time step. We use temporal difference q-learning method to train the function that selects these actions, and compare it to an online, error-driven algorithm called SampleRank. We present a system that finds information such as email, job title and department affiliation for the faculty at our university, and show that the learning-based approach accomplishes this task efficiently under a limited action budget. Our evaluations show that we can obtain 92.4\% of the final F1, by only using 14.3\% of all possible actions.},
+booktitle = {Proceedings of the Fifth ACM International Conference on Web Search and Data Mining},
+pages = {253–262},
+numpages = {10},
+keywords = {web mining, resource-bounded information extraction, reinforcement learning, active information acquisition},
+location = {Seattle, Washington, USA},
+series = {WSDM '12}
+}
+
+@misc{ppo-1,
+      title={Learning Dexterous In-Hand Manipulation}, 
+      author={OpenAI and Marcin Andrychowicz and Bowen Baker and Maciek Chociej and Rafal Jozefowicz and Bob McGrew and Jakub Pachocki and Arthur Petron and Matthias Plappert and Glenn Powell and Alex Ray and Jonas Schneider and Szymon Sidor and Josh Tobin and Peter Welinder and Lilian Weng and Wojciech Zaremba},
+      year={2019},
+      eprint={1808.00177},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+
+@article{ppo-2,
+  title={A graph placement methodology for fast chip design},
+  author={Azalia Mirhoseini and Anna Goldie and Mustafa Yazgan and Joe Wenjie Jiang and Ebrahim M. Songhori and Shen Wang and Young-Joon Lee and Eric Johnson and Omkar Pathak and Azade Nazi and Jiwoo Pak and Andy Tong and Kavya Srinivasa and Will Hang and Emre Tuncer and Quoc V. Le and James Laudon and Richard Ho and Roger Carpenter and Jeff Dean},
+  journal={Nature},
+  year={2021},
+  volume={594},
+  pages={207 - 212},
+  url={https://api.semanticscholar.org/CorpusID:235395490}
+}
+
+
+@article{ppo-3,
+  title={Training language models to follow instructions with human feedback},
+  author={Long Ouyang and Jeff Wu and Xu Jiang and Diogo Almeida and Carroll L. Wainwright and Pamela Mishkin and Chong Zhang and Sandhini Agarwal and Katarina Slama and Alex Ray and John Schulman and Jacob Hilton and Fraser Kelton and Luke E. Miller and Maddie Simens and Amanda Askell and Peter Welinder and Paul Francis Christiano and Jan Leike and Ryan J. Lowe},
+  journal={ArXiv},
+  year={2022},
+  volume={abs/2203.02155},
+  url={https://api.semanticscholar.org/CorpusID:246426909}
 }

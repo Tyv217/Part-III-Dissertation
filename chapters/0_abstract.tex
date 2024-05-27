@@ -9,55 +9,75 @@
 
 % open problem
 Concept Bottleneck Models (CBMs) are designed for high interpretability by predicting 
-human-interpretable concepts from input, 
-and then predicting labels from these concepts. Experts can intervene on the 
-predicted concepts
+human-interpretable concepts from their inputs,
+then predicting labels from these concepts. 
+These concepts are more meaningful to
+experts and easier to work with, where experts
+can intervene on the 
+mispredicted concepts
 by correcting them to improve the accuracy of the predicted label. Previous 
 studies have shown that the choice of intervention concepts 
-can have significant impacts on the accuracy of the CBM.
+can significantly impact the effects 
+the interventions have on the CBM's accuracy.
 % and many efforts have been 
 % made to develop methods to determine the best order of concepts to intervene on.
 % why it is important and why we should care to solve this (motivation)
 Since experts have limited time, it is important to develop ways to
-determine the best concepts to intervene on to maximize the performance 
-of the CBM
-while minimizing the intervention costs. Given a budget
-for interventions, we want to develop methods that achieve the best model performance
-using the limited number of interventions.
+determine the best concepts to intervene on to maximise the 
+CBM's performance,
+% with minimal intervention costs.
+% while minimising the intervention costs.
+under a budget that limits the number 
+of interventions.
+% Given a budget
+% for interventions, we want to develop methods that achieve the best model performance
+% using a limited number of interventions.
+Past methods in finding concepts to intervene on
+all find a policy
+that maximises the effects of these interventions
+at each step, making these policies greedy.
 % your research question(s)
-We investigate methods to learn a non-greedy policy that determines an optimal set of 
+In this dissertation,
+we investigate methods that learn a non-greedy policy 
+to determine
 concepts to intervene on
-for a given budget, to maximize the accuracy of the CBM.
+for a budget, to maximise the CBM's accuracy.
 % what other have done and how their work is deficient with regards to your question(s)
 
-Past methods in finding intervention policies are limited in
-only using greedy policies 
-that attempt to maximize the CBM's at each step.
+Existing methods
+are limited in that they only 
+find greedy policies that
+maximise some metric,
+such as the CBM's predictive accuracy
+at each step.
 They do not incorporate the notion of intervention budgets,
-which we believe is an important issue to consider when using CBMs for real-life applications.
-We hypothesize that non-greedy policies can find more optimal concepts to intervene on for a 
-given budget,
-as they maximize the final performance after a number of interventions rather than at each step.
+which we believe is an important issue for real-life applications
+of CBMs 
+due to the high costs in querying experts for interventions.
+We hypothesise that non-greedy policies can find more optimal intervention concepts for different
+budgets,
+as they maximise the final performance after several interventions rather than at each step.
 % The key technical idea (not abstract but technical detail) and innovation that you did that enabled you to answer your question
-To learn a non-greedy policy, we model the problem of determining what concepts to intervene on
-as a Markov Decision Process
-and apply Reinforcement Learning by training the model to maximize the final performance of the CBM
+To learn a non-greedy policy, we apply Reinforcement 
+Learning to learn a policy
+that maximises the final CBM performance
 after a set number of interventions.
-We also use a surrogate model to model the distribution of concepts to provide intermediate rewards and auxiliary information to the
+We use a surrogate model to model the distribution of concepts to provide intermediate rewards and auxiliary information to the
 Reinforcement Learning agent.
 % How you did it (methodology)
 Using a pre-trained surrogate model, a Reinforcement Learning agent 
-is trained in conjunction with a CBM, 
-which learns a policy for determining the choice of concepts
+% is trained in conjunction with a CBM, 
+% which 
+learns a policy for determining the concepts
 to intervene on for a given budget.
 % What the results were
 
 We first show that non-greedy policies can outperform 
 greedy policies for different budgets.
-We then show that we can learn a non-greedy policy using Reinforcement Learning which outperforms
+We then show that we can learn a non-greedy policy using Reinforcement Learning that outperforms
 existing greedy policies for different intervention budgets, achieving 
 similar intervention performance with up to 25\% less interventions.
-Simultaneously the model maintains similar 
+Simultaneously, the model maintains a similar 
 performance under the absence of interventions.
 % What impact could your contributions have
 This shows that Reinforcement Learning can

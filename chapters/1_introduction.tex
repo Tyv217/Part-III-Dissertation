@@ -7,76 +7,94 @@
 
 
 % open problem
-Regular supervised Machine Learning (ML) models learn to 
-predict the labels of inputs.
-Concept Bottleneck Models (CBMs)~\cite{cbm}and Concept Embedding Models (CEMs)~\cite{cem} are 
-ML models designed to increase the interpretability of model predictions by decomposing a model into
-two submodels, splitting the original process into predicting a set of human-interpretable
-concepts / features present in the input, then predicting the label using these concepts.
-This allows us to understand the reasoning behind the predications better, 
-mitigating some of the downsides associated with using ML models as ``black-box'' models,
-especially in areas where 
-decisions made can be critical to 
+Traditional supervised Machine Learning (ML) models learn to 
+predict labels from inputs such as images.
+Concept Bottleneck Models (CBMs)~\cite{cbm} and Concept Embedding Models (CEMs)~\cite{cem},
+split the original process into predicting a set of human-interpretable
+concepts/features present in the input, then predicting the label using these concepts,
+which increases the interpretability of the label predictions 
+made by a model.
+This allows us to 
+gain a better understanding of the reasoning behind model  
+predictions, 
+mitigating some of the downsides associated with using ML models as ``black-box'' models.
+This is especially useful in areas where 
+decisions made are critical to 
 human safety, such as medicine
-and criminal justice.
-During inference time, professionals can intervene on CBMs by correcting
-the predicted concepts, leading to more accurate predicted labels. 
+and criminal justice~\cite{xai-1, xai, xai-2}.
+
+Using concepts aligns the way
+CBMs make predictions with the way humans make predictions.
+It also makes label mispredictions
+human-interpretable, which
+can be interpreted as mispredictions in
+the concepts. Domain Experts can correct these
+mispredicted concepts, rather than having to alter the 
+input or model itself to improve predictive accuracy.
+During inference time, experts can intervene on CBMs by correcting
+the mispredicted concepts, leading to more accurate predicted labels. 
 This leads to the problem of determining the concepts to intervene on in order
 to achieve the best model performance.
 
 % why it is important and why we should care to solve this (motivation)
 Previous studies have shown that the choice of concepts to 
-intervene on can have significant impacts on the accuracy of the model~\cite{coop, intcem},
-and thus it is important to find a good policy to determine what concepts
-we should intervene on.
-Due to the costs
-associated with performing such an intervention, we introduce budgets,
-which add constraints on the number of interventions allowed. 
+intervene on can have significant impacts on the accuracy of the model~\cite{coop, cbm, ectp}.
+Thus it is important to find a good policy to determine what concepts we should intervene on.
+
+Despite this, there has not been much research on developing
+methods to find good intervention policies, and 
+existing methods do not
+take into account the effects of multiple
+interventions, where intervening on different combinations
+of concepts can have different effects on the accuracy.
+Past methods mainly focus on greedy approaches, which
+attempt to maximise the effects of each intervention
+sequentially.
+This includes heuristic-based approaches such as intervening on concepts that minimise the
+model's uncertainty~\cite{ectp, coop}, and IntCEMs
+that directly learn a greedy policy~\cite{intcem}.
+Rather than trying to maximise the effect of each individual 
+intervention, we propose that we should 
+try to maximise the effect of interventions for a given 
+budget, 
+which is a limit on the number of interventions.
 This
 reflects real-life scenarios where
-there exists limits on the number of times we 
-can query an expert to intervene on concepts.
+there are limits on how many times we 
+can query an expert to intervene on concepts, and 
+we want to maximise the predictive 
+performance of the CBM after those interventions.
+
 
 % your research question(s)
-The problem then becomes finding policies that can determine the best 
-concepts to perform interventions on for a given budget. In particular,
-we investigate 
-the research question of 
+Following the successes of non-greedy solutions 
+using 
+Reinforcement Learning (RL)~\cite{rl} over
+greedy solutions in similar 
+decision-making problems~\cite{gsmrl, non-greedy-2, non-greedy-1},
+we hypothesise that non-greedy policies
+yield more optimal solutions as they maximise 
+the predictive accuracy after a number of interventions rather than at each step.
+Thus we investigate the problem of
 finding a non-greedy policy to determine
-the set of concepts to intervene on for a budget.
-We hypothesize that non-greedy policies
-yield more optimal solutions as they maximize 
-the model accuracy after a number of interventions rather than at each step.
-
-% what other have done and how their work is deficient with regards to your question(s)
-Past methods have mainly focused on greedy approaches, which
-includes heuristic-based approaches such as intervening on concepts that minimize the
-model's uncertainty~\cite{coop}, or ML-based approaches that learn a greedy policy
-like in IntCEMs~\cite{intcem}. Additionally existing approaches either 
-attempt to model the distribution of concepts and use that
-to sample interventions~\cite{energycem}, 
-or directly learn a policy~\cite{intcem}, while limited
-work has been done on combining the capabilities of models 
-from these two approaches.
+the set of concepts to intervene on for a budget which
+maximises the predictive performance of the CBM.
 
 % The key technical idea (not abstract but technical detail) and innovation that you did that enabled you to answer your question
-To find a non-greedy policy, we investigate using Reinforcement Learning (RL)~\cite{rl}
-to learn a policy that maximizes
+We utilise RL
+to learn a policy that maximises
 the model accuracy after a set number of interventions,
 using the accuracy of the CBM as a reward to train the RL agent.
 In order
 to guide the agent throughout the intervention process,
 we use surrogate models that model the distribution of concepts using
-a variant of normalizing flow models. These models learn a latent distribution
-and an invertible transformation to model the distribution of the concepts.
-This allows us to compute the conditional likelihood of concepts 
-and use as an intermediate reward to the RL agent. Additionally we can sample
-from the underlying distribution to obtain concepts with the highest likelihood,
-which provides auxiliary information to the agent.
+a variant of normalising flow models~\cite{normalizing-flows}. 
+This allows us to compute the conditional likelihood of concepts, using it to provide intermediate rewards and auxiliary information to the RL agent.
 
 % How you did it (methodology)
-After pretraining a surrogate model to learn the distribution of concepts,
-we train a Reinforcement Learning agent in conjunction with a CEM, which we name RLCEM, to learn a 
+After pre-training a surrogate model to learn the distribution of concepts,
+we train a Reinforcement Learning agent in conjunction with a CEM, which we name RLCEM.
+RLCEM learns a 
 non-greedy intervention policy, using
 the expected information gain from the surrogate model
 as a reward, and a final reward based on the 
@@ -90,33 +108,32 @@ the learnt policy.
 
 % What the results were
 To evaluate this approach, we train RLCEM on two different datasets
-and compare its performance to IntCEM, the state-of-the-art 
-model for intervention performance that learns a greedy policy 
-for interventions.
-% We show that this approach can outperform existing greedy policies
-% for different budgets, achieving better model performance
-% after a set number of interventions and reaching similar
-% model performance with 25\% less interventions. 
+and compare its performance to IntCEM and CooP,
+the state-of-the-art greedy intervention policies.
+We show that this approach can outperform existing greedy policies
+for different budgets, achieving better model performance
+after a set number of interventions and reaching similar
+model performance with 25\% less interventions. 
 
 
 % % What impact could your contributions have
-To sum up, this project has the following contributions:
+To sum up, this project makes the following contributions:
 \begin{itemize}
-    \item Introduce budgets into the problem setting and shown that non-greedy policies can outperform greedy policies.
-    \item Develop and train Surrogate models by adapting AC Flow models to be used to model conditional concept likelihoods.
-    \item Train RL Concept Embedding Models that utilize Reinforcement Learning
-    that can learn a non-greedy intervention policy
-    with better intervention performance than existing methods, achieving better performance
-    with up to 25\% less interventions. At the same time the model maintains similar performance under 
+    \item We introduce budgets into the problem
+    of finding intervention policies and show that non-greedy policies can outperform greedy policies.
+    \item Show that RLCEMs can
+    can learn a non-greedy intervention policy
+    with better intervention performance than existing methods. At the same time, the model maintains similar performance under 
 the absence of interventions. 
-    \item Standardize the RL environment of RLCEMs inheriting from the Gymnasium Interface~\cite{gymnasium} which
-    can be used in future research in RL-based intervention policies.
+    % \item Standardise the RL environment of RLCEMs inheriting from the Gymnasium Interface~\cite{gymnasium} which
+    % can be used in future research in RL-based intervention policies.
 \end{itemize}
 
 However, we note that
-this approach also has its drawbacks, including
-higher time complexity, and its performance is very dependent on 
-the nature of the task and concepts, which affects the robustness of the method.
+RLCEM has limitations: it has a 
+higher time complexity, and its performance is very dependent on the surrogate model, which 
+affects the robustness of the method. Nevertheless,
+
 
 % \textbf{Terminology}
 % The term ``concepts'' hereafter strictly refers to the labelled concepts present

@@ -344,9 +344,9 @@ The hyperparameters used for training IntCEM and an RLCEM are similar,
 consisting of the weights of the losses in the overall loss equation
 
 \[\mathcal{L} = \lambda_{\text{concept}} \mathcal{L}_{\text{concept}}
-+  \lambda_{\text{task}} \mathcal{L}_{\text{task}}
++  \lambda_{\text{label}} \mathcal{L}_{\text{label}}
 +  \lambda_{\text{intervention}} \mathcal{L}_{\text{intervention}}\]
-The task loss discount factor for interventions $\gamma$,
+The label loss discount factor for interventions $\gamma$,
 and other common hyperparameters for Machine Learning such as learning rate
 and batch size.
 We follow the recommended hyperparameters 
@@ -377,7 +377,7 @@ Table~\ref{table:hyperparameters}.
         Learning Rate & 1e-5 & 1e-4 & 1e-5 & 1e-4 \\
         \hline
         $\lambda_{\text{concept}}$ & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{5}\\
-        $\lambda_{\text{task}}$ & \multicolumn{2}{c}{1} & \multicolumn{2}{c}{1}\\
+        $\lambda_{\text{label}}$ & \multicolumn{2}{c}{1} & \multicolumn{2}{c}{1}\\
         $\lambda_{\text{intervention}}$ & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{1}\\
         $\gamma$ & \multicolumn{2}{c}{1.1} & \multicolumn{2}{c}{1.1} \\
         Policy Model Activations & \multicolumn{2}{c}{\{128, 128, 64, 64\}}

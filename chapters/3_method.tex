@@ -3,10 +3,10 @@
 \chapter{Method}
 
 
-In this chapter, we document how we propose 
+In this chapter, we propose 
 to learn a non-greedy intervention policy.
 We first
-formalize interventions and intervention policies,
+formalise interventions and intervention policies,
 then introduce the surrogate models we use
 to calculate intermediate rewards,
 and finally, present how Reinforcement Learning is used 
@@ -17,9 +17,9 @@ with a greedy intervention policy model and train the two simultaneously,
 we propose RLCEM,
 a novel CEM model augmented with a Reinforcement Learning agent
 that learns a non-greedy intervention policy.
-The two are trained simultaneously, similar to IntCEM, 
-where the sampled interventions are used to increase the sensitivity of the
-$\mathbf{c} \to \mathbf{y}$ label prediction model.
+The CEM and RL agent are trained simultaneously, similar to IntCEM, 
+where the sampled interventions are used to increase the
+$\mathbf{c} \to \mathbf{y}$ label predictor model's sensitivity to interventions.
 
 An overview of the general structure of our RLCEM is in Figure~\ref{fig:rlcem-overview}.
 The RL agent learns to output interventions, which are 
@@ -43,54 +43,12 @@ to train our RL agent.
     \label{fig:rlcem-overview}
 \end{figure}
 
-\section{Interventions}
-A key advantage of using CBMs is having access to 
-run-time interventions, which is the idea of utilizing professionals
-to modify incorrect concept predictions to improve the 
-performance of the model.
-For simplicity, we do not consider incorrect interventions, 
-i.e. when the professionals misjudge and modify
- the predicted concepts to incorrect values,
-and assume that
-all interventions are correct. To formalize interventions, we define
-them via the following function, where
-the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$ are interpolated
-using a multi-hot encoding intervention vector $\bm{\mu}$.
+\section{Non-greedy Intervention Policies}
+\label{method:non-greedy-policies}
 
-\[I(\hat{\mathbf{c}}, \mathbf{c}, \bm{\mu}) = 
-\bm{\mu} \; \mathbf{c} + (1 - \bm{\mu}) \; \hat{\mathbf{c}} \qquad \hat{\mathbf{c}}, \mathbf{c}, \bm{\mu} \in \{0, 1\}^k\]
-
-Figure~\ref{fig:interventions} demonstrates how an intervention
-is formed using 
-a binary mask $\bm{\mu}$ from the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=\textwidth]{figs/method/interventions.png}
-    \caption{An example of how interventions are formed from the predicted concepts $\hat{\mathbf{c}}$
-    and true concepts $\mathbf{c}$
-     using binary mask $\bm{\mu}$.}
-    \label{fig:interventions}
-\end{figure}
-
-\subsection{Intervention Policies}
-
-An intervention policy $\mathcal{P}$ determines the order of concepts to intervene 
-on with the goal of maximizing the accuracy of the $\mathbf{c} \to \mathbf{y}$ concept prediction model.
-A greedy intervention policy is thus a collection of functions $\mathcal{P}_i$, each
-of which outputs the concept to intervene on at step $i$. An optimal greedy policy is the following
-\[\hat{\mathcal{P}} = \bigcup_{i=1}^k \mathop{\mathrm{argmax}}_{\mathcal{P}_i} Acc(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}_j}), \mathbf{y}) \]
-% \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} \mathcal{L}_{\text{task}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
-\[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}))\]
-Which maximizes the accuracy at each step $j$ sequentially
-for all $k$ concepts. At each
-step, $\hat{\mathbf{c}}_{j-1}$ is 
-the predicted concept after the previous $j-1$ interventions,
-and we aim to maximize the accuracy of the prediction made by the
-$\hat{g}: \mathbf{c} \to \mathbf{y}$ model.
-
-
-Compared to a greedy intervention policy, a non-greedy intervention 
+Compared to a greedy intervention policy
+defined in Equation\ref{equation:greedy-intervention-policy}
+, a non-greedy intervention 
 policy outputs a set of concepts to intervene on for a budget $j$,
 which we want to maximize the accuracy of the $\mathbf{c} \to \mathbf{y}$ model on. 
 An optimal non-greedy policy maximizes the following
@@ -506,7 +464,7 @@ of the RLCEM is as follows:
 \begin{enumerate}
     \item The $\mathbf{x} \to \mathbf{c}$ model first computes the predicted concepts $\mathbf{c}$.
     We then compute a concept loss $\mathcal{L}_{\text{concept}}$ with the true concepts.
-    We also compute a task loss $\mathcal{L}_{\text{task}}$ with the true labels
+    We also compute a label loss $\mathcal{L}_{\text{label}}$ with the true labels
     which is then 
     back-propagated through the $\mathbf{c} \to \mathbf{y}$ model.
     \item Since we want to train the RL agent $\mathcal{A}$ to be able to learn 
@@ -533,7 +491,7 @@ of the RLCEM is as follows:
     the advantage of taking actions. These advantages are then used to compute
     a policy loss $\mathcal{L}_{\text{policy}}$ to update the Actor model.
     These two losses combine to give us the intervention loss $\mathcal{L}_{\text{intervention}}$.
-    \item Lastly, we compute task losses for both concepts before intervention and after intervention,
+    \item Lastly, we compute label losses for both concepts before intervention and after intervention,
     discounted by $\gamma^T$, similar to IntCEM.
 \end{enumerate}
 
@@ -542,21 +500,21 @@ of the RLCEM is as follows:
     \includegraphics*[width=\textwidth]{figs/method/rlcem.png}
     \caption{The training loop of RLCEM. T is the sampled budget, $\mathcal{E}$ is the RL environment, $\mathcal{A}$ the RL agent, 
     and $\hat{V}, \hat{Q}$ the estimated value functions from the agent. The loop computes concept loss $\mathcal{L}_{\text{concept}}$,
-    intervention loss $\mathcal{L}_{\text{intervention}}$, and task loss $\mathcal{L}_{\text{task}}$ which is used to update the
+    intervention loss $\mathcal{L}_{\text{intervention}}$, and label loss $\mathcal{L}_{\text{label}}$ which is used to update the
     RLCEM.}
     \label{fig:rlcem}
 \end{figure}
 
 The structure of the training loop is similar to IntCEM.
  We compute a concept loss
-and a task loss without interventions.
+and a label loss without interventions.
 Then we sample interventions according to our intervention policy model,
-and compute task losses with respect to the intervened concepts to increase 
+and compute label losses with respect to the intervened concepts to increase 
 the CEM's sensitivty to interventions. Then we update our intervention policy
 model so that it makes better interventions which lead to a higher accuracy.
 Similar to IntCEM, final loss for training the model is given by 
 \[\mathcal{L} = \lambda_{\text{concept}} \mathcal{L}_{\text{concept}}
-+  \lambda_{\text{task}} \mathcal{L}_{\text{task}}
++  \lambda_{\text{label}} \mathcal{L}_{\text{label}}
 +  \lambda_{\text{intervention}} \mathcal{L}_{\text{intervention}}\]
 
 \subsection{Limitations}\label{method:limitations}

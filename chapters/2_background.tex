@@ -10,23 +10,39 @@ In this chapter, we explain the background knowledge
 for this project, including CBMs, CEMs, IntCEMs,
 and other existing intervention policies. All existing 
 intervention policies adopt a greedy approach to performing interventions,
-whereas we believe that non-greedy intervention policies can outperform greedy intervention policies.
-We show how existing research cannot answer our research question
-of learning a non-greedy intervention policy.
+whereas we hypothesise that non-greedy intervention policies can outperform greedy intervention policies.
+We highlight how these existing greedy intervention policies is able to achieve competitive 
+predictive accuracies,
+but are insufficient
+for learning a non-greedy
+intervention policy for different budgets.
 
-\section{CBM}\label{background:cbm}
-
-Concept Bottleneck Models (CBMs), initially proposed by Koh et al.~\cite{cbm}, 
-are a class of models
-that consist of a model $g$ that learns a mapping from
-input $\mathbf{x}$ to a concept vector $\mathbf{c} = g(\mathbf{x})$, 
-where $\mathbf{c}$ is a multi-hot encoding of the concepts present in the input,
-and a model $f$
-that learns a mapping from such concepts vector $c$
-to the output label $\mathbf{y} = f(\mathbf{c})$, as shown in Figure~\ref{fig:cbm}.
-These types of model can be created by simply adding a new layer in traditional models
-with the same number of activations as the number of concepts, where this layer
-is referred to as the bottleneck. 
+\section{Concept Bottleneck Models}\label{background:cbm}
+For predictive tasks where an input (eg. an image of a medical scan)
+is used to predict a label (eg. the presence of cancer),
+practitioners can often explain their predictions
+via high-level concepts, such as the presence of tumours,
+changes in tissue structure, etc. However, 
+most Machine Learning (ML) models do not have this kind of interpretability as they are trained to directly
+predict labels from inputs.
+Concept Bottleneck Models (CBMs), proposed by Koh et al.~\cite{cbm}, aim to increase the interpretability 
+of ML models
+by augmenting regular ML models with a set of $k$
+human-interpretable concepts $\mathcal{C}$. These models learn to predict concepts from inputs, which are then used to predict a label.
+Structurally, CBMs consist of a sub-model $g$ that learns a mapping from
+input $\mathbf{x}$ to concepts $\mathbf{c}$, and we refer to $\mathbf{c}$
+as the CBM bottleneck.
+$\mathbf{c}$ is a vector representing the concepts present in the input, 
+where each entry corresponds to the predicted probability of a concept being in the input.
+CBMs contain another sub-model $f$
+that learns a mapping from concepts $\mathbf{c}$
+to the output label $\mathbf{y}$.
+The overall structure is given by
+\[g(\mathbf{x}) = \mathbf{c}, f(\mathbf{c}) = \mathbf{y}\]
+Which is shown in Figure~\ref{fig:cbm}.
+% These types of model can be created by simply adding a new layer in traditional models
+% with the same number of activations as the number of concepts, where this layer
+% is referred to as the bottleneck. 
 Henceforth we refer to $g$ as the ``concept predictor $\mathbf{x} \to \mathbf{c}$ model'' and $f$ as the
 ``label  predictor $\mathbf{c} \to \mathbf{y}$ model''.
 %  Training such a model requires a
@@ -36,12 +52,14 @@ Henceforth we refer to $g$ as the ``concept predictor $\mathbf{x} \to \mathbf{c}
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.8\textwidth]{figs/background/cbm.png}
-    \caption{The CBM Architecture~\cite{cbm}.}
+    \caption{The Concept Bottleneck Model  Architecture~\cite{cbm}.}
     \label{fig:cbm}
 \end{figure}
 
-CBMs allow for interventions, which are using experts to correct the intermediate concepts
-predicted by the $\mathbf{x} \to \mathbf{c}$ model to improve the performance of the $\mathbf{c} \to \mathbf{y}$ model,
+CBMs allow for interventions during 
+inference time. Domain experts can 
+perform interventions by correcting the intermediate concepts
+predicted by the $\mathbf{x} \to \mathbf{c}$ model. This improves the performance of the $\mathbf{c} \to \mathbf{y}$ model,
 which is illustrated in Figure~\ref{fig:cbm-interventions}.
 To train a CBM, we utilize a combination of 
 a concept loss $\mathcal{L}_{\text{concept}}$ that measures the
@@ -105,27 +123,30 @@ and actual label $\mathbf{y}$.
 % modifies the predicted concepts to be closer to the true concepts, which is what the 
 % $\mathbf{c} \to \mathbf{y}$ independent model is trained to do~\cite{cbm}.
 
-\section{CEM}\label{background:cem}
+\section{Concept Embedding Models}\label{background:cem}
 
-While CBMs proved to be useful in achieving machine learning models with high
-interpretability, they do not perform as well as traditional models. 
-This is because they heavily rely only on a set of human-interpretable concepts, 
-which limits
+While CBMs achieved
+interpretability advantages, they do not perform as well as traditional ML models~\cite{cbm}. 
+This is because of concept incompleteness,
+which is when the annotated set of concepts in a dataset do not contain all concepts that can be extracted from the input for label prediction. Since the label predictor model
+relies on the predicted concepts, concept incompleteness results in a loss of information and poor predictive accuracy.
+This limits
 the performance of the model as traditional models can extract
 information outside these concepts~\cite{cbm-hybrid}. 
-This is even more apparent
-if the dataset does not contain a complete set of concepts that cover all
-features that can be used to predict the label, which is common in real-life.
+% This is even more apparent
+% if the dataset does not contain a complete set of concepts that cover all
+% features that can be used to predict the label, which is common in real life.
 % As such, there is a trade-off between performance and interpretability, where researchers
 % have developed methods such as extending the CBM bottleneck with a set of unsupervised neurons
 % to increase accuracy at a cost of decreasing interpretability.
 
 To overcome this trade-off
 between performance and interpretability, 
-Concept Embedding Models (CEMs) were proposed by Zarlenga et al.~\cite{cem},
-which utilize learnable embeddings to replace the original CBM bottleneck,
+Concept Embedding Models (CEMs) were proposed by Zarlenga et al.~\cite{cem}.
+CEMs utilise learnable embeddings to replace the original CBM bottleneck,
 learning two embedding vectors for each concept: one for
-when the concept is and is not present.
+when the concept is present
+and one for when the present is not.
 % these are CBMs that further add an additional layer of learnable embeddings before
 % the original bottleneck, 
 % The architecture of CEMs is shown in Figure~\ref{fig:cem}.
@@ -140,157 +161,271 @@ when the concept is and is not present.
 % under interventions during test time without notable effects to the performance 
 % without interventions~\cite{cem}.
 
-CEMs successfully solves the trade-off problem between performance and interpretability,
+CEMs successfully solve the trade-off problem between performance and interpretability,
 allowing for similar performance to traditional models while maintaining the
 interpretability, along with high concept accuracy. This is because the embeddings
 encode more information
-in the concept representations, for example information
+in the concept representations, for example, information
 related to concepts not present in the dataset.
-This is referred to as 
-concept leakage, where
-The additional information in the CEM bottleneck
- compared to binary representations in CBMs
-lead to a better performing label predictor model.
+% The additional information present
+% in the embeddings allow the task predictor model to 
+% This is referred to as 
+% concept leakage, where
+% The additional information in the CEM bottleneck
+%  compared to binary representations in CBMs
+% lead to a better performing label predictor model.
 % CEMs are still trained 
 % on the same set of human-interpretable concepts as CBM via a similar concept loss, which leads to
 % high interpretability and good intervention performance.
  It has been shown experimentally
-that CEMs are able to provide better performance for concept-incomplete dataset tasks (where
-the concepts do not cover all features present in input), 
-and these learnt concept
+that CEMs achieve better predictive accuracy than CBMs,
+especially for 
+concept-incomplete dataset tasks (where
+the annotated concepts
+do not cover all concepts present in input).
+Additionally these learnt concept
 embedding representations effectively represent the true concepts measured by an alignment score~\cite{cem}.
 
-This architecture also allows for interventions during run-time. By simply replacing
+This architecture also allows for interventions during test-time. By simply replacing
 the output of the concept predictor model with the embeddings that represent
 the true concepts, we can correct the concept predictions
  and improve the performance of the model. 
 
 
-\section{IntCEM} % 500
+\section{Interventions}
+A key advantage of using CBMs is having access to 
+test-time interventions, which is the idea of utilizing experts
+to modify incorrect concept predictions to improve the 
+performance of the model.
+For simplicity, assume that
+all interventions are correct,  
+and an intervention is defined by 
+modifying a concept prediction to its ground truth value
+. To formalize interventions, we define
+them via the following function, where
+the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$ are interpolated
+using a binary intervention vector $\bm{\mu}$.
+
+\begin{equation}\label{equation:intervention}
+I(\hat{\mathbf{c}}, \mathbf{c}, \bm{\mu}) = 
+\bm{\mu} \; \mathbf{c} + (1 - \bm{\mu}) \; \hat{\mathbf{c}} \qquad \hat{\mathbf{c}} \in [0,1]^k, \mathbf{c}, \bm{\mu} \in \{0, 1\}^k
+\end{equation}
+
+Figure~\ref{fig:interventions} demonstrates how an intervention
+is formed using 
+a binary mask $\bm{\mu}$ from the predicted concepts $\hat{\mathbf{c}}$ and the true concepts $\mathbf{c}$.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{figs/method/interventions.png}
+    \caption{An example of how interventions are formed from the predicted concepts $\hat{\mathbf{c}}$
+    and true concepts $\mathbf{c}$
+     using binary mask $\bm{\mu}$.}
+    \label{fig:interventions}
+\end{figure}
+
+\subsection{Intervention Policies}
+Since it is infeasible to ask experts to intervene on all concepts,
+intervention policies were developed to 
+generate an ordering for concept interventions,
+usually with the goal of maximising the post-intervention 
+predictive accuracy of the $\mathbf{c} \to \mathbf{y}$ model. 
+As shown in~\ref{equation:greedy-intervention-policy},
+an intervention policy $\mathcal{P}$ generates the next concept $c_i$ to be intervened on, given the previously
+intervened concepts $\bm{\mu}$ and 
+predicted concept probabilities $\hat{\mathbf{p}}$~\cite{ectp, coop, intervention-policies}.
+\begin{equation}\label{equation:greedy-intervention-policy}
+\mathcal{P}(\bm{\mu}, \hat{\mathbf{p}}) =c_i
+\end{equation}
+Most current greedy intervention policies
+either select the concepts that 
+minimise uncertainty~\cite{coop, ectp}, 
+or directly learn a greedy 
+intervention policy
+by mimicking the behaviour of an oracle
+policy that has access to the ground truth labels $\mathbf{y}$ at test-time~\cite{behavioural-cloning, intcem}.
+Non-greedy intervention policies
+are different in that they output a set of concepts to be intervened on given a budget,
+which we further discuss in Section~\ref{method:non-greedy-policies}.
+% A greedy intervention policy $\mathcal{P}$
+% is a collection of functions $\mathcal{P}_i$, each
+% of which outputs the concept to intervene on at step $i$. An optimal greedy policy is the following
+
+% \[\hat{\mathcal{P}} = \mathop{\mathrm{argmin}}_{\mathcal{P}} \sum_{j = 1}^{k} \mathcal{L}_{\text{label}}(\hat{g}(\hat{\mathbf{c}}_{\mathcal{P}, j}), \mathbf{y}) \]
+% \[\hat{\mathbf{c}}_{\mathcal{P}_0} = \hat{\mathbf{c}}, \hat{\mathbf{c}}_{\mathcal{P}_j} = I(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}, \mathbf{c}, \mathcal{P}_j(\hat{\mathbf{c}}_{\mathcal{P}_{j-1}}))\]
+% Which maximizes the accuracy at each step $j$ sequentially
+% for all $k$ concepts. At each
+% step, $\hat{\mathbf{c}}_{j-1}$ is 
+% the predicted concept after the previous $j-1$ interventions,
+% and we aim to maximize the accuracy of the prediction made by the
+% $\hat{g}: \mathbf{c} \to \mathbf{y}$ model.
+% While existing work focuses on 
+% greedy intervention policies to develop an order for concepts to intervene, whereas a non-greedy intervention policy 
+
+
+\section{Intervention-Aware Concept Embedding Models} % 500
 
 Building on top of CEMs, Zarlenga et al.~\cite{intcem} introduced 
 Intervention-aware CEM (IntCEM), CEMs that are augmented
-with a learnable concept intervention policy model. IntCEMs' novelty
+with machine learning model
+that learns a concept intervention policy. IntCEMs' novelty
 lies in framing the problem of training a CEM and finding
-an intervention policy as a joint optimization problem by augmenting
+an intervention policy as a joint optimisation problem by augmenting
 existing CEMs with a trainable intervention policy model $\psi$. 
 This approach offers significant improvements in performance after 
 interventions while maintaining similar performance without 
 interventions. 
-IntCEM achieves this because the intervention policy model
-learn a good intervention policy specific to the CEM, 
-and the CEM also learns to be more sensitive to interventions
-by the model, through the introduction of an intervention loss 
-$\mathcal{L}_{\text{intervention}}$ and task loss $\mathcal{L}_{\text{task}}$ for 
-the intervened concepts.
+IntCEM achieves this as it directly uses an ML
+model $\psi$ to
+learn to mimic the behaviour of an oracle
+greedy intervention policy, 
+and the CEM is also trained to be more sensitive to interventions
+by the model. 
+% Thethe introduction of an intervention loss 
+% $\mathcal{L}_{\text{intervention}}$ and label loss $\mathcal{L}_{\text{label}}$ for 
+% the intervened concepts.
 
+
+The overall training loop of IntCEM 
+is shown in Figure~\ref{fig:intcem}.
 During training, $\psi$ first samples intervention
-logits $\omega$ for the next concept to intervene on, then 
-a Cross-Entropy loss $\mathcal{L}_{\text{intervention}}$ is used to
-compute the discrepancy with the output of a greedy 
-optimal policy, found by searching over all concept to
-yield the concept that leads to the highest increase
-in model performance when intervened. This is referred to as Behavioural
-Cloning~\cite{behavioural-cloning} approach where $\psi$ learns to mimic the behaviour of
-a greedy optimal policy.
+logits $\omega$ for the next concept to intervene on.
+To train $\psi$ to mimic 
+the behaviour of an oracle 
+greedy intervention policy $\psi^*$ that has access to the true
+labels, we find the output of $\psi^*$
+by searching over all concepts to find the one that 
+leads to the highest increase in predictive accuracy.
+We then compute an intervention loss $\mathcal{L}_{\text{intervention}}$ to minimize the discrepancy between the outputs of $\psi$ and $\psi^*$.
+This is referred to as Behavioural
+Cloning~\cite{behavioural-cloning}.
 
-Training using
-true concept labels increases the model's sensitivity
-to interventions, which was 
-demonstrated by Koh et al.~\cite{cbm},
+Koh et al.~\cite{cbm} demonstrated that
+training the $\mathbf{c} \to \mathbf{y}$ model using ground
+true concept labels increase the model's sensitivity
+to interventions,
 leading to better intervention performance.
-IntCEM incorporates this idea by computing task loss $L_{\text{task}}$ also
-using the intervened concepts by $\psi$ during training.
+IntCEM incorporates this idea by 
+also using 
+the post-intervention concepts to
+computing the label loss $\mathcal{L}_{\text{label}}$.
 Not only does this increase the model's sensitivity to interventions,
 it specifically increases the model's sensitivity to interventions
-sampled by $\psi$ to further improve its intervention performance.
-The overall training loop of IntCEM 
-is shown in Figure~\ref{fig:intcem}. At each intervention step,
-the intervention binary mask $\bm{\mu}$ is updated according to 
-the next concept to intervene $\eta$ sampled from 
-the output of the intervention policy model $\psi$.
+sampled by $\psi$ to further improve its intervention performance. At each intervention step,
+the intervention mask $\bm{\mu}$ is updated according to 
+the next concept to intervene $\eta$ sampled from $\psi$.
 
 The final loss is computed as a weighted average of the three losses,
 given by 
 \[\mathcal{L} = \lambda_{\text{concept}} \mathcal{L}_{\text{concept}}
-+  \lambda_{\text{task}} \mathcal{L}_{\text{task}}
++  \lambda_{\text{label}} \mathcal{L}_{\text{label}}
 +  \lambda_{\text{intervention}} \mathcal{L}_{\text{intervention}}\]
-Which is then used to update both the CEM and the intervention policy model.
+Which is then used to update both the CEM and the intervention policy model $\psi$.
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.8\textwidth]{figs/background/intcem.png}
+    \includegraphics[width=\textwidth]{figs/background/intcem.png}
     \caption{The training loop of IntCEM. $\bm{\mu}$ is the intervention binary mask,
     $\eta$ the next concept to intervene on, and $\psi$ the intervention policy model.
     The loop computes concept loss $\mathcal{L}_{\text{concept}}$,
-    intervention loss $\mathcal{L}_{\text{intervention}}$, and task loss $\mathcal{L}_{\text{task}}$ which is used to update the
+    intervention loss $\mathcal{L}_{\text{intervention}}$, and label loss $\mathcal{L}_{\text{label}}$ which is used to update the
     IntCEM.}
     \label{fig:intcem}
 \end{figure}
 
-Despite IntCEM's impressive intervention performance,
+Despite IntCEM's improved intervention performance,
 we note that it learns a greedy intervention policy.
-That is, its learnt policy tries to maximize the 
+That is, its learnt policy tries to maximise the 
 post-intervention accuracy at each step, 
-by mimicking the behaviour of a greedy optimal policy. We propose that
+by mimicking the behaviour of a greedy optimal policy. 
+Non-greedy policies that utilise
+Reinforcement Learning~\cite{rl} have seen a lot of
+success in similar problems that require
+making sequential decisions to maximise a performance metric at the end,
+outperforming their
+greedy counterparts~\cite{non-greedy-3, gsmrl, non-greedy-2, non-greedy-1}.
+This is because these problems can be formulated as a Markov Decision Problem,
+which Reinforcement Learning can be used to find a non-greedy policy for.
+Therefore we propose that
 non-greedy intervention policies can outperform greedy intervention policies
-for each budget as the optimal intervention sequence can differ when the budget
-varies. If we were to adopt a similar approach by mimicking the behavior of a 
+for different budgets as the optimal intervention sequence can differ when the budget
+varies. 
+If we were to adopt a similar approach to IntCEM by mimicking the behaviour of a 
 non-greedy optimal policy,
 at each step we would have to search through
 $O(k!)$ combinations of concepts
-to find the optimal set of concepts to intervene on. This is much larger
-than the $O(k)$ searches required by the optimal greedy policy, and 
-thus this approach is infeasible due to the high time complexity.
-As such, we cannot adopt a similar approach to answer our research question.
+to find the optimal set of concepts to intervene on for 
+$k$ concepts. This is much larger
+than the $O(k)$ searches required by the optimal greedy policy.
+Therefore, trying to mimic the behaviour of a non-greedy oracle policy is infeasible due to the high time complexity.
+As such, we cannot adopt a similar approach to learn a non-greedy intervention policy that maximises predictive accuracy for different budgets.
 This prompts us to use Reinforcement Learning as an alternative approach.
 
-\section{RL}\label{background:rl} % 500
-Reinforcement Learning~\cite{rl} focuses on
+\section{Reinforcement Learning}\label{background:rl} % 500
+Reinforcement Learning (RL)~\cite{rl} focuses on
  training agents to make sequential decisions in an environment.
 % Contrary to supervised learning
 % where the goal is to minimize the discrepancy between predicted outputs and true outputs,
-where the goal is to maximize the cumulative rewards received by the agent
+where the goal is to maximise the cumulative rewards received by the agent
 by taking actions over time. 
+RL aims to solve a Markov Decision Problem, which consists of a set of states $\mathcal{S}$, 
+actions $\mathcal{A}$, and 
+a transition function $t: \mathcal{S} \times \mathcal{A} \to \mathcal{S}$
+that tells us how states transition to new states.
 The agent has access to observations which reflect the current state
  of the environment and can take actions to progress to different states until termination.
 
-In this project, we utililze Reinforcement Learning 
+In this project, we utilise Reinforcement Learning 
 to learn a non-greedy policy to decide which
 concepts to intervene. We select
  the Proximal Policy Optimization~\cite{ppo}
-algorithm to do this, a SOTA policy-based RL algorithm that 
-combines the strengths of traditional policy-based~\cite{trpo}
-approaches
-and value-based approaches~\cite{deep-q-learning, deep-q-learning-2}.
-PPO consists of an Actor model $\theta$ and a Critic model $\phi$.
+algorithm to do this, a SOTA policy-based RL algorithm which has shown to be robust 
+and perform well in many different Reinforcement Learning problems~\cite{ ppo-2, ppo-1, ppo-3}.
+% combines the strengths of traditional policy-based~\cite{trpo}
+% approaches
+% and value-based approaches~\cite{deep-q-learning, deep-q-learning-2}.
+PPO aims to train the agent to learn a policy $\pi$ that takes the current state from the environment as input,
+and outputs probabilities for each action it can take.
+The goal of the policy
+is to output higher probabilities for actions that have higher rewards.
+In PPO,
+the Agent is defined by an Actor model $\theta$ and a Critic model $\phi$.
 The Actor model learns a policy $\pi_\theta$ and decides on what actions to take based on 
 the current state.
 The Critic model learns 
-to estimate the value $V_\phi(s)$ of a current state, 
-which is the expected future discounted rewards.
-This gives us the next state value function $Q_\phi$ 
+to estimate the value $V_\phi(s)$ of a current state, which is an estimation of the sum of all future rewards, each of which is discounted 
+by a factor $\gamma_{RL}$ according to how 
+far in the future the reward is.
+This also gives us the next state value function $Q_\phi$ 
 based on rewards
 and the approximation from $V_\phi$,
-which is the value of taking an action \[Q_\phi(s,a) = 
-r + \gamma_{RL} V_\phi(s')\] 
+which is the value of taking an action 
+\begin{equation}\label{equation:next-stat-}
+Q_\phi(s,a) = 
+r + \gamma_{RL} V_\phi(s')
+\end{equation}
 equal to the reward $r$ and value 
-of the next state $V_\phi(s')$ discounted by a factor of $\gamma_{RL}$.
-We can then compute
+of the next state $s'$ discounted by $\gamma_{RL}$.
+We can then also compute
 an advantage function $A_\phi(s,a) = Q_\phi(s,a) - V_\phi(s)$
 that estimates the advantage of taking an action.
 
-During training, we sample states $s_i$, actions $a_i$ from the Agent
-and their corresponding
-rewards from the environment. This allows us to compute 
+During training, we have states $s_i$, 
+and we sample actions $a_i$ from the Agent
+and obtain the corresponding reward
+from the RL environment.
+We then repeat using the new state $s_{i+1} = t(s_i, a_i)$ until we reach the termination state.
+This allows us to compute 
 the next state value function,
 then used to compute a value loss $\mathcal{L}_{\text{value}}$ for the Critic model
-to minimize the discrepancy between the estimated and true
+to minimise the discrepancy between the estimated and true
 values, using the following equation
-\[\mathcal{L}_{\text{value}} = \frac{1}{k} \sum_{i=0}^k 
-\nabla_\phi (V_\phi(s_i) - Q_\phi(s_i,a_i))\]
+\begin{equation}\label{equation:rl-loss}
+\mathcal{L}_{\text{value}} = \frac{1}{k} \sum_{i=0}^k 
+\nabla_\phi (V_\phi(s_i) - Q_\phi(s_i,a_i))
+\end{equation}
 We can also compute a policy loss $\mathcal{L}_{\text{value}}$ for the Actor model
-to update it in the direction that maximizes the advantages
+to update it in the direction that maximises the advantages
 computed using the Values estimated by the Critic model
 \[\mathcal{L}_{\text{policy}} = -\frac{1}{k} \sum_{i = 0}^k \nabla_\theta \log
  \pi_\theta(a_i \mid s_i) \cdot A_\phi(s_i, a_i)\]
@@ -298,14 +433,15 @@ computed using the Values estimated by the Critic model
 Since the Actor model
 maximizes the advantages based on the Value function
 estimated by the Critic model,
-this balances between exploration and exploitation,
-as initially the Actor model explores states which may have low true values
+this allows the 
+RL agent to balance between exploration and exploitation.
+Initially the Actor model explores states which may have low true values
 which are not learnt by the Critic model, and as the Critic model
 learns to estimate the values of states better, the Actor model also 
-learns a better policy. Apart from the Actor and Critic models,
+learns a better policy~\cite{ppo}. Apart from the Actor and Critic models,
 PPO also utilizes
 a clipping function to prevent the policy update 
-to be too large or too small.
+from being too large or too small.
 Section~\ref{method:rl} goes into how
 the PPO algorithm is used to train an RL agent that learns 
 a non-greedy intervention policy.
@@ -353,9 +489,9 @@ Expected Change in Target Prediction (ECTP)~\cite{ectp} is a greedy
 intervention policy that selects at each step, the concept which 
 when intervened, leads to the largest change in the probability
 of the currently predicted class. This is because this concept
-is the most "important", and mis-predicting this concept
-will result in the largest increase in task error. This can be 
-summarized as a score, for predicted concepts $\hat{\mathbf{c}}$
+is the most ``important'', and mis-predicting this concept
+will result in the largest increase in label error. This can be 
+summarised as a score, for predicted concepts $\hat{\mathbf{c}}$
 and $\hat{\mathbf{y}}$, the importance score of a concept $c_i$ is given by
 \[\mathbb{E}_{v \sim p_g(c_i \mid \mathbf{x})} 
 [p_f(\hat{\mathbf{y}} \mid c_i = v, c_{\backslash\{i\}})] - p_f(\hat{\mathbf{y}} \mid c_i, c_{\backslash\{i\}})
