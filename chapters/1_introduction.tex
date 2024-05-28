@@ -31,7 +31,7 @@ can be interpreted as mispredictions in
 the concepts. Domain Experts can correct these
 mispredicted concepts, rather than having to alter the 
 input or model itself to improve predictive accuracy.
-During inference time, experts can intervene on CBMs by correcting
+During inference time, experts can \textbf{intervene on CBMs} by correcting
 the mispredicted concepts, leading to more accurate predicted labels. 
 This leads to the problem of determining the concepts to intervene on in order
 to achieve the best model performance.
@@ -39,8 +39,7 @@ to achieve the best model performance.
 % why it is important and why we should care to solve this (motivation)
 Previous studies have shown that the choice of concepts to 
 intervene on can have significant impacts on the accuracy of the model~\cite{coop, cbm, ectp}.
-Thus it is important to find a good policy to determine what concepts we should intervene on.
-
+Thus it is important to find a good \textbf{policy to determine what concepts we should intervene on}.
 Despite this, there has not been much research on developing
 methods to find good intervention policies, and 
 existing methods do not
@@ -51,12 +50,11 @@ Past methods mainly focus on greedy approaches, which
 attempt to maximise the effects of each intervention
 sequentially.
 This includes heuristic-based approaches such as intervening on concepts that minimise the
-model's uncertainty~\cite{ectp, coop}, and IntCEMs
-that directly learn a greedy policy~\cite{intcem}.
+model's uncertainty~\cite{ coop, ectp}, and IntCEMs use ML to directly learn a greedy policy~\cite{intcem}.
 Rather than trying to maximise the effect of each individual 
 intervention, we propose that we should 
-try to maximise the effect of interventions for a given 
-budget, 
+try to \textbf{maximise the effect of interventions for a given 
+budget}, 
 which is a limit on the number of interventions.
 This
 reflects real-life scenarios where
@@ -67,9 +65,9 @@ performance of the CBM after those interventions.
 
 
 % your research question(s)
-Following the successes of non-greedy solutions 
+Following the successes of \textbf{non-greedy solutions 
 using 
-Reinforcement Learning (RL)~\cite{rl} over
+Reinforcement Learning} (RL)~\cite{rl} over
 greedy solutions in similar 
 decision-making problems~\cite{gsmrl, non-greedy-2, non-greedy-1},
 we hypothesise that non-greedy policies
@@ -87,9 +85,8 @@ the model accuracy after a set number of interventions,
 using the accuracy of the CBM as a reward to train the RL agent.
 In order
 to guide the agent throughout the intervention process,
-we use surrogate models that model the distribution of concepts using
-a variant of normalising flow models~\cite{normalizing-flows}. 
-This allows us to compute the conditional likelihood of concepts, using it to provide intermediate rewards and auxiliary information to the RL agent.
+we use a variant of normalising flow models~\cite{normalizing-flows} to model the distribution of concepts. 
+This allows us to compute the \textbf{conditional likelihood of concepts}, using it to provide \textbf{intermediate rewards and auxiliary information} to the RL agent.
 
 % How you did it (methodology)
 After pre-training a surrogate model to learn the distribution of concepts,
@@ -99,12 +96,24 @@ non-greedy intervention policy, using
 the expected information gain from the surrogate model
 as a reward, and a final reward based on the 
 accuracy of the CBM after all interventions.
-During training,
-the agent learns a policy to select
-the optimal concepts for interventions for different budgets,
-whereas the CBM is also trained on the sampled interventions
-to increase its sensitivity to interventions determined by 
-the learnt policy.
+
+
+An overview of the general structure of our RLCEM is in Figure~\ref{fig:rlcem-overview}.
+The RL agent learns to output interventions, which are 
+used to train the CEM to increase sensitivity of 
+CEM to interventions. After all interventions from the RL agent,
+the CEM prediction is used to calculate the final
+reward to train RL agent. Additionally, a pre-trained surrogate model
+is used to calculate intermediate rewards to guide the RL agent to make more optimal intermediate interventions.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{figs/method/rlcem_overview.png}
+    \caption{An overview of the structure of RLCEM. The RL agent samples interventions for the CEM, which is used to calculate
+    the final reward to train the agent. The surrogate model is used to calculate intermediate rewards
+    to train the agent.}
+    \label{fig:rlcem-overview}
+\end{figure}
 
 % What the results were
 To evaluate this approach, we train RLCEM on two different datasets
@@ -112,8 +121,9 @@ and compare its performance to IntCEM and CooP,
 the state-of-the-art greedy intervention policies.
 We show that this approach can outperform existing greedy policies
 for different budgets, achieving better model performance
-after a set number of interventions and reaching similar
-model performance with 25\% less interventions. 
+after a set number of interventions and reaching \textbf{similar or better
+predictive accuracy with 25\% less interventions}.
+
 
 
 % % What impact could your contributions have
@@ -131,9 +141,13 @@ the absence of interventions.
 
 However, we note that
 RLCEM has limitations: it has a 
-higher time complexity, and its performance is very dependent on the surrogate model, which 
-affects the robustness of the method. Nevertheless,
+higher time complexity and its performance is very dependent on the surrogate model, which 
+affects the robustness of the method. Nevertheless, it is a viable method that can be used to learn more optimal non-greedy intervention policies than existing policies.
 
+In Chapter~\ref{chapter-2}, we go over existing methods for learning 
+intervention policies and why they do not answer our research question. In Chapter~\ref{chapter-3}, we explain our proposed solution: RLCEM to learn a non-greedy intervention policy for different budgets.
+In Chapter~\ref{chapter-4}, we evaluate the performance of our RLCEM against existing intervention policies, showing that it outperforms the current methods that learn greedy intervention policies.
+Lastly, in Chapter~\ref{chapter-5}, we conclude our work and propose potential future directions.
 
 % \textbf{Terminology}
 % The term ``concepts'' hereafter strictly refers to the labelled concepts present
